@@ -1,4 +1,4 @@
-source /Applications/MacVim.app/Contents/Resources/vim/runtime/vimrc_example.vim
+source $VIMRUNTIME/vimrc_example.vim
 
 set t_Co=256
 colo molokai
