@@ -1,5 +1,6 @@
 source $VIMRUNTIME/vimrc_example.vim
 
+" color scheme
 set t_Co=256
 colo molokai
 
@@ -12,10 +13,6 @@ set backupdir=~/.vim/vimtmp,.
 " for tab switch
 nnoremap _ gT
 nnoremap + gt
-
-" for vimwiki
-let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki/wiki/',
-				   \ 'path_html': '~/Dropbox/vimwiki/html/'}]
 
 " encoding
 set encoding=utf-8
