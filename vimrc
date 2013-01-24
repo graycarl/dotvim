@@ -34,6 +34,8 @@ function GlbSearch(kw, ext)
     execute 'vimgrep ' . sexp . fexp
     cope
 endfunction
+command! -nargs=+ Sinpy :call GlbSearch("<args>", "py")
+command! -nargs=+ Sinch :call GlbSearch("<args>", "[ch]")
 
 " Clever Tab
 function CleverTab()
