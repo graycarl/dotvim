@@ -11,7 +11,7 @@ nnoremap <F10> yiw:call GlbSearch("<C-R>0", "py")<CR>
 vnoremap <F10> y:call GlbSearch("<C-R>0", "py")<CR>
 
 " Clever Tab
-inoremap <Tab> <C-R>=CleverTab()<CR>
+" inoremap <Tab> <C-R>=CleverTab()<CR>
 
 " We should not let a single line's length more than 80 charaters
 if exists('+colorcolumn')
