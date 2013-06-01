@@ -48,15 +48,11 @@ function CleverTab()
     endif
 endfunction
 
+" Open dir of current file
 function HB_goto_parent_dir()
     let bn = bufname("%")
-    let pfn = substitute(bn, "[^/]*$", "", "")
     let fn = matchstr(bn, "[^/]*$")
-    if pfn == ""
-        let pfn = "."
-    endif
-    execute "edit " . pfn
-    echo fn
+    Explore
     call search(fn)
 endfunction
 nnoremap - :call HB_goto_parent_dir()<CR>
