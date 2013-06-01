@@ -48,7 +48,6 @@ function CleverTab()
     endif
 endfunction
 
-" get file path
 function HB_goto_parent_dir()
     let bn = bufname("%")
     let pfn = substitute(bn, "[^/]*$", "", "")
@@ -57,6 +56,7 @@ function HB_goto_parent_dir()
         let pfn = "."
     endif
     execute "edit " . pfn
-    execute "/" . fn
+    echo fn
+    call search(fn)
 endfunction
 nnoremap - :call HB_goto_parent_dir()<CR>
