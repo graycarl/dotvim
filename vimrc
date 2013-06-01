@@ -48,3 +48,13 @@ function CleverTab()
     endif
 endfunction
 
+" get file path
+function HB_get_file_parent()
+    let fn = bufname("%")
+    let pfn = substitute(fn, "[^/]*$", "", "")
+    if pfn == ""
+        let pfn = "."
+    endif
+    return pfn
+endfunction
+nnoremap - :execute("edit " . HB_get_file_parent())<CR>
