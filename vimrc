@@ -39,14 +39,15 @@ endfunction
 command! -nargs=+ Sinpy :call GlbSearch("<args>", "py")
 command! -nargs=+ Sinch :call GlbSearch("<args>", "[ch]")
 
-" Clever Tab
-function CleverTab()
-    if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
-        return "\<tab>"
-    else
-        return "\<C-N>"
-    endif
-endfunction
+" I have SuperTab now, so ...
+" " Clever Tab
+" function CleverTab()
+"     if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
+"         return "\<tab>"
+"     else
+"         return "\<C-N>"
+"     endif
+" endfunction
 
 " Open dir of current file
 function HB_goto_parent_dir()
@@ -56,3 +57,9 @@ function HB_goto_parent_dir()
     call search(fn)
 endfunction
 nnoremap - :call HB_goto_parent_dir()<CR>
+
+function HB_insert_cur_datetime()
+    let s = strftime("%y-%m-%d %T")
+    execute "normal i" . s
+endfunction 
+nnoremap ,d :call HB_insert_cur_datetime()<CR>
