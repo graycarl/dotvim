@@ -22,3 +22,6 @@
 [submodule "bundle/vimcdoc"]
 	path = bundle/vimcdoc
 	url = https://github.com/jkeylu/vimcdoc.git
+[submodule "bundle/nerdcommenter"]
+	path = bundle/nerdcommenter
+	url = https://github.com/scrooloose/nerdcommenter.git
