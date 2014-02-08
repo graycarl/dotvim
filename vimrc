@@ -63,3 +63,10 @@ function HB_insert_cur_datetime()
     execute "normal i" . s
 endfunction 
 nnoremap ,d :call HB_insert_cur_datetime()<CR>
+
+" For CtrlP
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+    \ 'file': '\v\.(exe|so|dll|pyc|db)$',
+    \ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
+    \ }
