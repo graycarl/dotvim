@@ -3,9 +3,6 @@ source $VIMRUNTIME/vimrc_example.vim
 execute pathogen#infect()
 
 " color scheme
-set t_Co=256
-colo molokai
-
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
