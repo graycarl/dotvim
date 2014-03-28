@@ -46,3 +46,6 @@
 [submodule "bundle/go-vim"]
 	path = bundle/go-vim
 	url = https://github.com/graycarl/go-vim.git
+[submodule "bundle/gocode.vim"]
+	path = bundle/gocode.vim
+	url = https://github.com/golangtw/gocode.vim.git
