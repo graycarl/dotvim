@@ -63,7 +63,8 @@ nnoremap ,d :call HB_insert_cur_datetime()<CR>
 
 " For CtrlP
 let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/](build|dist|.*\.egg-info)$'
+    \ 'dir':  '\v[\/](build|dist|.*\.egg-info)$',
+    \ 'file': '\v\.(exe|so|dll|pyc|db)'
     \ }
 
 " Tagbar
