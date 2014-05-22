@@ -27,7 +27,7 @@ autocmd BufNewFile *.py execute "normal i# -*- coding: utf-8 -*-"
 
 " Some common functions, can be used in ftplugins
 " Global Search
-function GlbSearch(kw, ext)
+function! GlbSearch(kw, ext)
     let sexp = '/\<' . a:kw . '\>/j '
     let fexp = '**/*.' . a:ext
     execute 'vimgrep ' . sexp . fexp
@@ -47,7 +47,7 @@ command! -nargs=+ Sinch :call GlbSearch("<args>", "[ch]")
 " endfunction
 
 " Open dir of current file
-function HB_goto_parent_dir()
+function! HB_goto_parent_dir()
     let bn = bufname("%")
     let fn = matchstr(bn, "[^/]*$")
     Explore
@@ -55,7 +55,7 @@ function HB_goto_parent_dir()
 endfunction
 nnoremap - :call HB_goto_parent_dir()<CR>
 
-function HB_insert_cur_datetime()
+function! HB_insert_cur_datetime()
     let s = strftime("%y-%m-%d %T")
     execute "normal i" . s
 endfunction 
@@ -95,3 +95,6 @@ let g:tagbar_type_go = {
     \ 'ctagsbin'  : 'gotags',
     \ 'ctagsargs' : '-sort -silent'
     \ }
+
+" Markdown filetype
+au BufNewFile,BufRead *.markdown,*.mdown,*.mkd,*.mkdn,*.md  setf markdown
