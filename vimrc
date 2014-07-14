@@ -55,11 +55,16 @@ function! HB_goto_parent_dir()
 endfunction
 nnoremap - :call HB_goto_parent_dir()<CR>
 
+" Insert Datetime
 function! HB_insert_cur_datetime()
     let s = strftime("%y-%m-%d %T")
     execute "normal i" . s
 endfunction 
 nnoremap ,d :call HB_insert_cur_datetime()<CR>
+
+" Syntax Fix
+nnoremap <F9> :syntax sync fromstart <CR>
+inoremap <F9> <C-O>:syntax sync fromstart <CR>
 
 " For CtrlP
 let g:ctrlp_custom_ignore = {
