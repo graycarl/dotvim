@@ -1,4 +1,6 @@
 source $VIMRUNTIME/vimrc_example.vim
+" disable undofile
+set noundofile
 
 execute pathogen#infect()
 
