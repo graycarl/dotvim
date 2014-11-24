@@ -1,0 +1,14 @@
+snippet cmt "add simple comment" !b
+/* ${1:comment} */
+endsnippet
+snippet comment "add comment with author and datetime" !b
+/* ${1:comment} (hongbo @ `date +'%Y-%m-%d %H:%M'`) */
+endsnippet
+
+# !b 这个后缀是为了覆盖之前的同名逻辑
+snippet todo "add todo comment"
+/* TODO: ${1:comment} */
+endsnippet
+snippet TODO "add todo comment with author and datetime"
+/* TODO: ${1:comment} (hongbo @ `date +'%Y-%m-%d %H:%M'`) */
+endsnippet
