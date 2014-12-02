@@ -20,9 +20,10 @@ set encoding=utf-8
 set fileformat=unix
 set fileformats=unix,dos
 
+" We don't need there now @ 14-12-03 01:18:21 
 " Auto Close Preview Window
-autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
-autocmd InsertLeave *  if pumvisible() == 0|pclose|endif
+" autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
+" autocmd InsertLeave *  if pumvisible() == 0|pclose|endif
 
 " Add file header automatic
 autocmd BufNewFile *.py execute "normal i# -*- coding: utf-8 -*-"
