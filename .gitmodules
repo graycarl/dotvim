@@ -43,12 +43,6 @@
 [submodule "bundle/tagbar"]
 	path = bundle/tagbar
 	url = https://github.com/majutsushi/tagbar.git
-[submodule "bundle/go-vim"]
-	path = bundle/go-vim
-	url = https://github.com/graycarl/go-vim.git
-[submodule "bundle/gocode.vim"]
-	path = bundle/gocode.vim
-	url = https://github.com/golangtw/gocode.vim.git
 [submodule "bundle/vim-fugitive"]
 	path = bundle/vim-fugitive
 	url = https://github.com/tpope/vim-fugitive.git
