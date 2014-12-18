@@ -104,6 +104,12 @@ let g:tagbar_type_go = {
     \ 'ctagsargs' : '-sort -silent'
     \ }
 
+" Remap vim-expand-region
+nmap <C-L> <Plug>(expand_region_expand)
+vmap <C-L> <Plug>(expand_region_expand)
+nmap <C-H> <Plug>(expand_region_shrink)
+vmap <C-H> <Plug>(expand_region_shrink)
+
 " Markdown filetype
 au BufNewFile,BufRead *.markdown,*.mdown,*.mkd,*.mkdn,*.md  setf markdown
 
