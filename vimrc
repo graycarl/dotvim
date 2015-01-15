@@ -116,3 +116,7 @@ au BufNewFile,BufRead *.markdown,*.mdown,*.mkd,*.mkdn,*.md  setf markdown
 " The vim-less plugin will set sw to 2 and i don't like it.
 " So fix this using a autocmd.
 au FileType less setlocal shiftwidth=4
+
+" Shortcut for paste from clipboard
+" from: http://www.drbunsen.org/the-text-triumvirate/
+noremap <leader>p :set paste<CR>:put  *<CR>:set nopaste<CR>
