@@ -10,6 +10,9 @@ vnoremap <SPACE> zf
 nnoremap <F10> yiw:call GlbSearch("<C-R>0", "py")<CR>
 vnoremap <F10> y:call GlbSearch("<C-R>0", "py")<CR>
 
+" Run buffer
+nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
+
 " Clever Tab
 " inoremap <Tab> <C-R>=CleverTab()<CR>
 
