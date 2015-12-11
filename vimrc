@@ -60,8 +60,8 @@ nnoremap - :call HB_goto_parent_dir()<CR>
 
 " Insert Datetime
 function! HB_insert_cur_datetime()
-    let s = strftime("%y-%m-%d %T")
-    execute "normal i" . s
+    let s = strftime("%Y-%m-%d %T")
+    execute "normal a" . s
 endfunction 
 nnoremap ,d :call HB_insert_cur_datetime()<CR>
 
