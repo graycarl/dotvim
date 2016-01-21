@@ -29,9 +29,15 @@ function! GlbSearch(kw, ext)
     let sexp = '/\<' . a:kw . '\>/j '
     let fexp = '**/*.' . a:ext
     execute 'vimgrep ' . sexp . fexp
-    cope
+    cwindow
 endfunction
-command! -nargs=+ Sinpy :call GlbSearch("<args>", "py")
+function! FastGlbSearch(kw, ext)
+    let sexp = '\\b' . a:kw . '\\b '
+    let fexp = '**/*.' . a:ext
+    execute 'silent grep! ' . sexp . fexp
+    cwindow
+endfunction
+command! -nargs=+ Sinpy :call FastGlbSearch("<args>", "py")
 command! -nargs=+ Sinch :call GlbSearch("<args>", "[ch]")
 
 " Open dir of current file
