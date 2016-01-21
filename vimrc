@@ -29,13 +29,15 @@ function! GlbSearch(kw, ext)
     let sexp = '/\<' . a:kw . '\>/j '
     let fexp = '**/*.' . a:ext
     execute 'vimgrep ' . sexp . fexp
-    cwindow
+    botright cwindow
 endfunction
 function! FastGlbSearch(kw, ext)
     let sexp = '\\b' . a:kw . '\\b '
     let fexp = '**/*.' . a:ext
     execute 'silent grep! ' . sexp . fexp
-    cwindow
+    botright cwindow
+    " vim has display bugs after grep, so I force redraw it
+    redraw!
 endfunction
 command! -nargs=+ Sinpy :call FastGlbSearch("<args>", "py")
 command! -nargs=+ Sinch :call GlbSearch("<args>", "[ch]")
