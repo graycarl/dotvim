@@ -64,7 +64,7 @@ inoremap <F9> <C-O>:syntax sync fromstart <CR>
 
 " For CtrlP
 let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/](build|dist|.*\.egg-info)$',
+    \ 'dir':  '\v[\/](build|dist|node_modules|bower_components|.*\.egg-info)$',
     \ 'file': '\v\.(exe|so|dll|pyc|db)'
     \ }
 
