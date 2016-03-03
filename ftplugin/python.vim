@@ -1,14 +1,17 @@
+" By Carl.
+if exists("b:hhb_ftplugin") | finish | endif
+
 " About folding
-set foldmethod=indent
-set foldignore=
-set foldnestmax=2
-set foldlevelstart=2
-nnoremap <SPACE> za
-vnoremap <SPACE> zf
+setlocal foldmethod=indent
+setlocal foldignore=
+setlocal foldnestmax=2
+setlocal foldlevelstart=2
+nnoremap <buffer> <SPACE> za
+vnoremap <buffer> <SPACE> zf
 
 " Global Search
-nnoremap <F10> yiw:call FastGlbSearch("<C-R>0", "py")<CR>
-vnoremap <F10> y:call FastGlbSearch("<C-R>0", "py")<CR>
+nnoremap <buffer> <F10> yiw:call FastGlbSearch("<C-R>0", "py")<CR>
+vnoremap <buffer> <F10> y:call FastGlbSearch("<C-R>0", "py")<CR>
 
 " Run buffer
 nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
@@ -18,7 +21,7 @@ nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 
 " We should not let a single line's length more than 80 charaters
 if exists('+colorcolumn')
-  set colorcolumn=80
+  setlocal colorcolumn=80
 else
   au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
 endif
