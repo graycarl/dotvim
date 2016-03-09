@@ -11,6 +11,14 @@ set shiftwidth=4
 set expandtab
 set backupdir=~/.vim/vimtmp,.
 
+" disable auto replace netrw
+let NERDTreeHijackNetrw = 0
+
+" netrw list style
+" let g:netrw_liststyle = 1
+let g:netrw_list_hide = '.*\.swp$,.*\.pyc'
+let g:netrw_altv = 1  " open file on the right when use `v`
+
 " for tab switch
 nnoremap _ gT
 nnoremap + gt
