@@ -2,6 +2,9 @@ source $VIMRUNTIME/vimrc_example.vim
 " disable undofile
 set noundofile
 
+" disable <C-Space> in insert mode
+imap <NUL> <Esc>
+
 execute pathogen#infect()
 
 " color scheme
@@ -89,6 +92,7 @@ au BufNewFile,BufRead *.md  setf markdown
 " So fix this using a autocmd.
 autocmd FileType less setlocal shiftwidth=4
 autocmd FileType jinja setlocal tabstop=2 softtabstop=2 shiftwidth=2
+autocmd FileType yaml setlocal tabstop=2 softtabstop=2 shiftwidth=2
 
 " Shortcut for paste from clipboard
 " from: http://www.drbunsen.org/the-text-triumvirate/
