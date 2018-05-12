@@ -1,4 +1,4 @@
-source $VIMRUNTIME/vimrc_example.vim
+source ~/.vim/defaults.vim
 " disable undofile
 set noundofile
 
@@ -97,3 +97,8 @@ autocmd FileType yaml setlocal tabstop=2 softtabstop=2 shiftwidth=2
 " Shortcut for paste from clipboard
 " from: http://www.drbunsen.org/the-text-triumvirate/
 noremap <leader>p :set paste<CR>:put  *<CR>:set nopaste<CR>
+
+" For NeoVim
+" Set the python program from specified virtualenv
+let g:python_host_prog = '~/.vim/py2env'
+let g:python3_host_prog = '~/.vim/py3env'

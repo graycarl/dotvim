@@ -1,5 +1,7 @@
 # Created by http://gitignore.io
 
+py*env
+
 ### vim ###
 .*.s[a-w][a-z]
 *.un~
