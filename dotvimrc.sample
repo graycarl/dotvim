@@ -21,15 +21,9 @@ let g:UltiSnipsEditSplit = "vertical"
 " for lightline
 set laststatus=2
 
-" for flake8
-let g:flake8_autoexe = 1
-let g:flake8_ignore="W291,W293,E226,E702,E701,E501,E731,E305"
-autocmd BufWritePost *.py if g:flake8_autoexe|call Flake8()|endif
-command! FlakeON :let g:flake8_autoexe=1
-command! FlakeOFF :let g:flake8_autoexe=0
-
 " for NERDTree
 let NERDTreeIgnore=['\.pyc$', '\~$']
+
 " Syntastic
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
