@@ -1,0 +1,49 @@
+source ~/.vim/vimrc
+
+" gui
+set guioptions-=rL
+
+" font
+" set guifont=monaco:h12
+set guifont=M+\ 1m\ regular:h15
+
+" for vimwiki
+let g:vimwiki_list = [
+            \ { 'path': '~/Dropbox/vimwiki/wiki/',
+		      \ 'path_html': '~/Dropbox/vimwiki/html/',
+              \ 'nested_syntaxes': {'python': 'python', 'sh': 'sh'},
+              \ 'auto_export': 0}]
+nmap <leader><Space> <Plug>VimwikiToggleListItem
+
+" for Ultisnips
+let g:UltiSnipsEditSplit = "vertical"
+
+" for lightline
+set laststatus=2
+
+" for flake8
+let g:flake8_autoexe = 1
+let g:flake8_ignore="W291,W293,E226,E702,E701,E501,E731,E305"
+autocmd BufWritePost *.py if g:flake8_autoexe|call Flake8()|endif
+command! FlakeON :let g:flake8_autoexe=1
+command! FlakeOFF :let g:flake8_autoexe=0
+
+" for NERDTree
+let NERDTreeIgnore=['\.pyc$', '\~$']
+" Syntastic
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+let g:syntastic_python_checkers = ['flake8']
+
+" for Ruby shiftwidth
+au FileType ruby setlocal shiftwidth=2
+
+" For NeoVim Intergrated Shell
+if has('nvim')
+    tnoremap <Esc> <C-\><C-n>
+endif
