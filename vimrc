@@ -100,5 +100,5 @@ noremap <leader>p :set paste<CR>:put  *<CR>:set nopaste<CR>
 
 " For NeoVim
 " Set the python program from specified virtualenv
-let g:python_host_prog = '~/.vim/py2env'
-let g:python3_host_prog = '~/.vim/py3env'
+let g:python_host_prog = $HOME . '/.vim/py2env/bin/python'
+let g:python3_host_prog = $HOME . '/.vim/py3env/bin/python'
