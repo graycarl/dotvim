@@ -8,12 +8,14 @@ set guioptions-=rL
 set guifont=M+\ 1m\ regular:h15
 
 " for vimwiki
-let g:vimwiki_list = [
-            \ { 'path': '~/Dropbox/vimwiki/wiki/',
-		      \ 'path_html': '~/Dropbox/vimwiki/html/',
-              \ 'nested_syntaxes': {'python': 'python', 'sh': 'sh'},
-              \ 'auto_export': 0}]
-nmap <leader><Space> <Plug>VimwikiToggleListItem
+let mainwiki = {}
+let mainwiki.path = '~/iCloud/Docs/VimWiki/'
+let mainwiki.nested_syntaxes = {'python': 'python', 'sh': 'sh'}
+let mainwiki.auto_toc = 1
+let mainwiki.syntax = 'markdown'
+let mainwiki.ext = '.md'
+let g:vimwiki_list = [mainwiki]
+let g:vimwiki_folding = 'expr'
 
 " for Ultisnips
 let g:UltiSnipsEditSplit = "vertical"
