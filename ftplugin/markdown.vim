@@ -1,5 +1,6 @@
 " By Carl
 if exists("b:hhb_ftplugin") | finish | endif
+let b:hhb_ftplugin = 1
 
 " Simple implement for folding
 " see: http://stackoverflow.com/a/4677454/1593549
