@@ -7,7 +7,7 @@ imap <NUL> <Esc>
 
 execute pathogen#infect()
 
-" color scheme
+" base settings
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
@@ -79,12 +79,6 @@ let g:ctrlp_custom_ignore = {
     \ 'file': '\v\.(exe|so|dll|pyc|db)'
     \ }
 
-" Remap vim-expand-region
-nmap <C-L> <Plug>(expand_region_expand)
-vmap <C-L> <Plug>(expand_region_expand)
-nmap <C-H> <Plug>(expand_region_shrink)
-vmap <C-H> <Plug>(expand_region_shrink)
-
 " Markdown filetype
 au BufNewFile,BufRead *.md  setf markdown
 
@@ -93,6 +87,7 @@ au BufNewFile,BufRead *.md  setf markdown
 autocmd FileType less setlocal shiftwidth=4
 autocmd FileType jinja setlocal tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType yaml setlocal tabstop=2 softtabstop=2 shiftwidth=2
+autocmd FileType vimwiki setlocal foldlevel=2
 
 " Shortcut for paste from clipboard
 " from: http://www.drbunsen.org/the-text-triumvirate/
