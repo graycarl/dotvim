@@ -79,9 +79,6 @@ let g:ctrlp_custom_ignore = {
     \ 'file': '\v\.(exe|so|dll|pyc|db)'
     \ }
 
-" Markdown filetype
-au BufNewFile,BufRead *.md  setf markdown
-
 " The vim-less plugin will set sw to 2 and i don't like it.
 " So fix this using a autocmd.
 autocmd FileType less setlocal shiftwidth=4
@@ -97,3 +94,32 @@ noremap <leader>p :set paste<CR>:put  *<CR>:set nopaste<CR>
 " Set the python program from specified virtualenv
 let g:python_host_prog = $HOME . '/.vim/py2env/bin/python'
 let g:python3_host_prog = $HOME . '/.vim/py3env/bin/python'
+
+" Map insert mode like emacs
+inoremap <C-B> <Left>
+inoremap <C-F> <Right>
+
+" Jedi
+let g:jedi#auto_vim_configuration = 0
+let g:jedi#show_call_signatures = 2
+" To disable the preview window when completing
+set completeopt=menuone,longest
+
+" Syntastic
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 2
+let g:syntastic_check_on_wq = 0
+let g:syntastic_python_checkers = ['flake8']
+
+" for lightline
+set laststatus=2
+
+" Project local
+set exrc
+set secure
+
+" Setup ctrl-p Root
+" c - the directory of the current file.
+" a - like "c", but only applies when the current working directory outside of
+"     CtrlP isn't a direct ancestor of the directory of the current file.
+let g:ctrlp_working_path_mode = 'a'

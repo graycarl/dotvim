@@ -20,36 +20,8 @@ let g:vimwiki_folding = 'expr'
 " for Ultisnips
 let g:UltiSnipsEditSplit = "vertical"
 
-" for lightline
-set laststatus=2
-
 " for NERDTree
 let NERDTreeIgnore=['\.pyc$', '\~$']
 
-" Syntastic
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-let g:syntastic_python_checkers = ['flake8']
-
 " for Ruby shiftwidth
 au FileType ruby setlocal shiftwidth=2
-
-" For NeoVim Intergrated Shell
-if has('nvim')
-    tnoremap <Esc> <C-\><C-n>
-endif
-
-" Project local
-set exrc
-set secure
-
-" Setup ctrl-p Root
-" c - the directory of the current file.
-" a - like "c", but only applies when the current working directory outside of
-"     CtrlP isn't a direct ancestor of the directory of the current file.
-let g:ctrlp_working_path_mode = 'a'
