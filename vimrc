@@ -7,8 +7,7 @@ imap <NUL> <Esc>
 
 execute pathogen#infect()
 
-" base settings
-set tabstop=4
+" Base Settings
 set softtabstop=4
 set shiftwidth=4
 set expandtab
@@ -16,6 +15,7 @@ set backupdir=~/.vim/vimtmp,.
 
 " disable auto replace netrw
 let NERDTreeHijackNetrw = 0
+let NERDTreeIgnore=['\.pyc$', '\~$']
 
 " netrw list style
 " let g:netrw_liststyle = 1
