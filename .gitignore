@@ -1,7 +1,5 @@
 # Created by http://gitignore.io
 
-py*env
-
 ### vim ###
 .*.s[a-w][a-z]
 *.un~
@@ -9,3 +7,7 @@ Session.vim
 .netrwhist
 .netrwbook
 *~
+
+### By Carl ###
+py*env
+local.vim

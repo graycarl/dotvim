@@ -1,4 +1,8 @@
 source ~/.vim/defaults.vim
+
+" Set VIMHOME
+let $VIMHOME = expand('<sfile>:p:h')
+
 " disable undofile
 set noundofile
 
@@ -123,3 +127,10 @@ set secure
 " a - like "c", but only applies when the current working directory outside of
 "     CtrlP isn't a direct ancestor of the directory of the current file.
 let g:ctrlp_working_path_mode = 'a'
+
+" Load local settings
+let localrc = $VIMHOME . '/local.vim'
+if filereadable(localrc)
+    " source $VIMHOME . '/local.vim'
+    execute 'source ' . localrc
+endif
