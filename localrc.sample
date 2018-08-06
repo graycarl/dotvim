@@ -5,7 +5,7 @@ set guioptions-=rL
 
 " font
 " set guifont=monaco:h12
-set guifont=M+\ 1m\ regular:h15
+set guifont=M+\ 1m\ light:h15
 
 " for vimwiki
 let mainwiki = {}

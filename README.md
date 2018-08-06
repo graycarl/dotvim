@@ -19,5 +19,8 @@ $ # Nothing else need to be done
 For Neovim
 
 ```bash
+$ cd ~/.vim
+$ virtualenv -p path-to-python2 py2env
+$ virtualenv -p path-to-python3 py3env
 $ ln -s ~/.vim ~/.config/nvim
 ```
