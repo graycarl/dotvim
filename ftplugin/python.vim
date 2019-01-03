@@ -9,6 +9,8 @@ setlocal foldnestmax=2
 setlocal foldlevelstart=2
 nnoremap <buffer> <SPACE> za
 vnoremap <buffer> <SPACE> zf
+nnoremap <buffer> <TAB> za
+vnoremap <buffer> <TAB> zf
 
 " Global Search
 nnoremap <buffer> <F10> yiw:call FastGlbSearch("<C-R>0", "py")<CR>
