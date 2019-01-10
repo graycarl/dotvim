@@ -25,3 +25,11 @@ let NERDTreeIgnore=['\.pyc$', '\~$']
 
 " for Ruby shiftwidth
 au FileType ruby setlocal shiftwidth=2
+
+" Auto insert JIRA number in Git Commit (Need refactory)
+au FileType gitcommit nmap <buffer> I :call PreInsertJIRA()<CR>
+function PreInsertJIRA()
+    g/ORI-[0-9]\+/y
+    normal ggPdthxxf-;DJxA: 
+    startinsert!
+endfunction
