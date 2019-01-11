@@ -122,6 +122,10 @@ set laststatus=2
 set exrc
 set secure
 
+" Org Mode
+let g:org_indent = 1
+let g:org_heading_shade_leading_stars = 1
+
 " Setup ctrl-p Root
 " c - the directory of the current file.
 " a - like "c", but only applies when the current working directory outside of
