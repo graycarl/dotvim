@@ -29,3 +29,4 @@ $ ln -s ~/.vim ~/.config/nvim
 
 - [x] Bind CtrlPBuffer to SPC-b
 - [x] Bind CtrlPBufTag to SPC-t
+- [ ] Deep study the usage of fugitive
