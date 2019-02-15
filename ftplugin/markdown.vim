@@ -15,8 +15,8 @@ endfunction
 setlocal foldexpr=MarkdownLevel()
 setlocal foldmethod=expr
 
-nnoremap <buffer> <SPACE> za
-
+nnoremap <buffer> <TAB> za
+vnoremap <buffer> <TAB> zf
 
 " Format table under cursor.
 "

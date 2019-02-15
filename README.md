@@ -24,3 +24,8 @@ $ virtualenv -p path-to-python2 py2env
 $ virtualenv -p path-to-python3 py3env
 $ ln -s ~/.vim ~/.config/nvim
 ```
+
+## TODO
+
+- [x] Bind CtrlPBuffer to SPC-b
+- [x] Bind CtrlPBufTag to SPC-t

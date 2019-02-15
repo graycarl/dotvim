@@ -82,6 +82,16 @@ let g:ctrlp_custom_ignore = {
     \ 'dir':  '\v[\/](build|dist|node_modules|bower_components|.*\.egg-info)$',
     \ 'file': '\v\.(exe|so|dll|pyc|db)'
     \ }
+" Setup ctrl-p Root
+" c - the directory of the current file.
+" a - like "c", but only applies when the current working directory outside of
+"     CtrlP isn't a direct ancestor of the directory of the current file.
+let g:ctrlp_working_path_mode = 'a'
+" Map other modes
+nnoremap <SPACE>b :<C-U>CtrlPBuffer<CR>
+" Need `brew install ctags`
+nnoremap <SPACE>t :<C-U>CtrlPBufTag<CR>
+
 
 " The vim-less plugin will set sw to 2 and i don't like it.
 " So fix this using a autocmd.
@@ -125,12 +135,6 @@ set secure
 " Org Mode
 let g:org_indent = 1
 let g:org_heading_shade_leading_stars = 1
-
-" Setup ctrl-p Root
-" c - the directory of the current file.
-" a - like "c", but only applies when the current working directory outside of
-"     CtrlP isn't a direct ancestor of the directory of the current file.
-let g:ctrlp_working_path_mode = 'a'
 
 " Load local settings
 let localrc = $VIMHOME . '/local.vim'
