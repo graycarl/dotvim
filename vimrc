@@ -89,6 +89,7 @@ let g:ctrlp_custom_ignore = {
 let g:ctrlp_working_path_mode = 'a'
 " Map other modes
 nnoremap <SPACE>b :<C-U>CtrlPBuffer<CR>
+nnoremap B :<C-U>CtrlPBuffer<CR>
 " Need `brew install ctags`
 nnoremap <SPACE>t :<C-U>CtrlPBufTag<CR>
 
