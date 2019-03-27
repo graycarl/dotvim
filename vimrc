@@ -6,6 +6,10 @@ let $VIMHOME = expand('<sfile>:p:h')
 " disable undofile
 set noundofile
 
+" backup
+set backup
+set backupdir=~/.vim/vimtmp,.
+
 " disable <C-Space> in insert mode
 imap <NUL> <Esc>
 
@@ -15,7 +19,6 @@ execute pathogen#infect()
 set softtabstop=4
 set shiftwidth=4
 set expandtab
-set backupdir=~/.vim/vimtmp,.
 
 " disable auto replace netrw
 let NERDTreeHijackNetrw = 0
