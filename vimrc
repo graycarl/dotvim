@@ -19,6 +19,7 @@ execute pathogen#infect()
 set softtabstop=4
 set shiftwidth=4
 set expandtab
+set wildignore=*~,*.o,*.obj,*.pyc
 
 " disable auto replace netrw
 let NERDTreeHijackNetrw = 0
