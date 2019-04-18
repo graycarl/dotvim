@@ -111,8 +111,8 @@ noremap <leader>p :set paste<CR>:put  *<CR>:set nopaste<CR>
 
 " For NeoVim
 " Set the python program from specified virtualenv
-let g:python_host_prog = $HOME . '/.vim/py2env/bin/python'
-let g:python3_host_prog = $HOME . '/.vim/py3env/bin/python'
+let g:python_host_prog = $VIMHOME . '/py2env/bin/python'
+let g:python3_host_prog = $VIMHOME . '/py3env/bin/python'
 
 " Map insert mode like emacs
 inoremap <C-B> <Left>
