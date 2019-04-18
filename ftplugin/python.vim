@@ -5,10 +5,8 @@ let b:hhb_ftplugin = 1
 " About folding
 setlocal foldmethod=indent
 setlocal foldignore=
-setlocal foldnestmax=2
+setlocal foldnestmax=3
 setlocal foldlevelstart=2
-nnoremap <buffer> <TAB> za
-vnoremap <buffer> <TAB> zf
 
 " Global Search
 nnoremap <buffer> <F10> yiw:call FastGlbSearch("<C-R>0", "py")<CR>
