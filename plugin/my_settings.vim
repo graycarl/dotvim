@@ -57,33 +57,75 @@ endif
 " Revert with ":filetype off".
 filetype plugin indent on
 
-" Put these in an autocmd group, so that you can revert them with:
-" ":augroup vimStartup | au! | augroup END"
-augroup vimStartup
-au!
+" disable undofile
+set noundofile
 
-" When editing a file, always jump to the last known cursor position.
-" Don't do it when the position is invalid, when inside an event handler
-" (happens when dropping a file on gvim) and for a commit message (it's
-" likely a different one than last time).
-autocmd BufReadPost *
-  \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
-  \ |   exe "normal! g`\""
-  \ | endif
+" backup
+set backup
+set backupdir=~/.vim/vimtmp,.
 
-augroup END
+" Base Settings
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set wildignore=*~,*.o,*.obj,*.pyc
 
-" Convenient command to see the difference between the current buffer and the
-" file it was loaded from, thus the changes you made.
-" Only define it when not defined already.
-if !exists(":DiffOrig")
-  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
-		  \ | wincmd p | diffthis
-endif
+" disable auto replace netrw
+let NERDTreeHijackNetrw = 0
+let NERDTreeIgnore=['\.pyc$', '\~$']
 
-if has('langmap') && exists('+langremap')
-  " Prevent that the langmap option applies to characters that result from a
-  " mapping.  If set (default), this may break plugins (but it's backward
-  " compatible).
-  set nolangremap
+" netrw list style
+" let g:netrw_liststyle = 1
+let g:netrw_list_hide = '.*\.swp$,.*\.pyc'
+let g:netrw_altv = 1  " open file on the right when use `v`
+
+" encoding
+set encoding=utf-8
+set fileformat=unix
+set fileformats=unix,dos
+
+" For CtrlP
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/](build|dist|node_modules|bower_components|.*\.egg-info)$',
+    \ 'file': '\v\.(exe|so|dll|pyc|db)'
+    \ }
+" Setup ctrl-p Root
+" c - the directory of the current file.
+" a - like "c", but only applies when the current working directory outside of
+"     CtrlP isn't a direct ancestor of the directory of the current file.
+let g:ctrlp_working_path_mode = 'a'
+
+" For NeoVim
+" Set the python program from specified virtualenv
+" let g:python_host_prog = $VIMHOME . '/py2env/bin/python'
+let g:python3_host_prog = $VIMHOME . '/py3env/bin/python'
+
+" Jedi
+let g:jedi#auto_vim_configuration = 0
+let g:jedi#show_call_signatures = 2
+" To disable the preview window when completing
+set completeopt=menuone,longest
+
+" Syntastic
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 2
+let g:syntastic_check_on_wq = 0
+let g:syntastic_python_checkers = ['flake8']
+
+" for lightline
+set laststatus=2
+
+" Org Mode
+let g:org_indent = 1
+let g:org_heading_shade_leading_stars = 1
+
+" Project local
+set exrc
+set secure
+
+" Fix editor
+if has('nvim')
+    let $EDITOR='nvim'
+else
+    let $EDITOR='vim'
 endif
