@@ -8,10 +8,6 @@ setlocal foldignore=
 setlocal foldnestmax=3
 setlocal foldlevelstart=2
 
-" Global Search
-nnoremap <buffer> <F10> yiw:call my#FastGlbSearch("<C-R>0", "py")<CR>
-vnoremap <buffer> <F10> y:call my#FastGlbSearch("<C-R>0", "py")<CR>
-
 " Run buffer
 nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 

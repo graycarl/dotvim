@@ -20,6 +20,18 @@ function my#FastGlbSearch(kw, ext)
     redraw!
 endfunction
 
+function my#GitSearch(kw, whole_word)
+    if a:whole_word
+        let sexp = '\\b' . a:kw . '\\b '
+    else
+        let sexp = a:kw
+    endif
+    execute 'silent Ggrep! ' . sexp
+    botright cwindow
+    " vim has display bugs after grep, so I force redraw it
+    redraw!
+endfunction
+
 " Open dir of current file
 function! my#Goto_parent_dir()
     let bn = bufname("%")

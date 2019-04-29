@@ -32,3 +32,8 @@ noremap <leader>p :set paste<CR>:put  *<CR>:set nopaste<CR>
 inoremap <C-B> <Left>
 inoremap <C-F> <Right>
 
+" Global Search
+nnoremap <F10> yiw:call my#GitSearch("<C-R>0", 1)<CR>
+vnoremap <F10> y:call my#GitSearch("<C-R>0", 1)<CR>
+nnoremap <Space><F10> yiw:call my#GitSearch("<C-R>0", 0)<CR>
+vnoremap <Space><F10> y:call my#GitSearch("<C-R>0", 0)<CR>
