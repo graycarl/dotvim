@@ -23,9 +23,6 @@ if !exists(":DiffOrig")
 		  \ | wincmd p | diffthis
 endif
 
-autocmd FileType less setlocal shiftwidth=4
-autocmd FileType jinja setlocal tabstop=2 softtabstop=2 shiftwidth=2
-autocmd FileType yaml setlocal tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType vimwiki setlocal foldlevel=2
 autocmd BufNewFile *.py execute "normal i# -*- coding: utf-8 -*-"
 
