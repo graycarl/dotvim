@@ -20,3 +20,18 @@ endif
 
 " Remove trailing white space
 autocmd BufWritePre * %s/\s\+$//e
+
+" ALE Lint
+let b:ale_linters = ['pyls']
+let b:ale_fixers = ['autopep8']
+let b:ale_python_pyls_config = {
+            \   'pyls': {
+            \     'configurationSources': ['flake8']
+            \   },
+            \ }
+" let b:ale_python_pyls_executable = '/Users/hongbo/.vim/py3env/bin/pyls'
+" let b:ale_python_pyls_use_global = 1
+setlocal omnifunc=ale#completion#OmniFunc
+nmap gD <Plug>(ale_go_to_definition)
+" Use supertab to do the completion
+let b:SuperTabDefaultCompletionType = "context"
