@@ -1,8 +1,5 @@
 let $VIMHOME = expand('<sfile>:p:h')
 
-" Must be set before loading ale plugin
-" let g:ale_completion_enabled = 1
-
 execute pathogen#infect()
 
 " Load local settings
