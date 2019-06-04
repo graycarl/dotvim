@@ -68,7 +68,7 @@ set backupdir=~/.vim/vimtmp,.
 set softtabstop=4
 set shiftwidth=4
 set expandtab
-set wildignore=*~,*.o,*.obj,*.pyc
+set wildignore+=*~,*.o,*.obj,*.pyc
 
 " disable auto replace netrw
 let NERDTreeHijackNetrw = 0
@@ -83,7 +83,6 @@ let g:netrw_altv = 1  " open file on the right when use `v`
 set encoding=utf-8
 set fileformat=unix
 set fileformats=unix,dos
-
 " For CtrlP
 let g:ctrlp_custom_ignore = {
     \ 'dir':  '\v[\/](build|dist|node_modules|bower_components|.*\.egg-info)$',
@@ -125,10 +124,6 @@ set laststatus=2
 " Org Mode
 let g:org_indent = 1
 let g:org_heading_shade_leading_stars = 1
-
-" Project local
-set exrc
-set secure
 
 " Fix editor
 if has('nvim')
