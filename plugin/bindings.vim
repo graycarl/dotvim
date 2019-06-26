@@ -37,3 +37,6 @@ nnoremap <F10> yiw:call my#GitSearch("<C-R>0", 1)<CR>
 vnoremap <F10> y:call my#GitSearch("<C-R>0", 1)<CR>
 nnoremap <Space><F10> yiw:call my#GitSearch("<C-R>0", 0)<CR>
 vnoremap <Space><F10> y:call my#GitSearch("<C-R>0", 0)<CR>
+
+" NeoVim terminal
+tnoremap <Esc> <C-\><C-n>
