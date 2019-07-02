@@ -65,7 +65,7 @@ set backup
 set backupdir=~/.vim/vimtmp,.
 
 " Base Settings
-set softtabstop=4
+set tabstop=4
 set shiftwidth=4
 set expandtab
 set wildignore+=*~,*.o,*.obj,*.pyc
