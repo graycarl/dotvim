@@ -31,6 +31,13 @@ function my#GitSearch(kw, whole_word)
     " vim has display bugs after grep, so I force redraw it
     redraw!
 endfunction
+function my#GitSearchInput(kw)
+    call inputsave()
+    let kw = input('Search keyword: ', a:kw)
+    let whole_word = confirm('As symbol?', "&Yes\n&No", 'Yes') == 'Yes'
+    call inputrestore()
+    call my#GitSearch(kw, whole_word)
+endfunction
 
 " Open dir of current file
 function! my#Goto_parent_dir()
