@@ -25,4 +25,4 @@ endif
 
 autocmd FileType vimwiki setlocal foldlevel=2
 autocmd BufNewFile *.py execute "normal i# -*- coding: utf-8 -*-"
-autocmd FileType yaml setlocal tabstop=2 | setlocal shiftwidth=2
+autocmd FileType yaml setlocal tabstop=2 | setlocal shiftwidth=2 | setlocal foldmethod=indent
