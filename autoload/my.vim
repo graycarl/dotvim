@@ -34,9 +34,11 @@ endfunction
 function my#GitSearchInput(kw)
     call inputsave()
     let kw = input('Search keyword: ', a:kw)
-    let whole_word = confirm('As symbol?', "&Yes\n&No", 'Yes') == 'Yes'
-    call inputrestore()
-    call my#GitSearch(kw, whole_word)
+    if strlen(kw) > 0
+        let whole_word = confirm('As symbol?', "&Yes\n&No", 'Yes') == 'Yes'
+        call inputrestore()
+        call my#GitSearch(kw, whole_word)
+    endif
 endfunction
 
 " Open dir of current file
