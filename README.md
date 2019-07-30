@@ -4,7 +4,7 @@
 
 Base Setup
 
-```bash
+```sh
 $ git clone https://github.com/graycarl/dotvim.git ~/.vim
 $ cd ~/.vim
 $ vim local.vim     # Some local settings
@@ -12,15 +12,14 @@ $ vim local.vim     # Some local settings
 
 For Vim:
 
-```bash
+```sh
 $ # Nothing else need to be done
 ```
 
 For Neovim
 
-```bash
+```sh
 $ cd ~/.vim
-$ virtualenv -p path-to-python2 py2env
 $ virtualenv -p path-to-python3 py3env
 $ ln -s ~/.vim ~/.config/nvim
 ```
@@ -29,5 +28,6 @@ $ ln -s ~/.vim ~/.config/nvim
 
 - [x] Bind CtrlPBuffer to SPC-b
 - [x] Bind CtrlPBufTag to SPC-t
-- [ ] Deep study the usage of fugitive
-- [ ] Improve global search tools
+- [x] Deep study the usage of fugitive
+- [x] Improve global search tools
+- [ ] Table align for GFM

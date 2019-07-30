@@ -125,6 +125,9 @@ set laststatus=2
 let g:org_indent = 1
 let g:org_heading_shade_leading_stars = 1
 
+" Github Flavored Markdown
+let g:markdown_fenced_languages = ['sh', 'python', 'json']
+
 " Fix editor
 if has('nvim')
     let $EDITOR='nvim'
