@@ -3,6 +3,12 @@
 " disable <C-Space> in insert mode
 imap <NUL> <Esc>
 
+" Enable emacs-like hotkey in command line editing
+cnoremap <C-A> <Home>
+cnoremap <C-B> <Left>
+cnoremap <C-F> <Right>
+cnoremap <C-E> <End>
+
 " for tab switch
 nnoremap _ gT
 nnoremap + gt
@@ -12,6 +18,7 @@ command -nargs=+ Sinch :call my#GlbSearch("<args>", "[ch]")
 
 nnoremap - :call my#Goto_parent_dir()<CR>
 
+" TODO: Use ultisnips to implement this
 nnoremap ,d :call my#Insert_cur_datetime()<CR>
 
 " Syntax Fix
@@ -33,10 +40,10 @@ inoremap <C-B> <Left>
 inoremap <C-F> <Right>
 
 " Global Search
-nnoremap <F10> yiw:call my#GitSearchInput("<C-R>0")<CR>
-vnoremap <F10> y:call my#GitSearchInput("<C-R>0")<CR>
-nnoremap <Space><F10> yiw:call my#GitSearch("<C-R>0", 0)<CR>
-vnoremap <Space><F10> y:call my#GitSearch("<C-R>0", 0)<CR>
+nnoremap <F10> yiw:call my#GitSearchInput("<C-R>0", 0)<CR>
+vnoremap <F10> y:call my#GitSearchInput("<C-R>0", 0)<CR>
+nnoremap <Space><F10> yiw:call my#GitSearch("<C-R>0")<CR>
+vnoremap <Space><F10> y:call my#GitSearch("<C-R>0")<CR>
 
 " NeoVim terminal
 tnoremap <Esc> <C-\><C-n>
