@@ -40,10 +40,10 @@ inoremap <C-B> <Left>
 inoremap <C-F> <Right>
 
 " Global Search
-nnoremap <F10> yiw:call my#GitSearchInput("<C-R>0", 0)<CR>
-vnoremap <F10> y:call my#GitSearchInput("<C-R>0", 0)<CR>
-nnoremap <Space><F10> yiw:call my#GitSearch("<C-R>0")<CR>
-vnoremap <Space><F10> y:call my#GitSearch("<C-R>0")<CR>
+nnoremap <F10> yiw:call my#GitSearchInput("<C-R>0")<CR>
+vnoremap <F10> y:call my#GitSearchInput("<C-R>0")<CR>
+nnoremap <Space><F10> yiw:call my#GitSearch("<C-R>0", 0)<CR>
+vnoremap <Space><F10> y:call my#GitSearch("<C-R>0", 0)<CR>
 
 " NeoVim terminal
 tnoremap <Esc> <C-\><C-n>
