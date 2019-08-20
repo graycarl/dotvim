@@ -3,9 +3,21 @@ if exists("b:hhb_ftplugin") | finish | endif
 let b:hhb_ftplugin = 1
 
 " Simple implement for folding
-" see: http://stackoverflow.com/a/4677454/1593549
+" TODO: Support list & sub-lit
+" TODO: Use syntax
 function! MarkdownLevel() 
+    if v:lnum == 1
+        let b:incode = 0
+    endif
     let h = matchstr(getline(v:lnum), '^#\+ ') 
+    let code = matchstr(getline(v:lnum), '^```')
+    if empty(code) == 0
+        let b:incode = b:incode ? 0 : 1
+        return "="
+    endif
+    if b:incode
+        return "="
+    endif
     if empty(h) 
         return "=" 
     else 

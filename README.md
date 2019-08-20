@@ -31,3 +31,4 @@ $ ln -s ~/.vim ~/.config/nvim
 - [x] Deep study the usage of fugitive
 - [x] Improve global search tools
 - [ ] Table align for GFM
+- [ ] Setup gO for markdown
