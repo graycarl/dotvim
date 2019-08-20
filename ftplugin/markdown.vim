@@ -9,7 +9,7 @@ function! MarkdownLevel()
     if empty(h) 
         return "=" 
     else 
-        return ">" . len(h) 
+        return ">" . (len(h) - 1)
     endif 
 endfunction
 setlocal foldexpr=MarkdownLevel()
@@ -156,3 +156,8 @@ function! s:Toc(...)
 endfunction
 command! -buffer Toc call s:Toc()
 command! -buffer Toch call s:Toc('horizontal')
+
+
+setlocal tabstop=2
+setlocal shiftwidth=2
+setlocal formatoptions+=mB
