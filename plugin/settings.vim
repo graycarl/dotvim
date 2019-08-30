@@ -120,6 +120,7 @@ let g:ale_lint_on_filetype_changed = 1
 
 " for lightline
 set laststatus=2
+set noshowmode
 
 " Org Mode
 let g:org_indent = 1
