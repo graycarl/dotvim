@@ -13,7 +13,11 @@ function! MarkdownLevel()
     let code = matchstr(getline(v:lnum), '^```')
     if empty(code) == 0
         let b:incode = b:incode ? 0 : 1
-        return "="
+        if b:incode
+            return "a1"
+        else
+            return "s1"
+        endif
     endif
     if b:incode
         return "="
