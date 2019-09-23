@@ -191,6 +191,11 @@ vnoremap <Space><F10> y:call my#GitSearch("<C-R>0", 0)<CR>
 " NeoVim terminal
 tnoremap <Esc> <C-\><C-n>
 
+" VimNote
+nnoremap <Space>jj :NotesToday<CR>
+nnoremap <Space>ji :NotesBrowseIndex<CR>
+nnoremap <Space>jp :NotesBrowseProject<CR>
+
 " }}}
 
 " Auto Commands {{{
