@@ -31,9 +31,6 @@ endfunction
 setlocal foldexpr=MarkdownLevel()
 setlocal foldmethod=expr
 
-nnoremap <buffer> <TAB> za
-vnoremap <buffer> <TAB> zf
-
 " Format table under cursor.
 "
 " Depends on Tabularize.
@@ -177,3 +174,6 @@ command! -buffer Toch call s:Toc('horizontal')
 setlocal tabstop=2
 setlocal shiftwidth=2
 setlocal formatoptions+=mB
+
+nnoremap <buffer> <LocalLeader>\ za
+

@@ -137,6 +137,10 @@ let g:markdown_fenced_languages = ['sh', 'python', 'json']
 
 " Bindings {{{
 
+" Define Leaders
+let mapleader = " "
+let maplocalleader = "\\"
+
 " Don't use Ex mode, use Q for formatting.
 nmap Q gqap
 vmap Q gq
@@ -185,16 +189,14 @@ inoremap <C-F> <Right>
 " Global Search
 nnoremap <F10> yiw:call my#GitSearchInput("<C-R>0")<CR>
 vnoremap <F10> y:call my#GitSearchInput("<C-R>0")<CR>
-nnoremap <Space><F10> yiw:call my#GitSearch("<C-R>0", 0)<CR>
-vnoremap <Space><F10> y:call my#GitSearch("<C-R>0", 0)<CR>
 
 " NeoVim terminal
 tnoremap <Esc> <C-\><C-n>
 
 " VimNote
-nnoremap <Space>jj :NotesToday<CR>
-nnoremap <Space>ji :NotesBrowseIndex<CR>
-nnoremap <Space>jp :NotesBrowseProject<CR>
+nnoremap <Leader>jj :NotesToday<CR>
+nnoremap <Leader>ji :NotesBrowseIndex<CR>
+nnoremap <Leader>jp :NotesBrowseProject<CR>
 
 " }}}
 
