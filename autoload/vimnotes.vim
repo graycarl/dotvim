@@ -1,4 +1,5 @@
 " Notes plugin
+
 function vimnotes#open_today()
     vsp
     execute "lcd " . g:VimnotesRootDir
@@ -11,4 +12,9 @@ endfunction
 
 
 function s:date_to_fn(date)
+endfunction
+
+
+function vimnotes#preview()
+    execute "silent !" . g:VimnotesPreviewCommand . " %"
 endfunction
