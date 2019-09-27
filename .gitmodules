@@ -1,75 +1,75 @@
 [submodule "bundle/emmet-vim"]
-	path = bundle/emmet-vim
+	path = pack/third/start/emmet-vim
 	url = https://github.com/mattn/emmet-vim.git
 [submodule "bundle/ultisnips"]
-	path = bundle/ultisnips
+	path = pack/third/start/ultisnips
 	url = https://github.com/SirVer/ultisnips.git
 [submodule "bundle/supertab"]
-	path = bundle/supertab
+	path = pack/third/start/supertab
 	url = git://github.com/ervandew/supertab.git
 [submodule "bundle/vim-jinja"]
-	path = bundle/vim-jinja
+	path = pack/third/start/vim-jinja
 	url = https://github.com/lepture/vim-jinja.git
 [submodule "bundle/vim-multiple-cursors"]
-	path = bundle/vim-multiple-cursors
+	path = pack/third/start/vim-multiple-cursors
 	url = https://github.com/terryma/vim-multiple-cursors.git
 [submodule "bundle/vimwiki"]
-	path = bundle/vimwiki
+	path = pack/third/start/vimwiki
 	url = https://github.com/vimwiki/vimwiki.git
 [submodule "bundle/vimcdoc"]
-	path = bundle/vimcdoc
+	path = pack/third/start/vimcdoc
 	url = https://github.com/jkeylu/vimcdoc.git
 [submodule "bundle/nerdcommenter"]
-	path = bundle/nerdcommenter
+	path = pack/third/start/nerdcommenter
 	url = https://github.com/scrooloose/nerdcommenter.git
 [submodule "bundle/lightline"]
-	path = bundle/lightline
+	path = pack/third/start/lightline
 	url = https://github.com/itchyny/lightline.vim.git
 [submodule "bundle/goyo"]
-	path = bundle/goyo
+	path = pack/third/start/goyo
 	url = https://github.com/junegunn/goyo.vim.git
 [submodule "bundle/ctrlp.vim"]
-	path = bundle/ctrlp.vim
+	path = pack/third/start/ctrlp.vim
 	url = https://github.com/kien/ctrlp.vim.git
 [submodule "bundle/nerdtree"]
-	path = bundle/nerdtree
+	path = pack/third/start/nerdtree
 	url = https://github.com/scrooloose/nerdtree.git
 [submodule "bundle/tagbar"]
-	path = bundle/tagbar
+	path = pack/third/start/tagbar
 	url = https://github.com/majutsushi/tagbar.git
 [submodule "bundle/vim-fugitive"]
-	path = bundle/vim-fugitive
+	path = pack/third/start/vim-fugitive
 	url = https://github.com/tpope/vim-fugitive.git
 [submodule "bundle/vim-expand-region"]
-	path = bundle/vim-expand-region
+	path = pack/third/start/vim-expand-region
 	url = https://github.com/terryma/vim-expand-region.git
 [submodule "bundle/tabular"]
-	path = bundle/tabular
+	path = pack/third/start/tabular
 	url = https://github.com/godlygeek/tabular.git
 [submodule "bundle/rust.vim"]
-	path = bundle/rust.vim
+	path = pack/third/start/rust.vim
 	url = https://github.com/rust-lang/rust.vim.git
 [submodule "bundle/vim-snippets"]
-	path = bundle/vim-snippets
+	path = pack/third/start/vim-snippets
 	url = https://github.com/honza/vim-snippets.git
 [submodule "bundle/syntastic"]
-	path = bundle/syntastic
+	path = pack/third/start/syntastic
 	url = https://github.com/vim-syntastic/syntastic.git
 [submodule "bundle/vim-airline"]
-	path = bundle/vim-airline
+	path = pack/third/start/vim-airline
 	url = https://github.com/vim-airline/vim-airline
 [submodule "bundle/jedi-vim"]
-	path = bundle/jedi-vim
+	path = pack/third/start/jedi-vim
 	url = https://github.com/davidhalter/jedi-vim.git
 [submodule "bundle/vim-orgmode"]
-	path = bundle/vim-orgmode
+	path = pack/third/start/vim-orgmode
 	url = https://github.com/jceb/vim-orgmode.git
 [submodule "bundle/calendar-vim"]
-	path = bundle/calendar-vim
+	path = pack/third/start/calendar-vim
 	url = https://github.com/mattn/calendar-vim.git
 [submodule "bundle/ale"]
-	path = bundle/ale
+	path = pack/third/start/ale
 	url = https://github.com/w0rp/ale.git
 [submodule "bundle/gfm"]
-	path = bundle/gfm
+	path = pack/third/start/gfm
 	url = https://github.com/rhysd/vim-gfm-syntax.git
