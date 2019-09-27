@@ -50,9 +50,9 @@ function s:date_previous(year, month, day)
         return [a:year, a:month, a:day-1]
     else
         if a:month > 1
-            return [a:year, a:month-1, s:month_day_count(a:month-1)]
+            return [a:year, a:month-1, s:month_day_count(a:year, a:month-1)]
         else
-            return [a:year-1, 12, s:month_day_count(12)]
+            return [a:year-1, 12, s:month_day_count(a:year-1, 12)]
         endif
     endif
 endfunction
@@ -60,7 +60,7 @@ endfunction
 function s:date_next(year, month, day)
     let max_day = s:month_day_count(a:year, a:month)
     if a:day < max_day
-        return [a:year, a:month, a:day-1]
+        return [a:year, a:month, a:day+1]
     else
         if a:month < 12
             return [a:year, a:month+1, 1]
