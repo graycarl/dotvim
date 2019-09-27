@@ -1,5 +1,4 @@
 " vim:foldmethod=marker
-" Plugin for note taken
 
 " Settings {{{
 
@@ -15,13 +14,5 @@ endif
 " Commands {{{
 
 command! NotesToday call vimnotes#open_today()
-command! NotesPreview call vimnotes#preview()
 
 " }}}
-
-" Bindings {{{
-
-nmap <LocalLeader>p :NotesPreview<CR>
-
-" }}}
-
