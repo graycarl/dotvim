@@ -3,7 +3,6 @@
 
 " Initialize {{{
 let $VIMHOME = expand('<sfile>:p:h')
-execute pathogen#infect()
 " }}}
 
 " Basic Settings {{{
