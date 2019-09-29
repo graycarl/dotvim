@@ -2,8 +2,10 @@
 
 " Public Functions {{{ "
 
-function vimnotes#open_today()
-    vsp
+function vimnotes#open_today(new)
+    if a:new
+        vsp
+    endif
     execute "lcd " . g:VimnotesRootDir
     let date = s:time_to_date(localtime())
     let fn = s:date_to_journal_fn(date[0], date[1], date[2])
@@ -26,6 +28,20 @@ endfunction
 
 function vimnotes#preview()
     execute "silent !" . g:VimnotesPreviewCommand . " %"
+endfunction
+
+function vimnotes#buffer_init_journal()
+    " Remove all the content first
+    normal ggdG
+    let tasks = join(s:copy_unfinished_tasks_before(b:notes_journal_date), "\n")
+    let projects = "- Project 1\n- Project 2"
+    for line in g:VimnotesJournalTemplate
+        let line = substitute(line, "{date}", b:notes_journal_datestr, "g")
+        let line = substitute(line, "{tasks}", tasks, "g")
+        let line = substitute(line, "{projects}", projects, "g")
+        put =line
+    endfor
+    normal ggdd
 endfunction
 
 " }}} Public Functions "
@@ -83,6 +99,13 @@ function s:is_leap_year(year)
         return a:year % 400 ? 0 : 1
     endif
     return a:year % 4 ? 0 : 1
+endfunction
+
+function s:copy_unfinished_tasks_before(date)
+    let tasks = []
+    call add(tasks, "- [ ] To be implemented 1")
+    call add(tasks, "- [ ] To be implemented 2")
+    return tasks
 endfunction
 
 " }}} Private Functions "
