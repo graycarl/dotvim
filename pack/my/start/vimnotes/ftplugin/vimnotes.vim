@@ -2,9 +2,9 @@
 
 " Commands {{{ "
 
-command! NotesPreview call vimnotes#preview()
-command! NotesGoPrevJournal call vimnotes#buffer_go_previous_journal()
-command! NotesGoNextJournal call vimnotes#buffer_go_next_journal()
+command -buffer NotesPreview call vimnotes#preview()
+command -buffer NotesGoPrevJournal call vimnotes#buffer_go_previous_journal()
+command -buffer NotesGoNextJournal call vimnotes#buffer_go_next_journal()
 
 " }}} Commands "
 
