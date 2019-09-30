@@ -73,3 +73,6 @@
 [submodule "bundle/gfm"]
 	path = pack/third/start/gfm
 	url = https://github.com/rhysd/vim-gfm-syntax.git
+[submodule "pack/third/start/vim-surround"]
+	path = pack/third/start/vim-surround
+	url = https://github.com/tpope/vim-surround
