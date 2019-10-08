@@ -1,8 +1,8 @@
 " Common tools
-if exists("g:loaded_my")
-  finish
+if exists('did_autoload_my') || &cp || version < 700
+    finish
 endif
-let g:loaded_my = 1
+let did_autoload_my = 1
 
 " Global Search
 function my#GlbSearch(kw, ext)
