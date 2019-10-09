@@ -25,6 +25,7 @@ command! -buffer NotesInitJournal call vimnotes#buffer_init_journal()
 
 nmap <LocalLeader>p :NotesPreview<CR>
 nmap <LocalLeader>t :NotesGoTodayJournal<CR>
+nmap <LocalLeader>i :NotesInitJournal<CR>
 nmap ( :NotesGoPrevJournal<CR>
 nmap ) :NotesGoNextJournal<CR>
 
