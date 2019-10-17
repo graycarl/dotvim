@@ -137,8 +137,8 @@ let g:markdown_fenced_languages = ['sh', 'python', 'json']
 " Bindings {{{
 
 " Define Leaders
-let mapleader = " "
-let maplocalleader = "\\"
+let mapleader = "\\"
+let maplocalleader = " "
 
 " Don't use Ex mode, use Q for formatting.
 nmap Q gqap
@@ -171,11 +171,12 @@ nnoremap ,d :call my#Insert_cur_datetime()<CR>
 nnoremap <F9> :syntax sync fromstart <CR>
 inoremap <F9> <C-O>:syntax sync fromstart <CR>
 
-" Map other modes
-nnoremap <SPACE>b :<C-U>CtrlPBuffer<CR>
-nnoremap B :<C-U>CtrlPBuffer<CR>
+" CtrlP
+let g:ctrlp_map = '<c-p>'
+nnoremap <leader>b :<C-U>CtrlPBuffer<CR>
 " Need `brew install ctags`
-nnoremap <SPACE>t :<C-U>CtrlPBufTag<CR>
+nnoremap <localleader>@ :<C-U>CtrlPBufTag<CR>
+nnoremap <leader>@ :<C-U>CtrlPTag<CR>
 
 " Shortcut for paste from clipboard
 " from: http://www.drbunsen.org/the-text-triumvirate/
