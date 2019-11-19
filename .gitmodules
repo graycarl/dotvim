@@ -76,3 +76,6 @@
 [submodule "pack/third/start/vim-surround"]
 	path = pack/third/start/vim-surround
 	url = https://github.com/tpope/vim-surround
+[submodule "pack/third/start/vim-dispatch"]
+	path = pack/third/start/vim-dispatch
+	url = https://github.com/tpope/vim-dispatch.git

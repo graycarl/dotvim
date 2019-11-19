@@ -91,9 +91,11 @@ set noshowmode
 " }}}
 
 " GUI Settings {{{ "
-set guioptions-=rL
-set guifont=mplusNerdFontComplete-regular:h14
-set lines=40 columns=160
+if has('gui_running')
+    set guioptions-=rL
+    set guifont=mplusNerdFontComplete-regular:h14
+    set lines=40 columns=160
+endif
 " }}} GUI Settings "
 
 " Plugin Settings {{{
