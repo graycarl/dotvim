@@ -198,6 +198,9 @@ nnoremap <Leader>jj :NotesToday<CR>
 nnoremap <Leader>ji :NotesBrowseIndex<CR>
 nnoremap <Leader>jp :NotesBrowseProject<CR>
 
+" NERDTree
+nmap T :NERDTreeFind<CR>
+
 " }}}
 
 " Auto Commands {{{
