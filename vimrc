@@ -90,6 +90,12 @@ set noshowmode
 
 " }}}
 
+" GUI Settings {{{ "
+set guioptions-=rL
+set guifont=mplusNerdFontComplete-regular:h14
+set lines=40 columns=160
+" }}} GUI Settings "
+
 " Plugin Settings {{{
 
 " disable auto replace netrw
