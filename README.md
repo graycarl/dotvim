@@ -30,5 +30,7 @@ $ ln -s ~/.vim ~/.config/nvim
 - [x] Bind CtrlPBufTag to SPC-t
 - [x] Deep study the usage of fugitive
 - [x] Improve global search tools
-- [ ] Table align for GFM
+- [x] Table align for GFM
 - [ ] Setup gO for markdown
+- [ ] How to find snippet for language
+- [ ] Use <Tab> to format table and jump to next column in Markdown
