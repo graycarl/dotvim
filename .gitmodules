@@ -79,3 +79,6 @@
 [submodule "pack/third/start/vim-dispatch"]
 	path = pack/third/start/vim-dispatch
 	url = https://github.com/tpope/vim-dispatch.git
+[submodule "pack/third/start/awesome-vim-colorschemes"]
+	path = pack/third/start/awesome-vim-colorschemes
+	url = https://github.com/rafi/awesome-vim-colorschemes.git
