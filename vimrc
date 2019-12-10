@@ -64,9 +64,10 @@ filetype plugin indent on
 " disable undofile
 set noundofile
 
-" backup
+" backup & swap file
 set backup
-set backupdir=~/.vim/vimtmp,.
+set backupdir=~/.vim/run/backup,.
+set directory=~/.vim/run/swap
 
 " Editing
 set tabstop=4
