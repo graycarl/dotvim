@@ -33,3 +33,17 @@ function PreInsertJIRA()
     normal ggPdthxxf-;DJxA: 
     startinsert!
 endfunction
+
+" colo
+let g:lightline = {}
+" let g:airline#extensions#tabline#enabled = 1
+if has('gui_running')
+    set background=light
+    colorscheme atom
+    let g:lightline.colorscheme = 'darcula'
+else
+    " set termguicolors
+    set background=dark
+    colorscheme dracula
+    let g:lightline.colorscheme = 'darcula'
+endif
