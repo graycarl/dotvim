@@ -143,11 +143,11 @@ let g:markdown_fenced_languages = ['sh', 'python', 'json']
 
 " Ultisnips
 " The search directories
-let g:UltiSnipsSnippetDirectories = ["UltiSnips", "ultisnips"]
+let g:UltiSnipsSnippetDirectories = ["UltiSnips"]
 " Where you place personal snippets in.
 " You can define some local snippets by name it like `python_local.snippets`,
 " git will ignore it by default.
-let g:UltiSnipsSnippetDir = $VIMHOME."/ultisnips"
+let g:UltiSnipsSnippetDir = $VIMHOME."/UltiSnips"
 
 " }}}
 
