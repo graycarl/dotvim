@@ -141,6 +141,14 @@ let g:org_heading_shade_leading_stars = 1
 " Github Flavored Markdown
 let g:markdown_fenced_languages = ['sh', 'python', 'json']
 
+" Ultisnips
+" The search directories
+let g:UltiSnipsSnippetDirectories = ["UltiSnips", "ultisnips"]
+" Where you place personal snippets in.
+" You can define some local snippets by name it like `python_local.snippets`,
+" git will ignore it by default.
+let g:UltiSnipsSnippetDir = $VIMHOME."/ultisnips"
+
 " }}}
 
 " Bindings {{{

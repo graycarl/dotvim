@@ -8,7 +8,8 @@ Session.vim
 .netrwbook
 *~
 
-### By Carl ###
+### local ###
 py*env
 local.vim
 /run
+ultisnips/*_local.snippets
