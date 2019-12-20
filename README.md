@@ -23,14 +23,3 @@ $ cd ~/.vim
 $ virtualenv -p path-to-python3 py3env
 $ ln -s ~/.vim ~/.config/nvim
 ```
-
-## TODO
-
-- [x] Bind CtrlPBuffer to SPC-b
-- [x] Bind CtrlPBufTag to SPC-t
-- [x] Deep study the usage of fugitive
-- [x] Improve global search tools
-- [x] Table align for GFM
-- [ ] Setup gO for markdown
-- [ ] How to find snippet for language
-- [ ] Use <Tab> to format table and jump to next column in Markdown
