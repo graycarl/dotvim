@@ -5,6 +5,7 @@
 - [ ] Add `:Search` command to do global search
 - [ ] Ultisnips: use all.snippets to setup some basic function. Like `\dt` for current datetime.
 - [ ] Supertab: fix wrong hehavior that it always trigger a `ctrl-n` even at start of a line.
+- [ ] Fugitive: show diff in Gstatus in *vertical* split
 
 ## Backlog
 
