@@ -237,7 +237,7 @@ autocmd BufReadPost *
 
 augroup END
 
-autocmd FileType vimwiki setlocal foldlevel=2
+autocmd FileType markdown setlocal foldlevel=2
 autocmd BufNewFile *.py execute "normal i# -*- coding: utf-8 -*-"
 
 " }}}
