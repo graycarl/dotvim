@@ -181,9 +181,6 @@ nnoremap + gt
 
 nnoremap - :call my#Goto_parent_dir()<CR>
 
-" TODO: Use ultisnips to implement this
-nnoremap ,d :call my#Insert_cur_datetime()<CR>
-
 " Syntax Fix
 nnoremap <F9> :syntax sync fromstart <CR>
 inoremap <F9> <C-O>:syntax sync fromstart <CR>
@@ -204,8 +201,6 @@ inoremap <C-B> <Left>
 inoremap <C-F> <Right>
 
 " Global Search
-nnoremap <F10> yiw:call my#GitSearchInput("<C-R>0")<CR>
-vnoremap <F10> y:call my#GitSearchInput("<C-R>0")<CR>
 nnoremap <leader>* yiw:SG \<<C-R>0\><CR>
 vnoremap <leader>* y:SG \<<C-R>0\><CR>
 
@@ -253,9 +248,6 @@ if !exists(":DiffOrig")
   command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
 		  \ | wincmd p | diffthis
 endif
-
-command -nargs=+ Sinpy :call my#FastGlbSearch("<args>", "py")
-command -nargs=+ Sinch :call my#GlbSearch("<args>", "[ch]")
 
 " Common searching command
 " Sample:
