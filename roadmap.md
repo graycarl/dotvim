@@ -1,8 +1,9 @@
 <!-- vim: set foldlevel=2: -->
 # Roadmap
 
-- [ ] Use `<leader>*` to tigger global search for current word
-- [ ] Add `:Search` command to do global search
+- [x] Use `<leader>*` to tigger global search for current word
+- [x] Add `:Search` command to do global search
+- [ ] Add common ignore for global search
 - [ ] Ultisnips: use all.snippets to setup some basic function. Like `\dt` for current datetime.
 - [ ] Supertab: fix wrong hehavior that it always trigger a `ctrl-n` even at start of a line.
 - [ ] Fugitive: show diff in Gstatus in *vertical* split

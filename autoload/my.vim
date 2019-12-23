@@ -15,6 +15,7 @@ endfunction
 " Common Search
 " args: pattern, file_pattern=0
 " TODO: support -i
+" TODO: exclude / exclude-dir
 function my#CommonSearch(use_git, as_symbol, pattern, ...)
     let pattern = a:pattern
     if a:as_symbol
