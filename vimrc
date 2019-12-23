@@ -201,8 +201,8 @@ inoremap <C-B> <Left>
 inoremap <C-F> <Right>
 
 " Global Search
-nnoremap <leader>* yiw:SG \<<C-R>0\><CR>
-vnoremap <leader>* y:SG \<<C-R>0\><CR>
+nnoremap <leader>* yiw:SG! <C-R>0<CR>
+vnoremap <leader>* y:SG! <C-R>0<CR>
 
 " NeoVim terminal
 tnoremap <Esc> <C-\><C-n>
@@ -251,12 +251,11 @@ endif
 
 " Common searching command
 " Sample:
-" :S[G] apple
-" :S[G] apple\ music
-" :S[G] \<apple\> *.py
-" TODO: use bang flag to wrap word
-command -nargs=+ S :call my#CommonSearch(0, <f-args>)
-command -nargs=+ SG :call my#CommonSearch(1, <f-args>)
+" :S[G][!] apple
+" :S[G][!] apple\ music
+" :S[G][!] \<apple\> *.py
+command -nargs=+ -bang S :call my#CommonSearch(0, "<bang>" == "!", <f-args>)
+command -nargs=+ -bang SG :call my#CommonSearch(1, "<bang>" == "!", <f-args>)
 
 " }}}
 
