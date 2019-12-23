@@ -13,7 +13,8 @@ function! my#Goto_parent_dir()
 endfunction
 
 " Common Search
-" args: pattern, use_git=0, file_pattern=0
+" args: pattern, file_pattern=0
+" TODO: support -i
 function my#CommonSearch(use_git, as_symbol, pattern, ...)
     let pattern = a:pattern
     if a:as_symbol
