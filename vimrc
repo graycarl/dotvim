@@ -206,6 +206,8 @@ inoremap <C-F> <Right>
 " Global Search
 nnoremap <F10> yiw:call my#GitSearchInput("<C-R>0")<CR>
 vnoremap <F10> y:call my#GitSearchInput("<C-R>0")<CR>
+nnoremap <leader>* yiw:SG \<<C-R>0\><CR>
+vnoremap <leader>* y:SG \<<C-R>0\><CR>
 
 " NeoVim terminal
 tnoremap <Esc> <C-\><C-n>
@@ -254,6 +256,15 @@ endif
 
 command -nargs=+ Sinpy :call my#FastGlbSearch("<args>", "py")
 command -nargs=+ Sinch :call my#GlbSearch("<args>", "[ch]")
+
+" Common searching command
+" Sample:
+" :S[G] apple
+" :S[G] apple\ music
+" :S[G] \<apple\> *.py
+" TODO: use bang flag to wrap word
+command -nargs=+ S :call my#CommonSearch(0, <f-args>)
+command -nargs=+ SG :call my#CommonSearch(1, <f-args>)
 
 " }}}
 

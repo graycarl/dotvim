@@ -54,3 +54,25 @@ function! my#Insert_cur_datetime()
     let s = strftime("%Y-%m-%d %T")
     execute "normal a" . s
 endfunction 
+
+" Common Search
+" args: pattern, use_git=0, file_pattern=0
+function my#CommonSearch(use_git, pattern, ...)
+    if a:use_git
+        let cmd = "silent Ggrep -E '" . a:pattern . "'"
+        if a:0 >= 1
+            let cmd = cmd . " '" . a:1 . "'"
+        endif
+    else
+        let cmd = "silent grep -rE '" .a:pattern . "'"
+        if a:0 >= 2
+            let cmd = cmd . " '" . a:1 . "'"
+        else
+            " TODO: Use global ignore
+            let cmd = cmd . " ."
+        endif
+    endif 
+    echo cmd
+    execute cmd
+    botright cwindow
+endfunction
