@@ -20,6 +20,19 @@ command! -buffer NotesInitJournal call vimnotes#buffer_init_journal()
 
 " }}} Commands "
 
+" Auto Commands {{{ "
+" Auto create parent directory when save
+" from: https://stackoverflow.com/a/4294176
+function s:MkNonExDir(file, buf)
+    if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
+        let dir=fnamemodify(a:file, ':h')
+        if !isdirectory(dir)
+            call mkdir(dir, 'p')
+        endif
+    endif
+endfunction
+autocmd BufWritePre <buffer> :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+" }}} Auto Commands "
 
 " Bindings {{{ "
 
