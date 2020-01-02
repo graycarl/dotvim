@@ -215,6 +215,9 @@ nnoremap <Leader>jp :NotesBrowseProject<CR>
 " NERDTree
 nmap T :NERDTreeFind<CR>
 
+" SQL Mode
+let g:ftplugin_sql_omni_key = '<C-x><Space>'
+
 " }}}
 
 " Auto Commands {{{
