@@ -44,6 +44,19 @@ function vimnotes#buffer_init_journal()
     normal ggdd
 endfunction
 
+function vimnotes#task_toggle_done()
+    " Goto the sign position
+    let pos = col('.')
+    normal ^f[l
+    if getline('.')[col('.')-1] == ' '
+        normal rx
+    else
+        execute 'normal r '
+    endif
+    " Restore cursor position
+    call cursor(line('.'), pos)
+endfunction
+
 " }}} Public Functions "
 
 

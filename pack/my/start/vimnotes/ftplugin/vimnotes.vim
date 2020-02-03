@@ -17,6 +17,7 @@ command! -buffer NotesGoPrevJournal call vimnotes#buffer_go_previous_journal()
 command! -buffer NotesGoNextJournal call vimnotes#buffer_go_next_journal()
 command! -buffer NotesGoTodayJournal call vimnotes#open_today(0)
 command! -buffer NotesInitJournal call vimnotes#buffer_init_journal()
+command! -buffer NotesTaskToggleDone call vimnotes#task_toggle_done()
 
 " }}} Commands "
 
@@ -41,5 +42,6 @@ nmap <LocalLeader>t :NotesGoTodayJournal<CR>
 nmap <LocalLeader>i :NotesInitJournal<CR>
 nmap ( :NotesGoPrevJournal<CR>
 nmap ) :NotesGoNextJournal<CR>
+nmap x :NotesTaskToggleDone<CR>
 
 " }}} Bindings "
