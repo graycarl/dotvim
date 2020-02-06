@@ -37,11 +37,11 @@ autocmd BufWritePre <buffer> :call s:MkNonExDir(expand('<afile>'), +expand('<abu
 
 " Bindings {{{ "
 
-nmap <LocalLeader>p :NotesPreview<CR>
-nmap <LocalLeader>t :NotesGoTodayJournal<CR>
-nmap <LocalLeader>i :NotesInitJournal<CR>
-nmap ( :NotesGoPrevJournal<CR>
-nmap ) :NotesGoNextJournal<CR>
-nmap x :NotesTaskToggleDone<CR>
+nmap <buffer> <LocalLeader>p :NotesPreview<CR>
+nmap <buffer> <LocalLeader>t :NotesGoTodayJournal<CR>
+nmap <buffer> <LocalLeader>i :NotesInitJournal<CR>
+nmap <buffer> ( :NotesGoPrevJournal<CR>
+nmap <buffer> ) :NotesGoNextJournal<CR>
+nmap <buffer> x :NotesTaskToggleDone<CR>
 
 " }}} Bindings "
