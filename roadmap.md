@@ -4,6 +4,7 @@
 - [ ] Supertab: fix wrong hehavior that it always trigger a `ctrl-n` even at start of a line.
 - [ ] Fugitive: show diff in Gstatus in *vertical* split
 - [ ] Vimnote: Preview a selected text area
+- [ ] Vimnote: Quick close window like :Gstatus
 
 ## Backlog
 
