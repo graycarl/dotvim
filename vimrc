@@ -99,7 +99,7 @@ let g:python_code_width_limit = 80
 if has('gui_running')
     set guioptions-=rL
     set guifont=mplusNerdFontComplete-regular:h14
-    set lines=40 columns=160
+    set lines=40 columns=200
 endif
 " }}} GUI Settings "
 
