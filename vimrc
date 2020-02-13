@@ -91,6 +91,10 @@ set noshowmode
 
 " }}}
 
+" Language Settings {{{ "
+let g:python_code_width_limit = 80
+" }}} Language Settings "
+
 " GUI Settings {{{ "
 if has('gui_running')
     set guioptions-=rL

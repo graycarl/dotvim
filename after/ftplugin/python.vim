@@ -9,11 +9,7 @@ setlocal foldlevelstart=2
 nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 
 " We should not let a single line's length more than 80 charaters
-if exists('+colorcolumn')
-  setlocal colorcolumn=80
-else
-  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
-endif
+au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>'. g:python_code_width_limit . 'v.\+', -1)
 
 " Remove trailing white space
 autocmd BufWritePre * %s/\s\+$//e
