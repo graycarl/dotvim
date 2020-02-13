@@ -153,6 +153,9 @@ let g:UltiSnipsSnippetDirectories = ["UltiSnips"]
 " git will ignore it by default.
 let g:UltiSnipsSnippetDir = $VIMHOME."/UltiSnips"
 
+" SuperTab
+let g:SuperTabRetainCompletionDuration = 'completion'
+
 " }}}
 
 " Bindings {{{
