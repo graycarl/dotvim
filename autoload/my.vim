@@ -39,3 +39,11 @@ function my#CommonSearch(use_git, as_symbol, pattern, ...)
     execute cmd
     botright cwindow
 endfunction
+
+
+" Find python module file path by name
+function my#PythonOpenModule(name)
+    let pycode = 'import pkgutil; l = pkgutil.get_loader("' . a:name . '"); print(l.filename)'
+    let fn = system('python', pycode)
+    execute "view " . fn
+endfunction

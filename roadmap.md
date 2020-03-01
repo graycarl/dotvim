@@ -5,7 +5,6 @@
 - [ ] Fugitive: show diff in Gstatus in *vertical* split
 - [ ] Vimnote: Preview a selected text area
 - [ ] Vimnote: Quick close window like :Gstatus
-- [ ] Pyopen: Open a module by name. We can use `pkgutil`, see: https://stackoverflow.com/a/4693681
 
 ## Backlog
 
@@ -24,3 +23,4 @@
 - [x] Use `<leader>*` to tigger global search for current word
 - [x] Add `:Search` command to do global search
 - [x] Ultisnips: use all.snippets to setup some basic function. Like `\dt` for current datetime.
+- [x] Pyopen: Open a module by name. We can use `pkgutil`, see: https://stackoverflow.com/a/4693681

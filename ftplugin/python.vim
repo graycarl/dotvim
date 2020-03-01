@@ -1,4 +1,3 @@
-" By Carl.
 " About folding
 setlocal foldmethod=indent
 setlocal foldignore=
@@ -37,3 +36,6 @@ nmap <buffer> gD <Plug>(ale_go_to_definition)
 " NOTE: Supertab fireing omni-completion is buggy. We stop
 " using it until it got fixed.
 " let b:SuperTabDefaultCompletionType = "context"
+
+
+command! -buffer -nargs=1 OpenModule call my#PythonOpenModule('<args>')
