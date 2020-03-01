@@ -9,10 +9,10 @@ setlocal foldlevelstart=2
 nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 
 " We should not let a single line's length more than 80 charaters
-au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>'. g:python_code_width_limit . 'v.\+', -1)
+au BufWinEnter <buffer> let w:m2=matchadd('ErrorMsg', '\%>'. g:python_code_width_limit . 'v.\+', -1)
 
 " Remove trailing white space
-autocmd BufWritePre * %s/\s\+$//e
+au BufWritePre <buffer> %s/\s\+$//e
 
 " ALE Lint
 let b:ale_linters = ['pyls', 'flake8']

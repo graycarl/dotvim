@@ -5,6 +5,7 @@
 - [ ] Fugitive: show diff in Gstatus in *vertical* split
 - [ ] Vimnote: Preview a selected text area
 - [ ] Vimnote: Quick close window like :Gstatus
+- [ ] Pyopen: Open a module by name. We can use `pkgutil`, see: https://stackoverflow.com/a/4693681
 
 ## Backlog
 
