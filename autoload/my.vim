@@ -45,5 +45,9 @@ endfunction
 function my#PythonOpenModule(name)
     let pycode = 'import pkgutil; l = pkgutil.get_loader("' . a:name . '"); print(l.filename)'
     let fn = system('python', pycode)
-    execute "view " . fn
+    if v:shell_error
+        echom 'Failed: ' . fn
+    else
+        execute "view " . fn
+    endif
 endfunction
