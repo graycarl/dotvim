@@ -42,6 +42,6 @@ nmap <buffer> <LocalLeader>t :NotesGoTodayJournal<CR>
 nmap <buffer> <LocalLeader>i :NotesInitJournal<CR>
 nmap <buffer> ( :NotesGoPrevJournal<CR>
 nmap <buffer> ) :NotesGoNextJournal<CR>
-nmap <buffer> x :NotesTaskToggleDone<CR>
+nmap <buffer> <LocalLeader>x :NotesTaskToggleDone<CR>
 
 " }}} Bindings "
