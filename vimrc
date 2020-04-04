@@ -211,8 +211,10 @@ inoremap <C-F> <Right>
 nnoremap <leader>* yiw:SG! <C-R>0<CR>
 vnoremap <leader>* y:SG! <C-R>0<CR>
 
-" NeoVim terminal
-tnoremap <Esc> <C-\><C-n>
+" NeoVim terminal or vim8 terminal
+if has('terminal') || has('nvim')
+    tnoremap <Esc> <C-\><C-n>
+endif
 
 " VimNote
 nnoremap <Leader>jj :NotesToday<CR>
