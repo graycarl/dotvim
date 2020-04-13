@@ -12,7 +12,6 @@ call add(b:notes_journal_date, str2nr(b:notes_journal_datestr[8:9]))
 
 " Commands {{{ "
 
-command! -buffer NotesPreview call vimnotes#preview()
 command! -buffer NotesGoPrevJournal call vimnotes#buffer_go_previous_journal()
 command! -buffer NotesGoNextJournal call vimnotes#buffer_go_next_journal()
 command! -buffer NotesGoTodayJournal call vimnotes#open_today(0)
@@ -37,7 +36,6 @@ autocmd BufWritePre <buffer> :call s:MkNonExDir(expand('<afile>'), +expand('<abu
 
 " Bindings {{{ "
 
-nmap <buffer> <LocalLeader>p :NotesPreview<CR>
 nmap <buffer> <LocalLeader>t :NotesGoTodayJournal<CR>
 nmap <buffer> <LocalLeader>i :NotesInitJournal<CR>
 nmap <buffer> ( :NotesGoPrevJournal<CR>
