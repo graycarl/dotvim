@@ -82,3 +82,6 @@
 [submodule "pack/third/start/awesome-vim-colorschemes"]
 	path = pack/third/start/awesome-vim-colorschemes
 	url = https://github.com/rafi/awesome-vim-colorschemes.git
+[submodule "pack/third/start/vim-virtualenv"]
+	path = pack/third/start/vim-virtualenv
+	url = https://github.com/jmcantrell/vim-virtualenv.git
