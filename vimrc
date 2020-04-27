@@ -3,6 +3,9 @@
 
 " Initialize {{{
 let $VIMHOME = expand('<sfile>:p:h')
+" 这里设置 LANG 环境变量是为了避免 MacVim 自动使用中文语言，导致
+" Git 的输出变成中文而无法使用 fugitive 插件。
+let $LANG = 'en_US'
 " }}}
 
 " Basic Settings {{{
