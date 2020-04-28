@@ -2,8 +2,10 @@
 
 " Public Functions {{{ "
 
-function vimnotes#open_today(new)
-    if a:new
+function vimnotes#open_today(bang)
+    if a:bang == "!"
+        echo "open in current window"
+    else
         vsp
     endif
     execute "lcd " . g:VimnotesRootDir

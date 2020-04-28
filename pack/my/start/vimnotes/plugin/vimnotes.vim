@@ -31,6 +31,6 @@ endif
 
 " Commands {{{
 
-command! NotesToday call vimnotes#open_today(1)
+command! -bang NotesToday call vimnotes#open_today("<bang>")
 
 " }}}
