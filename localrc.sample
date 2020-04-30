@@ -42,8 +42,7 @@ if has('gui_running')
     colorscheme atom
     let g:lightline.colorscheme = 'darcula'
 else
-    " set termguicolors
     set background=dark
-    colorscheme dracula
-    let g:lightline.colorscheme = 'darcula'
+    colorscheme gruvbox
+    let g:lightline.colorscheme = 'gruvbox'
 endif
