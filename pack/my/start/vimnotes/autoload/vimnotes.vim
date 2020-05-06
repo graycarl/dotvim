@@ -130,11 +130,32 @@ function s:copy_unfinished_tasks_before(date)
         let current = s:date_previous(current)
         let fn = s:date_to_journal_fn(current)
         if getftype(fn) == "file"
+            let current_task_unfinished = 0
+            let task_context = 0
             for line in readfile(fn)
-                if match(line, "\\s*- \\[ \\] ") == -1
-                    continue
+                " For task title
+                if match(line, "\\s*- \\[.\\] ") != -1
+                    let task_context = 1
+                    if match(line, "\\s*- \\[ \\] ") != -1
+                        let current_task_unfinished = 1
+                        call add(tasks, line)
+                    elseif match(line, "@repeat") != -1
+                        let current_task_unfinished = 1
+                        let line = substitute(line, "- \\[.\\]", "- [ ]", "")
+                        call add(tasks, line)
+                    else
+                        let current_task_unfinished = 0
+                    endif
+                " Additional text for previous task
+                elseif task_context && (match(line, "\\s") == 0 || strlen(line) == 0)
+                    if current_task_unfinished
+                        call add(tasks, line)
+                    endif
+                " Out of task context
+                else
+                    let task_context = 0
+                    let current_task_unfinished = 0
                 endif
-                call add(tasks, line)
             endfor
             break
         endif
