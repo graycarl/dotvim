@@ -5,6 +5,9 @@
 - [ ] Fugitive: show diff in Gstatus in *vertical* split
 - [ ] Vimnote: Preview a selected text area
 - [ ] Vimnote: Quick close window like :Gstatus
+- [ ] Vimnote: Copy chapters which has mark @doing
+- [ ] Vimnote: Split to independent project
+  - [ ] Add tests
 
 ## Backlog
 
