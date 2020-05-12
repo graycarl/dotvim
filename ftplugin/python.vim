@@ -30,7 +30,7 @@ let b:ale_python_pyls_config = {
             \     }
             \   },
             \ }
-setlocal omnifunc=ale#completion#OmniFunc
+au BufEnter <buffer> setlocal omnifunc=ale#completion#OmniFunc
 nmap <buffer> gD <Plug>(ale_go_to_definition)
 " Use supertab to do the completion
 " NOTE: Supertab fireing omni-completion is buggy. We stop
