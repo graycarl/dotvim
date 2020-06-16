@@ -30,6 +30,7 @@ endfunction
 
 function vimnotes#preview()
     execute "silent !" . g:VimnotesPreviewCommand . " %"
+    redraw!
 endfunction
 
 function vimnotes#buffer_init_journal()
