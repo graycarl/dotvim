@@ -13,6 +13,8 @@ let $LANG = 'en_US'
 " We don't need to compat with vi
 set nocompatible
 
+set hlsearch
+
 " Allow backspacing over everything in insert mode.
 set backspace=indent,eol,start
 
