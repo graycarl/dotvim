@@ -46,3 +46,6 @@ else
     colorscheme gruvbox
     let g:lightline.colorscheme = 'gruvbox'
 endif
+
+" Temporary fix https://github.com/vim/vim/issues/4738
+nmap gx :silent !open <cfile><CR> <bar> :redraw! <CR>
