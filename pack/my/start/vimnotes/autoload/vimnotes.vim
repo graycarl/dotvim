@@ -40,7 +40,7 @@ function vimnotes#buffer_init_journal()
     let projects = "- Project 1\n- Project 2"
     for line in g:VimnotesJournalTemplate
         let line = substitute(line, "{date}", b:notes_journal_datestr, "g")
-        let line = substitute(line, "{tasks}", tasks, "g")
+        let line = substitute(line, "{tasks}", escape(tasks, '&'), "g")
         let line = substitute(line, "{projects}", projects, "g")
         put =line
     endfor
