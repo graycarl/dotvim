@@ -274,6 +274,8 @@ endif
 command -nargs=+ -bang S :call my#CommonSearch(0, "<bang>" == "!", <f-args>)
 command -nargs=+ -bang SG :call my#CommonSearch(1, "<bang>" == "!", <f-args>)
 
+command -nargs=+ Scratch call my#Scratch(<f-args>)
+
 " }}}
 
 " Others {{{
