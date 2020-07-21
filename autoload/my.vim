@@ -38,6 +38,7 @@ function my#CommonSearch(use_git, as_symbol, pattern, ...)
     echo cmd
     execute cmd
     botright cwindow
+    redraw!
 endfunction
 
 
