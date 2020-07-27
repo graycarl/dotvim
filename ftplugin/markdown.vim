@@ -1,4 +1,6 @@
-" By Carl
+" Turn on autoindent
+set autoindent
+
 " Simple implement for folding
 " TODO: Support list & sub-lit
 " TODO: Use syntax
