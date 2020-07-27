@@ -1,35 +1,6 @@
 " Turn on autoindent
 set autoindent
 
-" Simple implement for folding
-" TODO: Support list & sub-lit
-" TODO: Use syntax
-function! MarkdownLevel() 
-    if v:lnum == 1
-        let b:incode = 0
-    endif
-    let h = matchstr(getline(v:lnum), '^#\+ ') 
-    let code = matchstr(getline(v:lnum), '^```')
-    if empty(code) == 0
-        let b:incode = b:incode ? 0 : 1
-        if b:incode
-            return "a1"
-        else
-            return "s1"
-        endif
-    endif
-    if b:incode
-        return "="
-    endif
-    if empty(h) 
-        return "=" 
-    else 
-        return ">" . (len(h) - 1)
-    endif 
-endfunction
-setlocal foldexpr=MarkdownLevel()
-setlocal foldmethod=expr
-
 " Format table under cursor.
 "
 " Depends on Tabularize.
