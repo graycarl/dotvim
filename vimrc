@@ -78,7 +78,7 @@ set directory=~/.vim/run/swap
 set tabstop=4
 set shiftwidth=4
 set expandtab
-set wildignore+=*~,*.o,*.obj,*.pyc
+set wildignore+=*~,*.o,*.obj,*.pyc,__pycache__
 
 " encoding
 set encoding=utf-8
@@ -113,7 +113,7 @@ endif
 
 " disable auto replace netrw
 let NERDTreeHijackNetrw = 0
-let NERDTreeIgnore=['\.pyc$', '\~$']
+let NERDTreeIgnore=['\.pyc$', '\~$', '__pycache__']
 
 " netrw list style
 " let g:netrw_liststyle = 1
