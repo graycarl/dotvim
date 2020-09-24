@@ -148,8 +148,8 @@ let g:ale_lint_on_filetype_changed = 1
 let g:org_indent = 1
 let g:org_heading_shade_leading_stars = 1
 
-" Github Flavored Markdown
-let g:markdown_fenced_languages = ['sh', 'python', 'json']
+" Markdown
+let g:markdown_fenced_languages = ['sh', 'python', 'json', 'sql', 'yaml']
 
 " Ultisnips
 " The search directories
