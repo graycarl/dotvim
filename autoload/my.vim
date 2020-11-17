@@ -44,7 +44,7 @@ endfunction
 
 " View python module file by name
 function my#PythonOpenModule(name)
-    let pycode = 'import pkgutil; l = pkgutil.get_loader("' . a:name . '"); print(l.filename)'
+    let pycode = 'import pkgutil; l = pkgutil.get_loader("' . a:name . '"); print(l.get_filename())'
     let fn = system('python', pycode)
     if v:shell_error
         echom 'Failed: ' . fn
