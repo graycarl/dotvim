@@ -14,7 +14,7 @@ au BufWinEnter <buffer> let w:m2=matchadd('ErrorMsg', '\%>'. g:python_code_width
 au BufWritePre <buffer> %s/\s\+$//e
 
 " ALE Lint
-let b:ale_linters = ['pyls', 'flake8']
+let b:ale_linters = ['pyls', 'flake8', 'mypy']
 let b:ale_fixers = ['autopep8']
 " Pyls currently do not support `#noqa` mark, so we 
 " disable lint for pyls and use flake8 as linter.
