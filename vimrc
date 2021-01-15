@@ -42,6 +42,10 @@ set incsearch
 " confusing.
 set nrformats-=octal
 
+" Use relative number
+set number
+set relativenumber
+
 " Load project local
 set exrc
 set secure
@@ -161,6 +165,11 @@ let g:UltiSnipsSnippetDir = $VIMHOME."/UltiSnips"
 
 " SuperTab
 let g:SuperTabRetainCompletionDuration = 'completion'
+
+" Emmet
+" Do not install global mappings. You can use `:EmmetInstall` to active it in
+" current buffer.
+let g:user_emmet_install_global = 0
 
 " }}}
 
