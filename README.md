@@ -23,3 +23,9 @@ $ cd ~/.vim
 $ virtualenv -p path-to-python3 py3env
 $ ln -s ~/.vim ~/.config/nvim
 ```
+
+## Plugins Usage
+
+### Emmet
+
+We disable the global mappings by default, you can active the mappings in current buffer by run `:EmmetInstall`。
