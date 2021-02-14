@@ -14,6 +14,7 @@ let $LANG = 'en_US'
 set nocompatible
 
 set hlsearch
+set cursorline
 
 " Allow backspacing over everything in insert mode.
 set backspace=indent,eol,start
@@ -41,10 +42,6 @@ set incsearch
 " Do not recognize octal numbers for Ctrl-A and Ctrl-X, most users find it
 " confusing.
 set nrformats-=octal
-
-" Use relative number
-set number
-set relativenumber
 
 " Load project local
 set exrc
