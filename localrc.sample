@@ -49,3 +49,15 @@ endif
 
 " Temporary fix https://github.com/vim/vim/issues/4738
 nmap gx :silent !open '<cfile>'<CR> <bar> :redraw! <CR>
+
+function! OpenURLUnderCursor()
+    let jira = matchstr(expand('<cWORD>'), 'ORI-[0-9]\+')
+    if jira != ''
+        let url = 'https://jira.veevadev.com/browse/' . jira
+    else
+        let url = expand('<cfile>')
+    endif
+    silent exec "!open '" . url . "'"
+    redraw!
+endfunction
+nnoremap gx :call OpenURLUnderCursor()<CR>
