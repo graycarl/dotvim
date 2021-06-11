@@ -283,6 +283,8 @@ command -nargs=+ -bang SG :call my#CommonSearch(1, "<bang>" == "!", <f-args>)
 
 command -nargs=+ Scratch call my#Scratch(<f-args>)
 
+command CloseOtherBuffers %bd|e#
+
 " }}}
 
 " Others {{{
