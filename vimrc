@@ -233,8 +233,9 @@ nnoremap <Leader>jj :NotesToday<CR>
 nnoremap <Leader>ji :NotesBrowseIndex<CR>
 nnoremap <Leader>jp :NotesBrowseProject<CR>
 
-" NERDTree
-nmap T :NERDTreeFind<CR>
+" File management
+nnoremap T :NERDTreeFind<CR>
+nnoremap <Leader>c :let @+ = expand("%:p")<CR>
 
 " SQL Mode
 let g:ftplugin_sql_omni_key = '<C-x><Space>'
