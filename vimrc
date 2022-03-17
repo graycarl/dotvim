@@ -222,6 +222,8 @@ inoremap <C-F> <Right>
 " Global Search
 nnoremap <leader>* yiw:SG! <C-R>0<CR>
 vnoremap <leader>* y:SG! <C-R>0<CR>
+nnoremap <localleader>* yiw:SG! <C-R>0 %<CR>
+vnoremap <localleader>* y:SG! <C-R>0 %<CR>
 
 " NeoVim terminal or vim8 terminal
 if has('terminal') || has('nvim')

@@ -24,12 +24,12 @@ function my#CommonSearch(use_git, as_symbol, pattern, ...)
     if a:use_git
         let cmd = "silent Ggrep! -E " . shellescape(pattern)
         if a:0 >= 1
-            let cmd = cmd . " " . shellescape(a:1)
+            let cmd = cmd . " " . a:1
         endif
     else
         let cmd = "silent grep! -rE " . shellescape(pattern)
-        if a:0 >= 2
-            let cmd = cmd . " " . shellescape(a:1)
+        if a:0 >= 1
+            let cmd = cmd . " " . a:1
         else
             " TODO: Use global ignore
             let cmd = cmd . " ."
