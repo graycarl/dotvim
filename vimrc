@@ -168,6 +168,20 @@ let g:SuperTabRetainCompletionDuration = 'completion'
 " current buffer.
 let g:user_emmet_install_global = 0
 
+" Notes
+let g:VimnotesJournalTemplate = [
+\"<!-- vim: set foldlevel=2: -->",
+\"# {date}",
+\"",
+\"Good good study, day day up 💪",
+\"",
+\"--------------------------------------------------------------------------------",
+\"",
+\"{tasks}",
+\"",
+\"--------------------------------------------------------------------------------"
+\]
+
 " }}}
 
 " Bindings {{{
@@ -291,11 +305,15 @@ command CloseOtherBuffers %bd|e#
 " }}}
 
 " Others {{{
-"
+
 let localrc = $VIMHOME . '/local.vim'
+let load_scenes = []
 if filereadable(localrc)
     execute 'source ' . localrc
 endif
+for scene in load_scenes
+    execute 'source ' . $VIMHOME . "/scenes/" . scene . ".vim"
+endfor
 
 " Fix editor
 if has('nvim')
