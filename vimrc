@@ -161,7 +161,7 @@ let g:UltiSnipsSnippetDirectories = ["UltiSnips"]
 let g:UltiSnipsSnippetDir = $VIMHOME."/UltiSnips"
 
 " SuperTab
-let g:SuperTabRetainCompletionDuration = 'completion'
+let g:SuperTabDefaultCompletionType = "context"
 
 " Emmet
 " Do not install global mappings. You can use `:EmmetInstall` to active it in
