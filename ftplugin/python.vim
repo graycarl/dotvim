@@ -16,23 +16,9 @@ endif
 au BufWritePre <buffer> %s/\s\+$//e
 
 " ALE Lint
-let b:ale_linters = ['pyls', 'flake8', 'mypy']
+let b:ale_linters = ['pyright', 'flake8', 'mypy']
 let b:ale_fixers = ['autopep8']
-" Pyls currently do not support `#noqa` mark, so we 
-" disable lint for pyls and use flake8 as linter.
-let b:ale_python_pyls_config = {
-            \   'pyls': {
-            \     'plugins': {
-            \       'pycodestyle': {
-            \         'enabled': v:false
-            \       },
-            \       'pyflakes': {
-            \         'enabled': v:false
-            \       }
-            \     }
-            \   },
-            \ }
-au BufEnter <buffer> setlocal omnifunc=ale#completion#OmniFunc
+
 nmap <buffer> gD <Plug>(ale_go_to_definition)
 
 

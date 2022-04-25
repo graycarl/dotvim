@@ -1,3 +1,2 @@
-let g:ale_linters = {'rust': ['analyzer']}
-setlocal omnifunc=ale#completion#OmniFunc
+let b:ale_linters = ['analyzer']
 nmap <buffer> gD <Plug>(ale_go_to_definition)
