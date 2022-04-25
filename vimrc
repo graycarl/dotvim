@@ -95,6 +95,9 @@ let g:python3_host_prog = $VIMHOME . '/py3env/bin/python'
 set laststatus=2
 set noshowmode
 
+" For completion
+set completeopt=menu,menuone,popup,longest
+
 " }}}
 
 " Language Settings {{{ "
