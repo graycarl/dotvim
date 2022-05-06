@@ -5,7 +5,7 @@
 let $VIMHOME = expand('<sfile>:p:h')
 " 这里设置 LANG 环境变量是为了避免 MacVim 自动使用中文语言，导致
 " Git 的输出变成中文而无法使用 fugitive 插件。
-let $LANG = 'en_US'
+let $LANG = 'en_US.UTF-8'
 " }}}
 
 " Basic Settings {{{
@@ -96,7 +96,7 @@ set laststatus=2
 set noshowmode
 
 " For completion
-set completeopt=menu,menuone,popup,longest
+set completeopt=menu,menuone,popup
 
 " }}}
 
@@ -147,7 +147,7 @@ let g:ale_lint_on_insert_leave = 0
 let g:ale_lint_on_enter = 1
 let g:ale_lint_on_save = 1
 let g:ale_lint_on_filetype_changed = 1
-" let g:ale_completion_enabled = 1
+let g:ale_completion_enabled = 1
 
 " Org Mode
 let g:org_indent = 1

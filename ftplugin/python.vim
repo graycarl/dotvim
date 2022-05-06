@@ -15,10 +15,26 @@ endif
 " Remove trailing white space
 au BufWritePre <buffer> %s/\s\+$//e
 
-" ALE Lint
-let b:ale_linters = ['pyright', 'flake8', 'mypy']
+" ALE Lint using pylsp
+let b:ale_linters = ['pylsp', 'mypy']
 let b:ale_fixers = ['autopep8']
-
+let b:ale_python_pylsp_config = {
+            \   'pylsp': {
+            \     'plugins': {
+            \       'pycodestyle': {
+            \         'enabled': v:false
+            \       },
+            \       'flake8': {
+            \         'enabled': v:true
+            \       },
+            \       'pyflakes': {
+            \         'enabled': v:false
+            \       }
+            \     }
+            \   },
+            \ }
+" au BufEnter <buffer> setlocal omnifunc=ale#completion#OmniFunc
+setlocal omnifunc=ale#completion#OmniFunc
 nmap <buffer> gD <Plug>(ale_go_to_definition)
 
 
