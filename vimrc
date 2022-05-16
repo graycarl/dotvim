@@ -298,7 +298,7 @@ endif
 " Sample:
 " :S[G][!] apple
 " :S[G][!] apple\ music
-" :S[G][!] \<apple\> *.py
+" :S[G][!] apple *.py
 command -nargs=+ -bang S :call my#CommonSearch(0, "<bang>" == "!", <f-args>)
 command -nargs=+ -bang SG :call my#CommonSearch(1, "<bang>" == "!", <f-args>)
 
