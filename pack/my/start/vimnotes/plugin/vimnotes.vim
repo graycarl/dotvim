@@ -21,9 +21,8 @@ if !exists("g:VimnotesJournalTemplate")
     \"",
     \"{projects}",
     \"",
-    \"## Notes",
+    \"{notes}",
     \"",
-    \"Take notes here."
     \]
 endif
 

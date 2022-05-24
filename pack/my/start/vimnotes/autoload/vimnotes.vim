@@ -37,11 +37,13 @@ function vimnotes#buffer_init_journal()
     " Remove all the content first
     normal ggdG
     let tasks = join(s:copy_unfinished_tasks_before(b:notes_journal_date), "\n")
+    let titles = join(s:copy_repeat_titles_before(b:notes_journal_date), "\n")
     let projects = "- Project 1\n- Project 2"
     for line in g:VimnotesJournalTemplate
         let line = substitute(line, "{date}", b:notes_journal_datestr, "g")
         let line = substitute(line, "{tasks}", escape(tasks, '&'), "g")
         let line = substitute(line, "{projects}", projects, "g")
+        let line = substitute(line, "{notes}", titles, "g")
         put =line
     endfor
     normal ggdd
@@ -168,6 +170,40 @@ function s:copy_unfinished_tasks_before(date)
         call add(tasks, "- [ ] To be implemented 2")
     endif
     return tasks
+endfunction
+
+function s:copy_repeat_titles_before(date)
+    let titles = []
+    let i = 0
+    let current = a:date
+    while i < 100
+        let current = s:date_previous(current)
+        let fn = s:date_to_journal_fn(current)
+        if getftype(fn) == "file"
+            let title_context = 0
+            for line in readfile(fn)
+                " For task title
+                if match(line, "#.*") != -1
+                    if match(line, "@repeat") != -1
+                        let title_context = 1
+                        call add(titles, line)
+                    else
+                        let title_context = 0
+                    endif
+                " Additional text for previous task
+                elseif title_context
+                    call add(titles, line)
+                " Out of task context
+                else
+                    let title_context = 0
+                endif
+            endfor
+            break
+        endif
+        echo "Prev journal " . fn . " not found, try next"
+        let i += 1
+    endwhile
+    return titles
 endfunction
 
 " }}} Private Functions "
