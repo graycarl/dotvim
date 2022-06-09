@@ -36,8 +36,9 @@ endfunction
 function vimnotes#buffer_init_journal()
     " Remove all the content first
     normal ggdG
-    let tasks = join(s:copy_unfinished_tasks_before(b:notes_journal_date), "\n")
-    let titles = join(s:copy_repeat_titles_before(b:notes_journal_date), "\n")
+    let prev_note = s:previous_note(b:notes_journal_date)
+    let tasks = join(s:copy_unfinished_tasks_from(prev_note), "\n")
+    let titles = join(s:copy_repeat_titles_from(prev_note), "\n")
     let projects = "- Project 1\n- Project 2"
     for line in g:VimnotesJournalTemplate
         let line = substitute(line, "{date}", b:notes_journal_datestr, "g")
@@ -125,46 +126,35 @@ function s:is_leap_year(year)
     return a:year % 4 ? 0 : 1
 endfunction
 
-function s:copy_unfinished_tasks_before(date)
+function s:copy_unfinished_tasks_from(fn)
     let tasks = []
-    let i = 0
-    let current = a:date
-    while i < 100
-        let current = s:date_previous(current)
-        let fn = s:date_to_journal_fn(current)
-        if getftype(fn) == "file"
-            let current_task_unfinished = 0
+    let current_task_unfinished = 0
+    let task_context = 0
+    for line in readfile(a:fn)
+        " For task title
+        if match(line, "\\s*- \\[.\\] ") != -1
+            let task_context = 1
+            if match(line, "\\s*- \\[ \\] ") != -1
+                let current_task_unfinished = 1
+                call add(tasks, line)
+            elseif match(line, "@repeat") != -1
+                let current_task_unfinished = 1
+                let line = substitute(line, "- \\[.\\]", "- [ ]", "")
+                call add(tasks, line)
+            else
+                let current_task_unfinished = 0
+            endif
+        " Additional text for previous task
+        elseif task_context && (match(line, "\\s") == 0 || strlen(line) == 0)
+            if current_task_unfinished
+                call add(tasks, line)
+            endif
+        " Out of task context
+        else
             let task_context = 0
-            for line in readfile(fn)
-                " For task title
-                if match(line, "\\s*- \\[.\\] ") != -1
-                    let task_context = 1
-                    if match(line, "\\s*- \\[ \\] ") != -1
-                        let current_task_unfinished = 1
-                        call add(tasks, line)
-                    elseif match(line, "@repeat") != -1
-                        let current_task_unfinished = 1
-                        let line = substitute(line, "- \\[.\\]", "- [ ]", "")
-                        call add(tasks, line)
-                    else
-                        let current_task_unfinished = 0
-                    endif
-                " Additional text for previous task
-                elseif task_context && (match(line, "\\s") == 0 || strlen(line) == 0)
-                    if current_task_unfinished
-                        call add(tasks, line)
-                    endif
-                " Out of task context
-                else
-                    let task_context = 0
-                    let current_task_unfinished = 0
-                endif
-            endfor
-            break
+            let current_task_unfinished = 0
         endif
-        echo "Prev journal " . fn . " not found, try next"
-        let i += 1
-    endwhile
+    endfor
     if len(tasks) == 0
         call add(tasks, "- [ ] To be implemented 1")
         call add(tasks, "- [ ] To be implemented 2")
@@ -172,38 +162,39 @@ function s:copy_unfinished_tasks_before(date)
     return tasks
 endfunction
 
-function s:copy_repeat_titles_before(date)
+function s:copy_repeat_titles_from(fn)
     let titles = []
+    let title_context = 0
+    for line in readfile(a:fn)
+        " For task title
+        if match(line, "#.*") != -1
+            if match(line, "@repeat") != -1
+                let title_context = 1
+                call add(titles, line)
+            else
+                let title_context = 0
+            endif
+        " Additional text for previous task
+        elseif title_context
+            call add(titles, line)
+        " Out of task context
+        else
+            let title_context = 0
+        endif
+    endfor
+    return titles
+endfunction
+
+function s:previous_note(date)
     let i = 0
     let current = a:date
     while i < 100
         let current = s:date_previous(current)
         let fn = s:date_to_journal_fn(current)
         if getftype(fn) == "file"
-            let title_context = 0
-            for line in readfile(fn)
-                " For task title
-                if match(line, "#.*") != -1
-                    if match(line, "@repeat") != -1
-                        let title_context = 1
-                        call add(titles, line)
-                    else
-                        let title_context = 0
-                    endif
-                " Additional text for previous task
-                elseif title_context
-                    call add(titles, line)
-                " Out of task context
-                else
-                    let title_context = 0
-                endif
-            endfor
-            break
+            return fn
         endif
-        echo "Prev journal " . fn . " not found, try next"
-        let i += 1
     endwhile
-    return titles
 endfunction
 
 " }}} Private Functions "
