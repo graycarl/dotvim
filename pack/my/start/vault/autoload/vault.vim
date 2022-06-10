@@ -11,6 +11,10 @@ function vault#write_backup()
     execute "write " . vault_bk_file
 endfunction
 
+function vault#copy_item_value()
+    substitute/[^:]\+: \(.*\)/\=setreg("*", submatch(1))/n
+endfunction
+
 function s:hash(str, length)
     return system("md5", a:str)[:a:length-1]
 endfunction
