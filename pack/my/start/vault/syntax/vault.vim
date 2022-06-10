@@ -6,7 +6,7 @@ endif
 syntax case match
 
 " Elements
-syntax match vaultName /^\S\+/
+syntax match vaultName /^\S.\+/
 
 " KV items
 syntax match vaultKV /^\s\+\S\+:.*$/ contains=vaultKey,vaultValue
