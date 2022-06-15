@@ -134,6 +134,8 @@ let g:ctrlp_custom_ignore = {
 " a - like "c", but only applies when the current working directory outside of
 "     CtrlP isn't a direct ancestor of the directory of the current file.
 let g:ctrlp_working_path_mode = 'a'
+" Show recent file belongs to current dir
+let g:ctrlp_mruf_relative = 1
 
 " Syntastic
 let g:syntastic_always_populate_loc_list = 1
@@ -227,6 +229,7 @@ inoremap <F9> <C-O>:syntax sync fromstart <CR>
 
 " CtrlP
 let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlPMixed'
 nnoremap <leader>b :<C-U>CtrlPBuffer<CR>
 " Need `brew install ctags`
 nnoremap <localleader>@ :<C-U>CtrlPBufTag<CR>
