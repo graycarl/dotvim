@@ -25,7 +25,9 @@ function! s:TableFormat()
     execute 's/ /-/' . l:flags
     call setpos('.', l:pos)
 endfunction
-command! -buffer TableFormat call s:TableFormat()
+" Use gq to format table.
+" When it failed(not a table), it will fail back to internal format program.
+set formatexpr=s:TableFormat()
 
 
 " from: https://github.com/plasticboy/vim-markdown/blob/master/ftplugin/markdown.vim
