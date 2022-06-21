@@ -1,0 +1,1 @@
+set completefunc=my#SnippetComplete
