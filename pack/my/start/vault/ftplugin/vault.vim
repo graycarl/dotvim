@@ -13,3 +13,21 @@ command! -buffer CopyItemValue call vault#copy_item_value()
 
 " Binding
 nnoremap <buffer> <LocalLeader>c :CopyItemValue<CR>
+
+" Abbreviates
+iab <expr> <buffer> item~ <SID>ItemTemplate()
+iab <expr> <buffer> now~ <SID>NowString()
+
+function s:ItemTemplate()
+    let t = "NAME"
+    let t = t . "\n\tURL: XXXX"
+    let t = t . "\nUsername: XXXX"
+    let t = t . "\nPassword: XXXX"
+    let t = t . "\nCreated: " . <SID>NowString()
+    let t = t . "\nUpdated: " . <SID>NowString()
+    return t
+endfunction
+
+function s:NowString()
+    return strftime("%Y/%m/%d %H:%M:%S", localtime())
+endfunction
