@@ -7,6 +7,9 @@ set autoindent
 "
 " from: https://github.com/plasticboy/vim-markdown/blob/master/ftplugin/markdown.vim
 function! s:TableFormat()
+    if match(getline(v:lnum), '^|') == -1 && match(getline(v:lnum+1), '^|') == -1
+        return -1
+    endif
     let l:pos = getpos('.')
     normal! {
     " Search instead of `normal! j` because of the table at beginning of file edge case.
