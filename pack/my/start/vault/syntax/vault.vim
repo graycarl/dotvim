@@ -13,7 +13,7 @@ syntax match vaultName /^\S.\+/
 
 " Online KV
 syntax match vaultKV /^  \S.\+: \S.\+$/ contains=vaultKey,vaultValue
-syntax match vaultKey /  \S\+: /me=e-2 contained
+syntax match vaultKey /^  \S\+: /me=e-2 contained
 syntax match vaultValue /: .*$/ms=s+2 contained
 
 " Block KV
