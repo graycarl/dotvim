@@ -10,6 +10,7 @@ setlocal foldmethod=indent foldnestmax=1
 set tabstop=2
 set shiftwidth=2
 set autoindent
+set conceallevel=1
 
 " write backup file
 autocmd BufWritePost <buffer> call vault#write_backup()
