@@ -1,3 +1,8 @@
+if exists("b:did_my_ftplugin")
+  finish
+endif
+let b:did_my_ftplugin = 1
+
 " About folding
 setlocal foldmethod=indent
 setlocal foldignore=
@@ -39,3 +44,5 @@ nmap <buffer> gD <Plug>(ale_go_to_definition)
 
 
 command! -buffer -nargs=1 OpenModule call my#PythonOpenModule('<args>')
+command! -buffer OpenModuleOnCursor call my#PythonOpenModuleOnCursor()
+nmap <buffer> <localleader>gd :OpenModuleOnCursor<CR>

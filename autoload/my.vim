@@ -44,12 +44,31 @@ endfunction
 
 " View python module file by name
 function my#PythonOpenModule(name)
+    " echom "OpenModule: " . a:name
     let pycode = 'import pkgutil; l = pkgutil.get_loader("' . a:name . '"); print(l.get_filename())'
     let fn = system('python', pycode)
     if v:shell_error
-        echom 'Failed: ' . fn
+        return v:false
     else
         execute "view " . fn
+        return v:true
+    endif
+endfunction
+function my#PythonOpenModuleOnCursor()
+    let line = split(getline("."))
+    if line[0] == "from" && line[2] == "import"
+        let module = line[1] . "." . line[3]
+    elseif line[0] == "import"
+        let module = line[1]
+    else
+        echom "Not a import"
+        return
+    endif
+    if my#PythonOpenModule(module) == v:false
+        let module = join(split(module, "\\.")[:-2], ".")
+        if my#PythonOpenModule(module) == v:false
+            echom "Failed"
+        endif
     endif
 endfunction
 
