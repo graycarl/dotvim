@@ -50,7 +50,6 @@ function! s:Toc(...)
     let l:front_matter = 0
     let l:header_list = []
     let l:header_max_len = 0
-    let l:vim_markdown_toc_autofit = get(g:, "vim_markdown_toc_autofit", 0)
     let l:vim_markdown_frontmatter = get(g:, "vim_markdown_frontmatter", 0)
     for i in range(1, line('$'))
         let l:lineraw = getline(i)
@@ -107,12 +106,8 @@ function! s:Toc(...)
         lopen
     elseif l:window_type ==# 'vertical'
         vertical lopen
-        " auto-fit toc window when possible to shrink it
-        if (&columns/2) > l:header_max_len && l:vim_markdown_toc_autofit == 1
-            execute 'vertical resize ' . (l:header_max_len + 1)
-        else
-            execute 'vertical resize ' . (&columns/2)
-        endif
+        vertical resize 30
+        setlocal nowrap
     elseif l:window_type ==# 'tab'
         tab lopen
     else
