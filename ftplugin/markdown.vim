@@ -147,3 +147,5 @@ setlocal formatoptions+=mB
 
 nnoremap <buffer> <LocalLeader>\ za
 
+" Toc 用了 Local List 会和 ALE 冲突
+let b:ale_enabled = 0
