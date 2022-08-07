@@ -1,3 +1,4 @@
+" vim:foldmethod=indent
 " Common tools
 if exists('did_autoload_my') || &cp || version < 700
     finish
@@ -111,4 +112,10 @@ function my#SnippetComplete(findstart, base)
     else
         return ["okok\rsecond", a:base]
     endif
+endfunction
+
+" Send command to tmux pane
+function my#TmuxSendCommandToPane(cmd)
+    execute "silent !tmux send -t1 '" . a:cmd . "' Enter"
+    redraw!
 endfunction

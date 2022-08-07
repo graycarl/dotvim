@@ -312,6 +312,8 @@ command -nargs=+ Scratch call my#Scratch(<f-args>)
 
 command CloseOtherBuffers %bd|e#
 
+command -nargs=+ T :call my#TmuxSendCommandToPane(<q-args>)
+
 " }}}
 
 " Others {{{
