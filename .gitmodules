@@ -88,3 +88,6 @@
 [submodule "pack/third/opt/vim-go"]
 	path = pack/third/opt/vim-go
 	url = https://github.com/fatih/vim-go.git
+[submodule "pack/third/opt/vim-barbaric"]
+	path = pack/third/opt/vim-barbaric
+	url = https://github.com/rlue/vim-barbaric.git
