@@ -10,7 +10,6 @@ let $LANG = 'en_US.UTF-8'
 
 " Basic Settings {{{
 
-set hlsearch
 set cursorline
 
 set history=200		" keep 200 lines of command line history
