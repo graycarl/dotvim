@@ -1,6 +1,3 @@
-" Turn on autoindent
-set autoindent
-
 " Format table under cursor.
 "
 " Depends on Tabularize.

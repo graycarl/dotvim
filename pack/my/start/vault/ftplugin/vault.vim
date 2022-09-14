@@ -9,7 +9,6 @@ setlocal noswapfile
 setlocal foldmethod=indent foldnestmax=1
 set tabstop=2
 set shiftwidth=2
-set autoindent
 set conceallevel=1
 
 " write backup file
