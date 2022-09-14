@@ -10,9 +10,6 @@ let $LANG = 'en_US.UTF-8'
 
 " Basic Settings {{{
 
-" We don't need to compat with vi
-set nocompatible
-
 set hlsearch
 set cursorline
 
