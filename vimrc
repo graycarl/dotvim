@@ -57,7 +57,6 @@ set expandtab
 set wildignore+=*~,*.o,*.obj,*.pyc,__pycache__
 
 " encoding
-set encoding=utf-8
 set fileformat=unix
 set fileformats=unix,dos
 
