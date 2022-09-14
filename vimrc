@@ -96,7 +96,7 @@ set laststatus=2
 set noshowmode
 
 " For completion
-set completeopt=menu,menuone,popup
+set completeopt=menu,menuone
 
 " }}}
 
