@@ -29,12 +29,6 @@ set nrformats-=octal
 set exrc
 set secure
 
-" In many terminal emulators the mouse works just fine.  By enabling it you
-" can position the cursor, Visually select and scroll with the mouse.
-if has('mouse')
-  set mouse=a
-endif
-
 " disable undofile
 set noundofile
 
