@@ -62,7 +62,6 @@ set fileformats=unix,dos
 let g:python3_host_prog = $VIMHOME . '/py3env/bin/python'
 
 " for lightline
-set laststatus=2
 set noshowmode
 
 " For completion
