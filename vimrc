@@ -24,9 +24,6 @@ set ttimeoutlen=100	" wait up to 100ms after Esc for special key
 " text scroll if you mouse-click near the start or end of the window.
 set scrolloff=5
 
-" Do incremental searching
-set incsearch
-
 " Do not recognize octal numbers for Ctrl-A and Ctrl-X, most users find it
 " confusing.
 set nrformats-=octal
