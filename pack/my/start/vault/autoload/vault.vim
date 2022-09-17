@@ -7,8 +7,8 @@ function vault#write_backup()
     if !isdirectory(vault_bk_dir)
         call mkdir(vault_bk_dir, 'p')
     endif
-    let vault_bk_file = vault_bk_dir . "/" . expand("%:t:r") . trim(system("date +.%Y%m%d%H%M%S")) . ".vault"
-    execute "write " . vault_bk_file
+    let vault_bk_file = vault_bk_dir . "/" . substitute(expand("%:t"), "\\.vault", trim(system("date +.%Y%m%d%H%M%S")) . ".vault", "")
+    execute "!cp \"%\" " . vault_bk_file
 endfunction
 
 function vault#copy_item_value()
