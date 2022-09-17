@@ -4,8 +4,7 @@ if exists("b:did_ftplugin")
 endif
 let b:did_ftplugin = 1
 
-setlocal cryptmethod=blowfish2
-setlocal noswapfile
+setlocal noswapfile noundofile
 setlocal foldmethod=indent foldnestmax=1
 set tabstop=2
 set shiftwidth=2
