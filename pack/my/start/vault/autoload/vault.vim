@@ -12,7 +12,8 @@ function vault#write_backup()
 endfunction
 
 function vault#copy_item_value()
-    substitute/[^:]\+: \(.*\)/\=setreg("*", submatch(1))/n
+    substitute/[^:]\+: \(.*\)/\=setreg("x", submatch(1))/n
+    let @* = @x
 endfunction
 
 function s:hash(str, length)
