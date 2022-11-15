@@ -14,7 +14,7 @@ augroup encrypted
   " Read password
   autocmd BufReadPre,FileReadPre,BufNewFile *.enc let b:secret = inputsecret("Password: ")
   " (If you use tcsh, you may need to alter this line.)
-  autocmd BufReadPost,FileReadPost *.enc execute "1,$!openssl enc -d -aes-256-cbc -salt -pass 'pass:" . b:secret . "'"
+  autocmd BufReadPost,FileReadPost *.enc execute "1,$!openssl aes-256-cbc -d -md md5 -salt -k '" . b:secret . "'"
 
   " Switch to normal mode for editing
   autocmd BufReadPost,FileReadPost *.enc set nobin
@@ -24,7 +24,7 @@ augroup encrypted
   " Convert all text to encrypted text before writing
   " (If you use tcsh, you may need to alter this line.)
   autocmd BufWritePre,FileWritePre *.enc set bin
-  autocmd BufWritePre,FileWritePre *.enc execute "1,$!openssl enc -aes-256-cbc -salt -pass 'pass:" . b:secret . "'"
+  autocmd BufWritePre,FileWritePre *.enc execute "1,$!openssl aes-256-cbc -md md5 -salt -k '" . b:secret . "'"
   " Undo the encryption so we are back in the normal text, directly
   " after the file has been written.
   autocmd BufWritePost,FileWritePost *.enc set nobin
