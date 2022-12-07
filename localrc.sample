@@ -30,7 +30,8 @@ au FileType ruby setlocal shiftwidth=2
 au FileType gitcommit nmap <buffer> I :call PreInsertJIRA()<CR>
 function PreInsertJIRA()
     g/ORI-[0-9]\+/y
-    normal ggPdthxxf-;DJxA: 
+    normal ggP
+    s/.*\(ORI-[0-9]\+\).*/\1: /
     startinsert!
 endfunction
 
