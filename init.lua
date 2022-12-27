@@ -54,6 +54,7 @@ require('packer').startup(function(use)
   use { 'nvim-tree/nvim-tree.lua', tag = 'nightly' }
   use { 'godlygeek/tabular', tag = '1.0.0' }
   use 'rhysd/vim-gfm-syntax'
+  use "ellisonleao/gruvbox.nvim"
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')
@@ -142,8 +143,10 @@ vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 
 -- Set colorscheme
-vim.o.termguicolors = true
-vim.cmd [[colorscheme onedark]]
+-- vim.o.termguicolors = true
+-- vim.cmd [[colorscheme onedark]]
+vim.o.background = "dark" -- or "light" for light mode
+vim.cmd([[colorscheme gruvbox]])
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
