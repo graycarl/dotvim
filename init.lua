@@ -207,7 +207,6 @@ vim.keymap.set('n', '<Leader>c', ':let @+ = expand("%:p")<CR>')
 require('lualine').setup {
   options = {
     icons_enabled = false,
-    theme = 'onedark',
     component_separators = '|',
     section_separators = '',
   },
@@ -273,6 +272,8 @@ require('telescope').setup {
       i = {
         ['<C-u>'] = false,
         ['<C-d>'] = false,
+        ['<C-j>'] = 'move_selection_next',
+        ['<C-k>'] = 'move_selection_previous'
       },
     },
   },
@@ -282,6 +283,7 @@ require('telescope').setup {
 pcall(require('telescope').load_extension, 'fzf')
 
 -- See `:help telescope.builtin`
+vim.keymap.set('n', '<leader><leader>', require('telescope.builtin').builtin, { desc = '[\\] Start telescope' })
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
 vim.keymap.set('n', '<localleader>/', function()
@@ -364,6 +366,7 @@ local servers = {
   rust_analyzer = {},
   -- tsserver = {},
   pylsp = {},
+  bashls = {},
 
   sumneko_lua = {
     Lua = {
