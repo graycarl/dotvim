@@ -1,9 +1,5 @@
 -- vim: foldmethod=marker ts=2 sts=2 sw=2 et
 
--- [[ Initialize ]] {{{
-vim.env.VIMHOME = vim.fn.expand('<sfile>:p:h')
--- }}}
-
 -- [[ Install packer ]] {{{
 local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
 local is_bootstrap = false
@@ -108,8 +104,10 @@ vim.o.secure = true
 
 -- backup & swap file
 vim.o.backup = true
-vim.o.backupdir = vim.env.VIMHOME .. '/run/backup,.'
-vim.o.directory = vim.env.VIMHOME .. '/run/swap'
+vim.o.backupdir = vim.fn.stdpath('state') .. '/backup/'
+if vim.fn.empty(vim.fn.glob(vim.o.backupdir)) > 0 then
+    vim.fn.mkdir(vim.o.backupdir, 'p')
+end
 
 -- Editing
 vim.o.tabstop = 4
