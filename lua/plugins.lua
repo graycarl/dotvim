@@ -46,7 +46,10 @@ require('packer').startup(function(use)
   use { 'nvim-tree/nvim-tree.lua', tag = 'nightly' }
   use { 'godlygeek/tabular', tag = '1.0.0' }
   use 'rhysd/vim-gfm-syntax'
+
+  -- Color schemes
   use "ellisonleao/gruvbox.nvim"
+  use 'sainnhe/everforest'
 
   if is_bootstrap then
     require('packer').sync()

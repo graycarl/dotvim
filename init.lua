@@ -27,8 +27,8 @@ require('setup.cmp')
 
 require('mappings')
 
-for i, fn in ipairs({'local.vim', 'local.lua'}) do
-  ffn = vim.env.VIMHOME .. '/' .. fn
+for _, fn in ipairs({'local.vim', 'local.lua'}) do
+  local ffn = vim.env.VIMHOME .. '/' .. fn
   if vim.fn.filereadable(ffn) == 1 then
     vim.cmd.source(ffn)
   end

@@ -49,11 +49,10 @@ vim.o.smartcase = true
 vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 
--- Set colorscheme
--- vim.o.termguicolors = true
--- vim.cmd [[colorscheme onedark]]
-vim.o.background = "dark" -- or "light" for light mode
-vim.cmd([[colorscheme gruvbox]])
-
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
+
+-- Enable termguicolors
+if vim.fn.has('termguicolors') == 1 then
+    vim.o.termguicolors = true
+end
