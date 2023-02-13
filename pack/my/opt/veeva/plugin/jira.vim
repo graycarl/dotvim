@@ -5,7 +5,10 @@ function! OpenURLUnderCursor()
     else
         let url = expand('<cfile>')
     endif
-    silent exec "!open '" . url . "'"
+    " let url = substitute(url, '?', '\\?', '')
+    let url = substitute(url, '&', '\\&', '')
+    let url = substitute(url, '#', '\\#', '')
+    exec "!open " . shellescape(url)
     redraw!
 endfunction
 nnoremap gx :call OpenURLUnderCursor()<CR>
