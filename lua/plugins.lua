@@ -21,6 +21,8 @@ require('packer').startup(function(use)
       'j-hui/fidget.nvim',
       -- Additional lua configuration, makes nvim stuff amazing
       'folke/neodev.nvim',
+      -- Add lint support to lsp
+      'mfussenegger/nvim-lint'
     },
   }
 

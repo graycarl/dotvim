@@ -19,3 +19,6 @@ endif
 
 " Remove trailing white space
 au BufWritePre <buffer> %s/\s\+$//e
+
+" Lint on save
+au BufWritePost <buffer> lua require('lint').try_lint()
