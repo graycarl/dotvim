@@ -4,11 +4,12 @@
 " TODO: exclude / exclude-dir
 function s:CommonSearch(use_git, as_symbol, pattern, ...)
     let pattern = a:pattern
-    if a:as_symbol
-        let pattern = '\<' . pattern . '\>'
-    endif
+    let opts = '-E'
     if a:use_git
-        let cmd = "silent Ggrep! -E " . shellescape(pattern)
+        if a:as_symbol
+            let opts = opts . " -w"
+        endif
+        let cmd = "silent Ggrep! " . opts . " " . shellescape(pattern)
         if a:0 >= 1
             let cmd = cmd . " " . a:1
         endif
