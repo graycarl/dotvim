@@ -7,7 +7,7 @@ if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
   vim.cmd [[packadd packer.nvim]]
 end
 
-require('packer').startup(function(use)
+require('packer').startup({function(use)
   -- Package manager
   use 'wbthomason/packer.nvim'
 
@@ -56,6 +56,8 @@ require('packer').startup(function(use)
   if is_bootstrap then
     require('packer').sync()
   end
-end)
+end, config = {
+  snapshot_path = vim.fn.stdpath('config')..'/lua/plugin-snapshots'
+}})
 
 return is_bootstrap
