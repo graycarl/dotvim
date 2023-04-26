@@ -32,9 +32,6 @@ vim.g.markdown_folding = true
 vim.g.netrw_list_hide = '.*\\.swp$,.*\\.pyc'
 vim.g.netrw_altv = true
 
--- Set highlight on search
-vim.o.hlsearch = false
-
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
