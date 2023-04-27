@@ -3,17 +3,20 @@
 vim.env.VIMHOME = vim.fn.expand('<sfile>:p:h')
 vim.env.EDITOR = 'nvim'
 
-local bootstrap = require('plugins')
-if bootstrap then
-    require('packer').sync()
-    return
+-- Make sure to set `mapleader` before lazy so your mappings are correct
+vim.g.mapleader = '\\'
+vim.g.maplocalleader = ' '
+
+-- Setup lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath})
 end
-vim.cmd([[
-  augroup packer_user_config
-    autocmd!
-    autocmd BufWritePost $VIMHOME/lua/plugins.lua source <afile> | PackerCompile
-  augroup end
-]])
+vim.opt.rtp:prepend(lazypath)
+require('lazy').setup('plugins')
+-- lazy.nvim reset packpath for performance issue. 
+-- But we need to load personal pack on config dir.
+vim.opt.pp:prepend(vim.fn.stdpath("config"))
 
 require('setup.vim')
 require('setup.lualine')
