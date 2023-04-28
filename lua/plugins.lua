@@ -14,6 +14,8 @@ return {
   'navarasu/onedark.nvim',
 
   'nvim-tree/nvim-tree.lua',
+  -- Load only when $NERD_FONT exists.
+  {'nvim-tree/nvim-web-devicons', lazy = true, cond = function () return vim.env.NERD_FONT end},
   {'godlygeek/tabular', version = '1.0.0'},
   'rhysd/vim-gfm-syntax',
 
