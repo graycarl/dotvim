@@ -2,8 +2,12 @@
 " args: pattern, file_pattern=0
 " TODO: support -i
 " TODO: exclude / exclude-dir
-function s:CommonSearch(use_git, as_symbol, pattern, ...)
-    let pattern = a:pattern
+function s:CommonSearch(use_git, as_symbol, pattern='', ...)
+    if a:pattern == ''
+        let pattern = expand('<cword>')
+    else
+        let pattern = a:pattern
+    endif
     let opts = '-E'
     if a:use_git
         if a:as_symbol
@@ -33,5 +37,5 @@ endfunction
 " :S[G][!] apple
 " :S[G][!] apple\ music
 " :S[G][!] apple *.py
-command -nargs=+ -bang S :call s:CommonSearch(0, "<bang>" == "!", <f-args>)
-command -nargs=+ -bang SG :call s:CommonSearch(1, "<bang>" == "!", <f-args>)
+command -nargs=* -bang S :call s:CommonSearch(0, "<bang>" == "!", <f-args>)
+command -nargs=* -bang SG :call s:CommonSearch(1, "<bang>" == "!", <f-args>)
