@@ -10,13 +10,10 @@ vim.g.maplocalleader = ' '
 -- Setup lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath})
+  vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=v9.14.7", lazypath})
 end
 vim.opt.rtp:prepend(lazypath)
 require('lazy').setup('plugins')
--- lazy.nvim reset packpath for performance issue. 
--- But we need to load personal pack on config dir.
-vim.opt.pp:prepend(vim.fn.stdpath("config"))
 
 require('setup.vim')
 require('setup.lualine')
