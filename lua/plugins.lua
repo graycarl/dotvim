@@ -61,6 +61,15 @@ return {
     dependencies = { 'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
   },
 
+  -- Treesitter: Highlight, edit, and navigate code
+  {
+    'nvim-treesitter/nvim-treesitter',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter-textobjects',
+    },
+    build = ":TSUpdate",
+  },
+
   -- local plugins
   { dir = vim.fn.stdpath('config') .. '/pack/my/start/encrypt' },
   { dir = vim.fn.stdpath('config') .. '/pack/my/start/vault' },
