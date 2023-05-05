@@ -94,16 +94,18 @@ require('lint').linters_by_ft = {
 
 -- Use flake8 instead of pycodestyle
 -- See: <https://github.com/python-lsp/python-lsp-server#configuration>
-require'lspconfig'.pylsp.setup{
-  settings = {
-    pylsp = {
-      plugins = {
-        pycodestyle = { enabled = false },
-        mccabe = { enabled = false },
-        pyflakes = { enabled = false },
-        flake8 = { enabled = true },
-      },
-      configurationSources = { "flake8" }
-    }
-  }
-}
+-- But with this code enabled, the Goto definition will not work and I 
+-- don't know why. So comment in out now.
+-- require'lspconfig'.pylsp.setup{
+--   settings = {
+--     pylsp = {
+--       plugins = {
+--         pycodestyle = { enabled = false },
+--         mccabe = { enabled = false },
+--         pyflakes = { enabled = false },
+--         flake8 = { enabled = true },
+--       },
+--       configurationSources = { "flake8" }
+--     }
+--   }
+-- }
