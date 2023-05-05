@@ -91,3 +91,19 @@ require('lint').linters_by_ft = {
   markdown = {'vale',},
   python = {'mypy',},
 }
+
+-- Use flake8 instead of pycodestyle
+-- See: <https://github.com/python-lsp/python-lsp-server#configuration>
+require'lspconfig'.pylsp.setup{
+  settings = {
+    pylsp = {
+      plugins = {
+        pycodestyle = { enabled = false },
+        mccabe = { enabled = false },
+        pyflakes = { enabled = false },
+        flake8 = { enabled = true },
+      },
+      configurationSources = { "flake8" }
+    }
+  }
+}
