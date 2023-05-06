@@ -55,10 +55,16 @@ return {
       'mfussenegger/nvim-lint'
     },
   },
+
   -- Autocompletion
   {
     'hrsh7th/nvim-cmp',
     dependencies = { 'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
+  },
+  {
+    "L3MON4D3/LuaSnip",
+    version = "1.*",
+    dependencies = { "rafamadriz/friendly-snippets" }
   },
 
   -- Treesitter: Highlight, edit, and navigate code
