@@ -27,6 +27,7 @@ vim.o.wildignore = '*~,*.o,*.obj,*.pyc,__pycache__'
 -- languages
 vim.g.python_code_width_limit = 80
 vim.g.markdown_folding = true
+vim.g.omni_sql_no_default_maps = 1
 
 -- netrw
 vim.g.netrw_list_hide = '.*\\.swp$,.*\\.pyc'
