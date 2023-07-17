@@ -12,6 +12,7 @@ return {
   "ellisonleao/gruvbox.nvim",
   'sainnhe/everforest',
   'navarasu/onedark.nvim',
+  'rmehri01/onenord.nvim',
 
   'nvim-tree/nvim-tree.lua',
   -- Load only when $NERD_FONT exists.
