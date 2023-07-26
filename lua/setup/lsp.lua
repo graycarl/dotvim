@@ -89,9 +89,10 @@ require('fidget').setup()
 -- Add linter support
 require('lint').linters_by_ft = {
   markdown = {'vale',},
-  python = {'mypy',},
+  python = {'mypy', 'ruff'},
 }
 
+-- This is why we move to jedi-language-server:
 -- Use flake8 instead of pycodestyle
 -- See: <https://github.com/python-lsp/python-lsp-server#configuration>
 -- But with this code enabled, the Goto definition will not work and I 
