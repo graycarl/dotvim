@@ -1,5 +1,9 @@
 -- vim: foldmethod=marker ts=2 sts=2 sw=2 et
 
+-- We need to set font as soon as possible, or we'll facing
+-- <https://github.com/neovide/neovide/issues/1636>
+vim.opt.guifont = "M+1Code Nerd Font:h16"
+
 vim.env.VIMHOME = vim.fn.expand('<sfile>:p:h')
 vim.env.EDITOR = 'nvim'
 
