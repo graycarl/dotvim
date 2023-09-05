@@ -4,5 +4,6 @@ pcall(require('telescope').load_extension, 'fzf')
 require('telescope').setup {
     defaults = {
         file_ignore_patterns = {"*.pyc", '__pycache__'},
+        wrap_results = true
     }
 }
