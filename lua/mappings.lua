@@ -75,7 +75,10 @@ vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { de
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<localleader>sd', function() 
-  require('telescope.builtin').diagnostics({bufnr=0})
+  require('telescope.builtin').diagnostics({
+    bufnr=0,
+    wrap_results=true
+  })
 end, { desc = '[S]earch [D]iagnostics current Buffer' })
 vim.keymap.set('n', '<localleader><localleader>', function()
     require('telescope.builtin').oldfiles({cwd_only=true})
