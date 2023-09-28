@@ -42,6 +42,9 @@ cmp.setup {
         fallback()
       end
     end, { 'i', 's' }),
+    ['<C-g>'] = cmp.mapping(function(fallback)
+      vim.api.nvim_feedkeys(vim.fn['copilot#Accept'](vim.api.nvim_replace_termcodes('<Tab>', true, true, true)), 'n', true)
+    end),
   },
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },
@@ -49,6 +52,9 @@ cmp.setup {
     { name = 'luasnip' },
   }, {
     { name = 'buffer' }
-  })
+  }),
+  experimental = {
+    ghost_text = false -- this feature conflict with copilot.vim's preview.
+  }
 }
 

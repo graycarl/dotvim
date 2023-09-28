@@ -73,6 +73,7 @@ return {
     version = "1.*",
     dependencies = { "rafamadriz/friendly-snippets" }
   },
+  'github/copilot.vim',
 
   -- Treesitter: Highlight, edit, and navigate code
   {
