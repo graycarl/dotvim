@@ -6,6 +6,7 @@ vim.g.copilot_filetypes = {
   lua = true,
   javascript = true,
   vim = true,
+  gitcommit = true,
 }
 -- 下面这句是从 nvim-cmp 的文档里抄来的，不知道有什么用，但是不加的话copilot 会无法工作
 -- 猜测是由于 copilot 会去检查 Accept 函数是否存在 mapping，如果不存在的话就不工作。
