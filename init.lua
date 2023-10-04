@@ -29,7 +29,6 @@ require('setup.telescope')
 require('setup.lsp')
 require('setup.cmp')
 require('setup.treesitter')
-require('setup.copilot')
 
 require('mappings')
 

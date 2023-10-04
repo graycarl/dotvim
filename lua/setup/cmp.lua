@@ -4,6 +4,9 @@ local luasnip = require 'luasnip'
 require("luasnip.loaders.from_vscode").lazy_load()
 
 cmp.setup {
+  -- While nvim_lsp_signature_help hardcode the preselect mode to true, but
+  -- I dont like it, so I set it to none.
+  preselect = cmp.PreselectMode.None,
   snippet = {
     expand = function(args)
       luasnip.lsp_expand(args.body)
@@ -28,13 +31,6 @@ cmp.setup {
         fallback()
       end
     end, { 'i', 's' }),
-    ['<C-J>'] = cmp.mapping(function(fallback)
-      if luasnip.jumpable(1) then
-        luasnip.jump(1)
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
     ['<C-K>'] = cmp.mapping(function(fallback)
       if luasnip.jumpable(-1) then
         luasnip.jump(-1)
@@ -42,9 +38,6 @@ cmp.setup {
         fallback()
       end
     end, { 'i', 's' }),
-    ['<C-g>'] = cmp.mapping(function(fallback)
-      vim.api.nvim_feedkeys(vim.fn['copilot#Accept'](vim.api.nvim_replace_termcodes('<Tab>', true, true, true)), 'n', true)
-    end),
   },
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },
