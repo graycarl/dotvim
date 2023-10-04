@@ -1,4 +1,14 @@
 return {
+  -- surround text objects with quotes, parens, etc
+  {
+    'tpope/vim-surround', 
+    config = function()
+      -- Remove insert mappings, which are conflicting with copilot
+      vim.api.nvim_del_keymap('i', '<C-G>s')
+      vim.api.nvim_del_keymap('i', '<C-G>S')
+      vim.api.nvim_echo({{'Removed insert mappings for vim-surround', 'Text' }}, true, {})
+    end
+  },
   -- Git related plugins
   'tpope/vim-fugitive',
   'lewis6991/gitsigns.nvim',
