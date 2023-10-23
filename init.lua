@@ -21,7 +21,6 @@ require('lazy').setup('plugins')
 
 require('setup.vim')
 require('setup.lualine')
-require('setup.comment')
 require('setup.gitsigns')
 require('setup.nvim_tree')
 require('setup.vimnote')

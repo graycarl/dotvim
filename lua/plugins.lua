@@ -16,7 +16,9 @@ return {
   -- Fancier statusline
   'nvim-lualine/lualine.nvim',
   -- "gc" to comment visual regions/lines
-  'numToStr/Comment.nvim',
+  {
+    'numToStr/Comment.nvim', config = true
+  },
 
   -- Color schemes
   "ellisonleao/gruvbox.nvim",
