@@ -22,6 +22,13 @@ return {
         section_separators = '',
         component_separators = '|',
       },
+      sections = {
+        lualine_b = {
+          'branch',
+          'diff',
+          { 'diagnostics', symbols = {error = 'E', warn = 'W', info = 'I', hint = 'H'} },
+        },
+      },
     },
   },
   -- "gc" to comment visual regions/lines
@@ -81,11 +88,11 @@ return {
   -- Autocompletion
   {
     'hrsh7th/nvim-cmp',
-    dependencies = { 
-      'hrsh7th/cmp-nvim-lsp', 
-      'hrsh7th/cmp-buffer', 
+    dependencies = {
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-nvim-lsp-signature-help',
-      'L3MON4D3/LuaSnip', 
+      'L3MON4D3/LuaSnip',
       'saadparwaiz1/cmp_luasnip',
     },
   },
