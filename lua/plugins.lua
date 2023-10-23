@@ -97,14 +97,10 @@ return {
     build = ":TSUpdate",
   },
 
+  -- Use <C-\> to toggle terminal in floating window
   {
     'akinsho/toggleterm.nvim',
-    config = function ()
-      require('toggleterm').setup{
-        open_mapping = [[<c-\>]],
-        direction = 'float',
-      }
-    end
+    config = require('setup.toggleterm').config,
   },
 
   -- local plugins
