@@ -16,20 +16,7 @@ return {
   -- Fancier statusline
   {
     'nvim-lualine/lualine.nvim',
-    opts = {
-      options = {
-        icons_enabled = vim.env.NERD_FONT ~= nil,
-        section_separators = '',
-        component_separators = '|',
-      },
-      sections = {
-        lualine_b = {
-          'branch',
-          'diff',
-          { 'diagnostics', symbols = {error = 'E', warn = 'W', info = 'I', hint = 'H'} },
-        },
-      },
-    },
+    opts = require('setup.lualine'),
   },
   -- "gc" to comment visual regions/lines
   {
