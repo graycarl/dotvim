@@ -14,7 +14,16 @@ return {
   'lewis6991/gitsigns.nvim',
 
   -- Fancier statusline
-  'nvim-lualine/lualine.nvim',
+  {
+    'nvim-lualine/lualine.nvim',
+    opts = {
+      options = {
+        icons_enabled = vim.env.NERD_FONT ~= nil,
+        section_separators = '',
+        component_separators = '|',
+      },
+    },
+  },
   -- "gc" to comment visual regions/lines
   {
     'numToStr/Comment.nvim', config = true
