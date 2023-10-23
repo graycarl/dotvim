@@ -26,7 +26,6 @@ require('setup.vimnote')
 require('setup.telescope')
 require('setup.lsp')
 require('setup.cmp')
-require('setup.treesitter')
 
 require('mappings')
 

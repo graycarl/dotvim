@@ -106,6 +106,7 @@ return {
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
     build = ":TSUpdate",
+    config = require('setup.treesitter').config,
   },
 
   -- Use <C-\> to toggle terminal in floating window
