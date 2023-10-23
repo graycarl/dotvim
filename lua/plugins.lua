@@ -1,7 +1,7 @@
 return {
   -- surround text objects with quotes, parens, etc
   {
-    'tpope/vim-surround', 
+    'tpope/vim-surround',
     config = function()
       -- Remove insert mappings, which are conflicting with copilot
       vim.api.nvim_del_keymap('i', '<C-G>s')
@@ -95,6 +95,16 @@ return {
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
     build = ":TSUpdate",
+  },
+
+  {
+    'akinsho/toggleterm.nvim',
+    config = function ()
+      require('toggleterm').setup{
+        open_mapping = [[<c-\>]],
+        direction = 'float',
+      }
+    end
   },
 
   -- local plugins
