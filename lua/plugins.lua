@@ -11,7 +11,10 @@ return {
   },
   -- Git related plugins
   'tpope/vim-fugitive',
-  'lewis6991/gitsigns.nvim',
+  {
+    'lewis6991/gitsigns.nvim',
+    opts = require('setup.gitsigns').opts
+  },
 
   -- Fancier statusline
   {
@@ -29,14 +32,22 @@ return {
   'navarasu/onedark.nvim',
   'rmehri01/onenord.nvim',
 
-  'nvim-tree/nvim-tree.lua',
+  {
+    'nvim-tree/nvim-tree.lua',
+    opts = require('setup.nvim_tree').opts
+  },
   -- Load only when $NERD_FONT exists.
   {'nvim-tree/nvim-web-devicons', lazy = true, cond = function () return vim.env.NERD_FONT end},
   {'godlygeek/tabular', version = '1.0.0'},
   'rhysd/vim-gfm-syntax',
 
   -- Fuzzy Finder (files, lsp, etc)
-  { 'nvim-telescope/telescope.nvim', version = '*', dependencies = { 'nvim-lua/plenary.nvim' } },
+  {
+    'nvim-telescope/telescope.nvim',
+    version = '*',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = require('setup.telescope').config,
+  },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   -- Only load if `make` is available. Make sure you have the system
@@ -82,6 +93,7 @@ return {
       'L3MON4D3/LuaSnip',
       'saadparwaiz1/cmp_luasnip',
     },
+    config = require('setup.cmp').config,
   },
   {
     "L3MON4D3/LuaSnip",

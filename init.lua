@@ -20,12 +20,8 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup('plugins')
 
 require('setup.vim')
-require('setup.gitsigns')
-require('setup.nvim_tree')
 require('setup.vimnote')
-require('setup.telescope')
 require('setup.lsp')
-require('setup.cmp')
 
 require('mappings')
 
