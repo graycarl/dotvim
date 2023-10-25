@@ -4,6 +4,7 @@ local function config()
 
   require("luasnip.loaders.from_vscode").lazy_load()
 
+  ---@diagnostic disable-next-line: missing-fields
   cmp.setup {
     -- While nvim_lsp_signature_help hardcode the preselect mode to true, but
     -- I dont like it, so I set it to none.
