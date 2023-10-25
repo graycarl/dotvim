@@ -9,6 +9,7 @@ return {
       vim.api.nvim_echo({{'Removed insert mappings for vim-surround', 'Text' }}, true, {})
     end
   },
+
   -- Git related plugins
   'tpope/vim-fugitive',
   {
