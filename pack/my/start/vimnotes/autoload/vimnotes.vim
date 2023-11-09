@@ -29,7 +29,7 @@ function vimnotes#buffer_go_next_journal()
 endfunction
 
 function vimnotes#preview()
-    execute "silent !" . g:VimnotesPreviewCommand . " %"
+    execute "silent !" . g:VimnotesPreviewCommand . " \"%\""
     redraw!
 endfunction
 

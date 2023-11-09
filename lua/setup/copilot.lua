@@ -9,6 +9,7 @@ local function init()
     javascript = true,
     vim = true,
     gitcommit = true,
+    markdown = true,
   }
   -- Use <C-J> to accept the suggestion
   vim.g.copilot_no_tab_map = true

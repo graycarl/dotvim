@@ -6,7 +6,7 @@ if !exists("g:VimnotesRootDir")
     let g:VimnotesRootDir = $HOME . "/Documents/Notes"
 endif
 if !exists("g:VimnotesPreviewCommand")
-    let g:VimnotesPreviewCommand = "open -a Marked\\ 2.app"
+    let g:VimnotesPreviewCommand = "open -a Marked.app"
 endif
 if !exists("g:VimnotesJournalTemplate")
     let g:VimnotesJournalTemplate = [
