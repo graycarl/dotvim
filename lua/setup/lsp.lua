@@ -51,12 +51,10 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup_handlers {
   function(server_name)
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      root_dir = servers[server_name].root_dir,
-      settings = servers[server_name].settings,
-    }
+    local opts = servers[server_name] or {}
+    opts.on_attach = on_attach
+    opts.capabilities = capabilities
+    require('lspconfig')[server_name].setup(opts)
   end,
 }
 
