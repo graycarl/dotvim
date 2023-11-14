@@ -16,10 +16,19 @@ end
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
   lua_ls = {
-    Lua = {
-      workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
+    settings = {
+      Lua = {
+        workspace = { checkThirdParty = false },
+        telemetry = { enable = false },
+      },
     },
+  },
+  pyright = {
+    -- SFA Need requirements.py2.txt and requirements.py3.txt
+    root_dir = require('lspconfig/util').root_pattern(
+      'setup.py', 'pyproject.toml', 'requirements.txt', 'requirements.py2.txt',
+      'requirements.py3.txt', '.git'
+    ),
   },
 }
 
@@ -45,7 +54,8 @@ mason_lspconfig.setup_handlers {
     require('lspconfig')[server_name].setup {
       capabilities = capabilities,
       on_attach = on_attach,
-      settings = servers[server_name],
+      root_dir = servers[server_name].root_dir,
+      settings = servers[server_name].settings,
     }
   end,
 }
@@ -62,7 +72,7 @@ require('lint').linters_by_ft = {
 -- This is why we move to jedi-language-server:
 -- Use flake8 instead of pycodestyle
 -- See: <https://github.com/python-lsp/python-lsp-server#configuration>
--- But with this code enabled, the Goto definition will not work and I 
+-- But with this code enabled, the Goto definition will not work and I
 -- don't know why. So comment in out now.
 -- require'lspconfig'.pylsp.setup{
 --   settings = {
