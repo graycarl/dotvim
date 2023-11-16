@@ -36,7 +36,7 @@ return {
 
   {
     'nvim-tree/nvim-tree.lua',
-    opts = require('setup.nvim_tree').opts
+    config = require('setup.nvim_tree').init
   },
   -- Load only when $NERD_FONT exists.
   {'nvim-tree/nvim-web-devicons', lazy = true, cond = function () return vim.env.NERD_FONT end},

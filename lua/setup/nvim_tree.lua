@@ -1,7 +1,7 @@
--- nvim-tree
--- disable netrw at the very start of your init.lua (strongly advised)
-return {
-  opts = {
+-- Nvim tree
+
+local function init()
+  require("nvim-tree").setup({
     hijack_netrw = false,
     renderer = vim.env.NERD_FONT and {} or {
       icons = {
@@ -14,5 +14,9 @@ return {
       }
     },
     filters = { custom = { '^\\.git', '__pycache__' } }
-  }
-}
+  })
+  -- mappings
+  vim.keymap.set('n', 'T', ':NvimTreeFindFileToggle<CR>')
+end
+
+return { init = init }

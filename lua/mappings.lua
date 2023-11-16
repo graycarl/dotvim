@@ -37,9 +37,6 @@ vim.keymap.set('n', '<leader>p', ':set paste<CR>:put  *<CR>:set nopaste<CR>')
 -- Copy file path
 vim.keymap.set('n', '<Leader>c', ':let @+ = expand("%:p")<CR>')
 
--- Nvim tree
-vim.keymap.set('n', 'T', ':NvimTreeFindFileToggle<CR>')
-
 -- Diagnostic
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
