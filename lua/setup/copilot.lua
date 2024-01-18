@@ -5,6 +5,8 @@ local function init()
     ['*'] = false,
     python = true,
     bash = true,
+    zsh = true,
+    sh = true,
     lua = true,
     javascript = true,
     vim = true,
