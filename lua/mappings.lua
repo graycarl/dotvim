@@ -36,6 +36,7 @@ vim.keymap.set('n', '<leader>p', ':set paste<CR>:put  *<CR>:set nopaste<CR>')
 
 -- Copy file path
 vim.keymap.set('n', '<Leader>c', ':let @+ = expand("%:p")<CR>')
+vim.keymap.set('n', '<Leader>C', ':let @+ = expand("%:t")<CR>')
 
 -- Diagnostic
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
