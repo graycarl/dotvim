@@ -50,7 +50,8 @@ vim.wo.signcolumn = 'yes'
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
--- Enable termguicolors
-if vim.fn.has('termguicolors') == 1 then
+-- Enable termguicolors if possible, but not on apple terminal
+-- See: https://github.com/neovim/neovim/issues/11327
+if vim.fn.has('termguicolors') == 1 and vim.env.TERM_PROGRAM ~= 'Apple_Terminal' then
     vim.o.termguicolors = true
 end
