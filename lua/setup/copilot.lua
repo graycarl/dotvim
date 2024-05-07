@@ -9,6 +9,8 @@ local function init()
     vim.g.copilot_filetypes = {
       ['*'] = false,
       python = true,
+      dockerfile = true,
+      make = true,
       bash = true,
       zsh = true,
       sh = true,
