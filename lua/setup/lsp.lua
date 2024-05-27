@@ -92,7 +92,8 @@ require('fidget').setup()
 -- Add linter support
 require('lint').linters_by_ft = {
   markdown = {'vale',},
-  python = {'mypy', 'ruff'},
+  -- It depends on the project
+  python = {'mypy', 'ruff', 'flake8'},
 }
 
 -- This is why we move to jedi-language-server:

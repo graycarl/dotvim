@@ -21,4 +21,6 @@ endif
 au BufWritePre <buffer> %s/\s\+$//e
 
 " Lint on save
-au BufWritePost <buffer> lua require('lint').try_lint()
+" about `ignore_errors`, see source code and
+" <https://github.com/mfussenegger/nvim-lint/pull/570>
+au BufWritePost <buffer> lua require('lint').try_lint(nil, { ignore_errors = true })
