@@ -28,12 +28,23 @@ require('lazy').setup('plugins', {
 require('setup.vim')
 require('setup.vimnote')
 require('setup.lsp')
-
 require('mappings')
 
+-- Check old local.vim and local.lua
 for _, fn in ipairs({'local.vim', 'local.lua'}) do
   local ffn = vim.env.VIMHOME .. '/' .. fn
   if vim.fn.filereadable(ffn) == 1 then
-    vim.cmd.source(ffn)
+    vim.cmd('echohl WarningMsg')
+    vim.cmd('echomsg "Please move ' .. ffn .. ' to local/' .. fn .. '."')
+    vim.cmd('echohl None')
   end
+end
+-- Load *.vim and *.lua in local directory
+local local_vims = vim.fn.glob(vim.env.VIMHOME .. '/local/*.vim', false, true)
+local local_luas = vim.fn.glob(vim.env.VIMHOME .. '/local/*.lua', false, true)
+for _, file in ipairs(local_vims) do
+  vim.cmd('source ' .. file)
+end
+for _, file in ipairs(local_luas) do
+  vim.cmd('source ' .. file)
 end

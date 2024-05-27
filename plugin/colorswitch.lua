@@ -7,6 +7,9 @@ local current
 function SwitchColor(direction)
   if current == nil then
     current = vim.g.colors_name
+    if current == nil then
+      current = 'default'
+    end
   end
   local colors = vim.fn.getcompletion('', 'color')
   -- Remove colors with name contains `-`
@@ -51,6 +54,22 @@ function SwitchColor(direction)
   end
 end
 
+-- Save current colorscheme to local/colorswitch.lua
+function SaveColor()
+  if current == nil then
+    current = vim.g.colors_name
+  end
+  local file = io.open(vim.fn.stdpath('config') .. '/local/colorswitch.lua', 'w')
+  if file == nil then
+    print('Failed to open file')
+    return
+  end
+  file:write('vim.cmd("colorscheme ' .. current .. '")\n')
+  file:write('vim.o.background = "' .. vim.o.background .. '"\n')
+  file:close()
+end
+
 -- Create commands to switch colorscheme
 vim.cmd('command! -nargs=0 ColorSwitchNext lua SwitchColor(1)')
 vim.cmd('command! -nargs=0 ColorSwitchPrev lua SwitchColor(-1)')
+vim.cmd('command! -nargs=0 ColorSwitchSave lua SaveColor()')
