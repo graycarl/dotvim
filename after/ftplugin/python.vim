@@ -24,3 +24,13 @@ au BufWritePre <buffer> %s/\s\+$//e
 " about `ignore_errors`, see source code and
 " <https://github.com/mfussenegger/nvim-lint/pull/570>
 au BufWritePost <buffer> lua require('lint').try_lint(nil, { ignore_errors = true })
+
+" Run pytest for current test case
+function PytestRunCurrent() abort
+    let pos = getpos('.')
+    normal [[llll
+    let test_name = expand('<cword>')
+    call setpos('.', pos)
+    execute '!pytest -k ' . test_name . ' ' . expand('%')
+endfunction
+nnoremap <buffer> <F6> :call PytestRunCurrent()<CR>
