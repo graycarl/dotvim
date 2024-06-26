@@ -31,6 +31,6 @@ function PytestRunCurrent() abort
     normal [[llll
     let test_name = expand('<cword>')
     call setpos('.', pos)
-    execute '!pytest -k ' . test_name . ' ' . expand('%')
+    execute '!pytest -vv -k ' . test_name . ' ' . expand('%')
 endfunction
 nnoremap <buffer> <F6> :call PytestRunCurrent()<CR>
