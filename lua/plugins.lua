@@ -122,6 +122,12 @@ return {
     config = require('setup.toggleterm').config,
   },
 
+  -- Run tests with vim
+  {
+    'vim-test/vim-test',
+    init = require('setup.vim-test').init,
+  },
+
   -- local plugins
   { dir = vim.fn.stdpath('config') .. '/pack/my/start/encrypt' },
   { dir = vim.fn.stdpath('config') .. '/pack/my/start/vault' },

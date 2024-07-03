@@ -26,11 +26,4 @@ au BufWritePre <buffer> %s/\s\+$//e
 au BufWritePost <buffer> lua require('lint').try_lint(nil, { ignore_errors = true })
 
 " Run pytest for current test case
-function PytestRunCurrent() abort
-    let pos = getpos('.')
-    normal [[llll
-    let test_name = expand('<cword>')
-    call setpos('.', pos)
-    execute '!pytest -vv -k ' . test_name . ' ' . expand('%')
-endfunction
-nnoremap <buffer> <F6> :call PytestRunCurrent()<CR>
+nnoremap <buffer> <F6> :TestNearest<CR>
