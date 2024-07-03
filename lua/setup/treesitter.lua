@@ -8,7 +8,7 @@ local function config()
     auto_install = false,
 
     highlight = { enable = true },
-    indent = { enable = true, disable = { 'python' } },
+    indent = { enable = true },
     textobjects = {
       select = {
         enable = true,
