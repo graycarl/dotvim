@@ -27,3 +27,4 @@ au BufWritePost <buffer> lua require('lint').try_lint(nil, { ignore_errors = tru
 
 " Run pytest for current test case
 nnoremap <buffer> <F6> :TestNearest<CR>
+nnoremap <buffer> <F7> :TestFile<CR>
