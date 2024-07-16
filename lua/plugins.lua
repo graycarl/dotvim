@@ -45,7 +45,7 @@ return {
   -- Fuzzy Finder (files, lsp, etc)
   {
     'nvim-telescope/telescope.nvim',
-    version = '*',
+    version = '0.1.8',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = require('setup.telescope').config,
   },
