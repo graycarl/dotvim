@@ -1,4 +1,25 @@
 return {
+  -- Which key
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    version = "3.13.2",
+    cond = function()
+      -- Only enabled with neovim version > 0.9.4
+      return vim.fn.has('nvim-0.9.4') == 1
+    end,
+    opts = {},
+    keys = {
+      {
+        "<leader>?",
+        function()
+          require("which-key").show({ global = false })
+        end,
+        desc = "Buffer Local Keymaps (which-key)",
+      },
+    },
+  },
+
   -- surround text objects with quotes, parens, etc
   {
     'tpope/vim-surround',
