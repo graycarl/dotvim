@@ -126,6 +126,7 @@ return {
   },
   {
     'github/copilot.vim',
+    version = 'v1.*',
     init = require('setup.copilot').init,
   },
 
