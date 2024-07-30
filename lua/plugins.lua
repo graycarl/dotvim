@@ -34,6 +34,7 @@ return {
   'tpope/vim-fugitive',
   {
     'lewis6991/gitsigns.nvim',
+    version = 'v0.9',
     opts = require('setup.gitsigns').opts
   },
 
