@@ -36,7 +36,7 @@ return {
   },
 
   -- Git related plugins
-  'tpope/vim-fugitive',
+  {'tpope/vim-fugitive', version = 'v3.7'},
   {
     'lewis6991/gitsigns.nvim',
     version = 'v0.9',
