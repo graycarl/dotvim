@@ -44,7 +44,9 @@ return {
   },
   -- "gc" to comment visual regions/lines
   {
-    'numToStr/Comment.nvim', config = true
+    'numToStr/Comment.nvim',
+    version = 'v0.8',
+    config = true
   },
 
   -- Color schemes
