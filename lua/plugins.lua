@@ -136,6 +136,7 @@ return {
   -- Treesitter: Highlight, edit, and navigate code
   {
     'nvim-treesitter/nvim-treesitter',
+    version = 'v0.9',
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
