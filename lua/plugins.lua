@@ -51,7 +51,7 @@ return {
 
   -- Color schemes
   "ellisonleao/gruvbox.nvim",
-  'sainnhe/everforest',
+  {'sainnhe/everforest', version = 'v0.3'},
   'navarasu/onedark.nvim',
   'rmehri01/onenord.nvim',
   "rebelot/kanagawa.nvim",
