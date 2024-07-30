@@ -151,6 +151,7 @@ return {
   -- Run tests with vim
   {
     'vim-test/vim-test',
+    version = 'v2.1',
     init = require('setup.vim-test').init,
   },
 
