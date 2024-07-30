@@ -1,4 +1,9 @@
 return {
+  -- Itself
+  {
+    'folke/lazy.nvim',
+    version = 'v11.*',
+  },
   -- Which key
   {
     "folke/which-key.nvim",
