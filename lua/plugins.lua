@@ -59,6 +59,7 @@ return {
 
   {
     'nvim-tree/nvim-tree.lua',
+    version = 'v1.5',
     config = require('setup.nvim_tree').init
   },
   -- Load only when $NERD_FONT exists.
