@@ -28,3 +28,7 @@ au BufWritePost <buffer> lua require('lint').try_lint(nil, { ignore_errors = tru
 " Run pytest for current test case
 nnoremap <buffer> <F6> :TestNearest<CR>
 nnoremap <buffer> <F7> :TestFile<CR>
+" Show local variables on failure
+let test#python#pytest#options = '--showlocals'
+" pdb mode is not work with test.vim
+" let test#python#pytest#options = '--pdb'
