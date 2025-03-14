@@ -60,3 +60,10 @@ end
 -- 先禁用 python3 provider，未来需要的话，可以按 help 中的方法手动启用。
 -- See `:help provider-python`
 vim.g.loaded_python3_provider = 0
+
+-- Add http filetype
+vim.filetype.add({
+  extension = {
+    ['http'] = 'http',
+  },
+})
