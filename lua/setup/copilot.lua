@@ -21,6 +21,7 @@ local function init()
       markdown = true,
       toml = true,
       yaml = true,
+      rust = true
     }
   end
   -- Use <C-J> to accept the suggestion

@@ -1,6 +1,9 @@
 --  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(_, bufnr)
 
+  -- Enable inlay hints
+  -- vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+
   local nmap = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
@@ -58,6 +61,29 @@ local servers = {
       'requirements.py3.txt', '.git'
     ),
   },
+  rust_analyzer = {
+    settings = {
+      ["rust-analyzer"] = {
+        imports = {
+          granularity = {
+            group = "module",
+          },
+          prefix = "self",
+        },
+        cargo = {
+          buildScripts = {
+            enable = true,
+          },
+        },
+        procMacro = {
+          enable = true
+        },
+        checkOnSave = {
+          command = "clippy",
+        },
+      }
+    },
+  },
 }
 
 -- Setup neovim lua configuration
@@ -67,10 +93,9 @@ require('neodev').setup()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
--- Setup mason so it can manage external tooling
-require('mason').setup({PATH="append"})
+-- prepend or rust-analyzer in Cargo will be used
+require('mason').setup({PATH="prepend"})
 
--- Ensure the servers above are installed
 local mason_lspconfig = require 'mason-lspconfig'
 
 mason_lspconfig.setup {
