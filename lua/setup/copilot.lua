@@ -29,6 +29,10 @@ local function init()
   vim.cmd([[
     imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
   ]])
+  -- Make sure to hide suggestions when leaving insert mode using ctrl-c
+  vim.cmd([[
+    inoremap <silent><expr> <C-C> copilot#Dismiss() . '<C-C>'
+  ]])
 end
 
 
