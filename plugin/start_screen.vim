@@ -1,7 +1,7 @@
 " 函数主体由 DeepSeek 生成，做了一些个性化调整
 " ========================================================
 
-if exists('g:loaded_start_screen') || &compatible
+if exists('g:loaded_start_screen')
   finish
 endif
 let g:loaded_start_screen = 1
@@ -10,10 +10,24 @@ let g:loaded_start_screen = 1
 let g:start_screen_vertical_padding = get(g:, 'start_screen_vertical_padding', 0.25) " 25% 垂直留白
 
 " 自动命令 ===============================================
+" 这个实现会导致 netrw 等插件无法正常启动，让 DeepSeek 帮我又生成了一个实现
+" augroup StartScreen
+"   autocmd!
+"   autocmd VimEnter * if argc() == 0 | call s:show()
+"   autocmd BufNew * if bufname('%') == '' | call s:close() | endif
+" augroup END
 augroup StartScreen
   autocmd!
-  autocmd VimEnter * nested if argc() == 0 | call s:show()
-  autocmd BufNew * if bufname('%') == '' | call s:close() | endif
+  " 使用 StdinReadPre 检测是否真正空启动
+  autocmd StdinReadPre * let s:std_in=1
+  autocmd VimEnter *
+        \  if !exists('s:std_in') && argc() == 0 && !exists('b:start_screen_shown') |
+        \    call s:show() |
+        \  endif
+  autocmd BufWinEnter * 
+        \ if getbufvar(winbufnr(winnr()), "&filetype") == "start_screen" |
+        \   setlocal cursorline |
+        \ endif
 augroup END
 
 " 主显示函数 =============================================
