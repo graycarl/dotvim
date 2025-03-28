@@ -1,0 +1,118 @@
+" 函数主体由 DeepSeek 生成，做了一些个性化调整
+" ========================================================
+
+if exists('g:loaded_start_screen') || &compatible
+  finish
+endif
+let g:loaded_start_screen = 1
+
+" 配置默认值 =============================================
+let g:start_screen_vertical_padding = get(g:, 'start_screen_vertical_padding', 0.25) " 25% 垂直留白
+
+" 自动命令 ===============================================
+augroup StartScreen
+  autocmd!
+  autocmd VimEnter * nested if argc() == 0 | call s:show()
+  autocmd BufNew * if bufname('%') == '' | call s:close() | endif
+augroup END
+
+" 主显示函数 =============================================
+function! s:show() abort
+  " 创建专用 buffer
+  silent keepalt edit *StartScreen*
+  setlocal filetype=start_screen
+
+  " 设置 buffer 属性
+  setlocal modifiable
+  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile
+  setlocal nonumber norelativenumber nocursorline nocursorcolumn
+  setlocal nospell
+
+  " 生成居中内容
+  silent %delete _
+  call s:render_centered_content()
+  setlocal nomodifiable
+
+  " 设置交互功能
+  call s:set_mappings()
+  call s:set_syntax()
+
+  " 定位到首个交互行
+  " execute 'normal! gg20G'
+endfunction
+
+function! s:close() abort
+  if &filetype ==# 'start_screen'
+    silent! close
+  endif
+endfunction
+
+" 内容生成 ===============================================
+function! s:render_centered_content() abort
+  " 获取原始内容
+  let l:content = s:header() + s:options() + s:footer()
+
+  " 计算居中参数
+  let l:max_width = max(map(copy(l:content), 'strdisplaywidth(v:val)'))
+  let l:h_pad = repeat(' ', max([0, (winwidth(0) - l:max_width) / 2]))
+  let l:v_pad = repeat([''], float2nr(winheight(0) * g:start_screen_vertical_padding))
+
+  " 生成居中内容
+  let l:centered = map(l:content, 'l:h_pad . v:val')
+  call setline(1, l:v_pad + l:centered)
+  setlocal nomodified
+endfunction
+
+function! s:header() abort
+  let l:ascii_art = [
+        \ '██╗  ██╗ ██████╗ ███╗   ██╗ ██████╗ ██████╗  ██████╗     ██╗   ██╗██╗███╗   ███╗',
+        \ '██║  ██║██╔═══██╗████╗  ██║██╔═══██╗██╔══██╗██╔═══██╗    ██║   ██║██║████╗ ████║',
+        \ '███████║██║   ██║██╔██╗ ██║██║   ██║███████║██║   ██║    ██║   ██║██║██╔████╔██║',
+        \ '██╔══██║██║   ██║██║╚██╗██║██║   ██║██╔══██║██║   ██║    ╚██╗ ██╔╝██║██║╚██╔╝██║',
+        \ '██║  ██║╚██████╔╝██║ ╚████║╚██████╔╝██████╔╝╚██████╔╝     ╚████╔╝ ██║██║ ╚═╝ ██║ ',
+        \ '╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═════╝  ╚═════╝       ╚═══╝  ╚═╝╚═╝     ╚═╝',
+        \]
+  return l:ascii_art + [''] " 添加空行分隔
+endfunction
+
+function! s:options() abort
+  return [
+        \ '[1] New File                  ',
+        \ '[2] Open Project              ',
+        \ '[3] Recent Files              ',
+        \ '[4] Configuration             ',
+        \ '[q] Quit Vim                  ',
+        \ '',
+        \ '▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+        \]
+endfunction
+
+function! s:footer() abort
+  return [
+        \ '',
+        \ 'Vim ' . v:version . '  •  ' . strftime('%Y-%m-%d'),
+        \ 'Hongbo''s StartScreen v1.0'
+        \]
+endfunction
+
+" 交互功能 ===============================================
+function! s:set_mappings() abort
+  nnoremap <silent><buffer> 1 :enew<CR>
+  nnoremap <silent><buffer> 2 :e .<CR>
+  nnoremap <silent><buffer> 3 <CR>
+  nnoremap <silent><buffer> 4 :edit $MYVIMRC<CR>
+  nnoremap <silent><buffer> q :qa<CR>
+  nnoremap <silent><buffer> <ESC> :qa<CR>
+endfunction
+
+function! s:set_syntax() abort
+  syntax match StartScreenTitle /║\|╗\|╚\|╔\|╝\|╔\|═\|▬/
+  syntax match StartScreenOption /$$.$$\ze/
+  syntax match StartScreenKey /<Leader>.\+/
+  syntax match StartScreenVersion /Vim \d\+/
+  
+  highlight default link StartScreenTitle Title
+  highlight default link StartScreenOption Number
+  highlight default link StartScreenKey Identifier
+  highlight default link StartScreenVersion Comment
+endfunction
