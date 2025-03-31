@@ -1,7 +1,7 @@
 " Some settings for specific file types
 
-" Enable folding for rust
-let g:rust_fold = 1
+" Enable folding for rust (not working)
+" let g:rust_fold = 1
 
 " 在 pyenv 环境下，vim 自动寻找可用的 python provider 会比较慢，所以在没有明确需求的情况下，
 " 先禁用 python3 provider，未来需要的话，可以按 help 中的方法手动启用。
