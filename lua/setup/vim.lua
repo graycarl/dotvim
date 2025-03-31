@@ -24,11 +24,6 @@ vim.o.shiftwidth = 4
 vim.o.expandtab = true
 vim.o.wildignore = '*~,*.o,*.obj,*.pyc,__pycache__'
 
--- languages
-vim.g.python_code_width_limit = 80
-vim.g.markdown_folding = true
-vim.g.omni_sql_no_default_maps = 1
-
 -- netrw
 vim.g.netrw_list_hide = '.*\\.swp$,.*\\.pyc'
 vim.g.netrw_altv = true
@@ -55,11 +50,6 @@ vim.o.completeopt = 'menuone,noselect'
 if vim.fn.has('termguicolors') == 1 and vim.env.TERM_PROGRAM ~= 'Apple_Terminal' then
     vim.o.termguicolors = true
 end
-
--- 在 pyenv 环境下，vim 自动寻找可用的 python provider 会比较慢，所以在没有明确需求的情况下，
--- 先禁用 python3 provider，未来需要的话，可以按 help 中的方法手动启用。
--- See `:help provider-python`
-vim.g.loaded_python3_provider = 0
 
 -- Add http filetype
 vim.filetype.add({
