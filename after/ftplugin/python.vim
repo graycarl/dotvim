@@ -10,7 +10,18 @@ setlocal foldnestmax=3
 setlocal foldlevelstart=2
 
 " Run buffer
-nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
+function! s:run_buffer()
+    " check if current dir as uv.lock file
+    if filereadable('uv.lock')
+        " run uv
+        execute '!uv run' shellescape(@%, 1)
+    else
+        " run python
+        execute '!python' shellescape(@%, 1)
+    endif
+endfunction
+command! -nargs=0 Run call s:run_buffer()
+nnoremap <buffer> <F5> :Run<CR>
 
 " We should not let a single line's length more than 80 charaters
 if g:python_code_width_limit
