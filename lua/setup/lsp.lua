@@ -26,14 +26,6 @@ local on_attach = function(_, bufnr)
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
   nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
-  -- Lesser used LSP functionality
-  -- nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-  nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-  nmap('<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, '[W]orkspace [L]ist Folders')
-
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
@@ -54,12 +46,22 @@ local servers = {
       },
     },
   },
-  pyright = {
+  -- basedpyright instead of pyright
+  basedpyright = {
     -- SFA Need requirements.py2.txt and requirements.py3.txt
     root_dir = require('lspconfig/util').root_pattern(
       'setup.py', 'pyproject.toml', 'requirements.txt', 'requirements.py2.txt',
       'requirements.py3.txt', '.git'
     ),
+    -- not working
+    -- settings = {
+    --   basedpyright = {
+    --     typeCheckingMode = "basic",
+    --     analysis = {
+    --       typeCheckingMode = "basic"
+    --     },
+    --   },
+    -- },
   },
   rust_analyzer = {
     settings = {
@@ -98,9 +100,9 @@ require('mason').setup({PATH="prepend"})
 
 local mason_lspconfig = require 'mason-lspconfig'
 
-mason_lspconfig.setup {
-  ensure_installed = vim.tbl_keys(servers),
-}
+-- mason_lspconfig.setup {
+--   ensure_installed = vim.tbl_keys(servers),
+-- }
 
 mason_lspconfig.setup_handlers {
   function(server_name)
