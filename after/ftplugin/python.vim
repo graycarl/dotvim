@@ -23,6 +23,9 @@ endfunction
 command! -nargs=0 Run call s:run_buffer()
 nnoremap <buffer> <F5> :Run<CR>
 
+" Ruff formatter for current line
+nnoremap <buffer> <F8> :!ruff check --fix %<CR>
+
 " We should not let a single line's length more than 80 charaters
 if g:python_code_width_limit
     au BufWinEnter <buffer> let w:m2=matchadd('ErrorMsg', '\%>'. g:python_code_width_limit . 'v.\+', -1)
