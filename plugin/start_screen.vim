@@ -45,7 +45,7 @@ function! s:show() abort
   " 生成居中内容
   silent %delete _
   call s:render_centered_content()
-  setlocal nomodifiable
+  " setlocal nomodifiable
 
   " 设置交互功能
   call s:set_mappings()
