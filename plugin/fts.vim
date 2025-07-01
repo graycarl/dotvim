@@ -16,3 +16,7 @@ let g:markdown_folding = 1
 
 " Disable default mappings for omni-sql
 let g:omni_sql_no_default_maps = 1
+
+" Do not use the default folding implementation for markdown.
+" Use the treesitter folding implementation (setup in setup/vim.lua).
+let g:markdown_folding = 0
