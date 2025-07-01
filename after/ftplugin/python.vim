@@ -4,10 +4,12 @@ endif
 let b:did_my_ftplugin = 1
 
 " About folding
-setlocal foldmethod=indent
-setlocal foldignore=
-setlocal foldnestmax=3
+" Use global treesitter folding
+" setlocal foldmethod=indent
+" setlocal foldignore=
+setlocal foldnestmax=2
 setlocal foldlevelstart=2
+
 
 " Run buffer
 function! s:run_buffer()
