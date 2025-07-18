@@ -115,8 +115,6 @@ function! s:set_mappings() abort
   nnoremap <silent><buffer> 2 :e .<CR>
   nnoremap <silent><buffer> 3 <CR>
   nnoremap <silent><buffer> 4 :edit $MYVIMRC<CR>
-  nnoremap <silent><buffer> q :qa<CR>
-  nnoremap <silent><buffer> <ESC> :qa<CR>
 endfunction
 
 function! s:set_syntax() abort
