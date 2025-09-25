@@ -25,8 +25,16 @@ endfunction
 command! -nargs=0 Run call s:run_buffer()
 nnoremap <buffer> <F5> :Run<CR>
 
-" Ruff formatter for current line
-nnoremap <buffer> <F8> :!ruff check --fix %<CR>
+" Ruff formatter for current file
+function! s:run_ruff_fix()
+    if executable('ruff')
+        execute '!ruff check --fix' shellescape(@%, 1)
+    else
+        execute '!uv run ruff check --fix' shellescape(@%, 1)
+    endif
+endfunction
+command! -nargs=0 RuffFix call s:run_ruff_fix()
+nnoremap <buffer> <F8> :RuffFix<CR>
 
 " We should not let a single line's length more than 80 charaters
 if g:python_code_width_limit
