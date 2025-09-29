@@ -13,13 +13,9 @@ augroup StartScreen
   " 使用 StdinReadPre 检测是否真正空启动
   autocmd StdinReadPre * let s:std_in=1
   autocmd VimEnter *
-        \  if !exists('s:std_in') && argc() == 0 && !exists('b:start_screen_shown') |
+        \  if !exists('s:std_in') && argc() == 0 && !exists('b:start_screen_shown') && &filetype == '' |
         \    call s:show() |
         \  endif
-  autocmd BufWinEnter * 
-        \ if getbufvar(winbufnr(winnr()), "&filetype") == "start_screen" |
-        \   setlocal cursorline |
-        \ endif
 augroup END
 
 " 主显示函数 =============================================
