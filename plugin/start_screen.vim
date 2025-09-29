@@ -45,7 +45,7 @@ function! s:show() abort
   " 生成居中内容
   silent %delete _
   call s:render_centered_content()
-  " setlocal nomodifiable
+  setlocal nomodifiable
 
   " 设置交互功能
   call s:set_mappings()
@@ -92,7 +92,7 @@ endfunction
 function! s:options() abort
   return [
         \ '[1] New File                  ',
-        \ '[2] Open Project              ',
+        \ '[2] Open Today                ',
         \ '[3] Recent Files              ',
         \ '[4] Configuration             ',
         \ '[q] Quit Vim                  ',
@@ -112,9 +112,55 @@ endfunction
 " 交互功能 ===============================================
 function! s:set_mappings() abort
   nnoremap <silent><buffer> 1 :enew<CR>
-  nnoremap <silent><buffer> 2 :e .<CR>
+  nnoremap <silent><buffer> 2 :NotesToday<CR>
   nnoremap <silent><buffer> 3 <CR>
   nnoremap <silent><buffer> 4 :edit $MYVIMRC<CR>
+
+  " 进入插入模式时清空缓冲区
+  nnoremap <silent><buffer> i :call <SID>clear_and_insert()<CR>
+  nnoremap <silent><buffer> I :call <SID>clear_and_insert()<CR>
+  nnoremap <silent><buffer> a :call <SID>clear_and_insert()<CR>
+  nnoremap <silent><buffer> A :call <SID>clear_and_insert()<CR>
+  nnoremap <silent><buffer> o :call <SID>clear_and_insert()<CR>
+  nnoremap <silent><buffer> O :call <SID>clear_and_insert()<CR>
+  nnoremap <silent><buffer> s :call <SID>clear_and_insert()<CR>
+  nnoremap <silent><buffer> S :call <SID>clear_and_insert()<CR>
+  nnoremap <silent><buffer> c :call <SID>clear_and_insert()<CR>
+  nnoremap <silent><buffer> C :call <SID>clear_and_insert()<CR>
+endfunction
+
+" 清空并进入插入模式的辅助函数（仅在第一次时）
+function! s:clear_and_insert() abort
+  " 检查是否是启动界面状态
+  if &filetype ==# 'start_screen' && &buftype ==# 'nofile'
+    " 设置缓冲区可修改
+    setlocal modifiable
+    " 清空所有内容
+    silent %delete _
+    " 设置为普通的可编辑缓冲区
+    setlocal buftype= filetype=
+    " 清除启动界面的按键映射，恢复默认行为
+    call s:clear_start_screen_mappings()
+    " 进入插入模式
+    startinsert
+  else
+    " 如果不是启动界面状态，执行默认的 i 命令
+    normal! i
+  endif
+endfunction
+
+" 清除启动界面的特殊按键映射
+function! s:clear_start_screen_mappings() abort
+  silent! nunmap <buffer> i
+  silent! nunmap <buffer> I
+  silent! nunmap <buffer> a
+  silent! nunmap <buffer> A
+  silent! nunmap <buffer> o
+  silent! nunmap <buffer> O
+  silent! nunmap <buffer> s
+  silent! nunmap <buffer> S
+  silent! nunmap <buffer> c
+  silent! nunmap <buffer> C
 endfunction
 
 function! s:set_syntax() abort
@@ -122,7 +168,7 @@ function! s:set_syntax() abort
   syntax match StartScreenOption /$$.$$\ze/
   syntax match StartScreenKey /<Leader>.\+/
   syntax match StartScreenVersion /Vim \d\+/
-  
+
   highlight default link StartScreenTitle Title
   highlight default link StartScreenOption Number
   highlight default link StartScreenKey Identifier
