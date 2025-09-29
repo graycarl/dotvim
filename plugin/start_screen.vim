@@ -1,6 +1,5 @@
 " 函数主体由 DeepSeek 生成，做了一些个性化调整
 " ========================================================
-
 if exists('g:loaded_start_screen')
   finish
 endif
@@ -9,13 +8,6 @@ let g:loaded_start_screen = 1
 " 配置默认值 =============================================
 let g:start_screen_vertical_padding = get(g:, 'start_screen_vertical_padding', 0.25) " 25% 垂直留白
 
-" 自动命令 ===============================================
-" 这个实现会导致 netrw 等插件无法正常启动，让 DeepSeek 帮我又生成了一个实现
-" augroup StartScreen
-"   autocmd!
-"   autocmd VimEnter * if argc() == 0 | call s:show()
-"   autocmd BufNew * if bufname('%') == '' | call s:close() | endif
-" augroup END
 augroup StartScreen
   autocmd!
   " 使用 StdinReadPre 检测是否真正空启动
@@ -33,7 +25,6 @@ augroup END
 " 主显示函数 =============================================
 function! s:show() abort
   " 创建专用 buffer
-  silent keepalt edit *StartScreen*
   setlocal filetype=start_screen
 
   " 设置 buffer 属性
@@ -51,8 +42,6 @@ function! s:show() abort
   call s:set_mappings()
   call s:set_syntax()
 
-  " 定位到首个交互行
-  " execute 'normal! gg20G'
 endfunction
 
 function! s:close() abort
