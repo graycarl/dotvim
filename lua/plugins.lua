@@ -137,6 +137,9 @@ return {
   {
     'github/copilot.vim',
     version = 'v1.*',
+    cond = function()
+      return vim.env.VIM_AI == "copilot"
+    end,
     init = require('setup.copilot').init,
   },
 
@@ -178,6 +181,16 @@ return {
       -- your configuration comes here
       global_keymaps = true,
     },
+  },
+
+  -- Gemini
+  {
+    'kiddos/gemini.nvim',
+    version = '0.3',
+    cond = function()
+      return vim.env.VIM_AI == "gemini"
+    end,
+    opts = require('setup.gemini')
   },
 
   -- local plugins
