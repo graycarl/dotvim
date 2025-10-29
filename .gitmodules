@@ -1,0 +1,3 @@
+[submodule "pack/ai/opt/gemini.nvim"]
+	path = pack/ai/opt/gemini.nvim
+	url = https://github.com/graycarl/gemini.nvim

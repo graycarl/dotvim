@@ -185,19 +185,15 @@ return {
     },
   },
 
-  -- Gemini
-  {
-    'kiddos/gemini.nvim',
-    version = '0.3',
-    cond = function()
-      return vim.env.VIM_AI == "gemini"
-    end,
-    opts = require('setup.gemini')
-  },
-
   -- local plugins
   { dir = vim.fn.stdpath('config') .. '/pack/my/start/encrypt' },
   { dir = vim.fn.stdpath('config') .. '/pack/my/start/vault' },
   { dir = vim.fn.stdpath('config') .. '/pack/my/start/vimnotes' },
   { dir = vim.fn.stdpath('config') .. '/pack/my/opt/veeva', lazy=true },
+  { dir = vim.fn.stdpath('config') .. '/pack/ai/opt/gemini.nvim',
+    cond = function()
+      return vim.env.VIM_AI == "gemini"
+    end,
+    opts = require('setup.gemini')
+  },
 }
