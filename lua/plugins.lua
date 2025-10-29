@@ -1,3 +1,5 @@
+-- See: `:help lazy.nvim-🔌-plugin-spec` for more information
+-- Or: <https://lazy.folke.io/spec>
 return {
   -- Itself
   {
