@@ -122,22 +122,3 @@ require('lint').linters_by_ft = {
   -- It depends on the project
   python = {'mypy', 'ruff', 'flake8'},
 }
-
--- This is why we move to jedi-language-server:
--- Use flake8 instead of pycodestyle
--- See: <https://github.com/python-lsp/python-lsp-server#configuration>
--- But with this code enabled, the Goto definition will not work and I
--- don't know why. So comment in out now.
--- require'lspconfig'.pylsp.setup{
---   settings = {
---     pylsp = {
---       plugins = {
---         pycodestyle = { enabled = false },
---         mccabe = { enabled = false },
---         pyflakes = { enabled = false },
---         flake8 = { enabled = true },
---       },
---       configurationSources = { "flake8" }
---     }
---   }
--- }
