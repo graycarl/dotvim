@@ -9,7 +9,7 @@
 let g:loaded_python_provider = 0
 
 " Python code width
-let g:python_code_width_limit = 80
+let g:python_code_width_limit = 100
 
 " Enable folding for markdown
 let g:markdown_folding = 1
