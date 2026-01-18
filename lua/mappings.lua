@@ -47,3 +47,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 -- Color Scheme Switch
 vim.keymap.set('n', '<F3>', ':ColorSwitchPrev<CR>')
 vim.keymap.set('n', '<F4>', ':ColorSwitchNext<CR>')
+
+-- Terminal
+vim.keymap.set('n', '<leader>t', ':terminal<CR>')
+vim.keymap.set('t', '<Esc>', '<C-\\><C-n>')
