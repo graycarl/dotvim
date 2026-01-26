@@ -16,7 +16,8 @@ local function init()
     markdown = true,
     toml = true,
     yaml = true,
-    rust = true
+    rust = true,
+    typescript = true
   }
   -- Use <C-J> to accept the suggestion
   vim.g.copilot_no_tab_map = true
