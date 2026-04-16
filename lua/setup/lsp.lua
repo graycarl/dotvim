@@ -49,19 +49,20 @@ local servers = {
   -- basedpyright instead of pyright
   basedpyright = {
     -- SFA Need requirements.py2.txt and requirements.py3.txt
-    root_dir = require('lspconfig/util').root_pattern(
-      'setup.py', 'pyproject.toml', 'requirements.txt', 'requirements.py2.txt',
-      'requirements.py3.txt', '.git'
-    ),
-    -- not working
-    -- settings = {
-    --   basedpyright = {
-    --     typeCheckingMode = "basic",
-    --     analysis = {
-    --       typeCheckingMode = "basic"
-    --     },
-    --   },
-    -- },
+    root_dir = function(bufnr, on_dir)
+      local markers = {
+        'setup.py',
+        'pyproject.toml',
+        'requirements.txt',
+        'requirements.py2.txt',
+        'requirements.py3.txt',
+        '.git',
+      }
+      local root = vim.fs.root(vim.api.nvim_buf_get_name(bufnr), markers)
+      if root then
+        on_dir(root)
+      end
+    end,
   },
   rust_analyzer = {
     settings = {
@@ -100,18 +101,20 @@ require('mason').setup({PATH="prepend"})
 
 local mason_lspconfig = require 'mason-lspconfig'
 
--- mason_lspconfig.setup {
---   ensure_installed = vim.tbl_keys(servers),
--- }
-
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    local opts = servers[server_name] or {}
-    opts.on_attach = on_attach
-    opts.capabilities = capabilities
-    require('lspconfig')[server_name].setup(opts)
-  end,
+mason_lspconfig.setup {
+  ensure_installed = vim.tbl_keys(servers),
+  automatic_enable = false,
 }
+
+for server_name, server_opts in pairs(servers) do
+  local opts = vim.tbl_deep_extend('force', {
+    on_attach = on_attach,
+    capabilities = capabilities,
+  }, server_opts)
+
+  vim.lsp.config(server_name, opts)
+  vim.lsp.enable(server_name)
+end
 
 -- Turn on lsp status information
 require('fidget').setup()

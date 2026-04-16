@@ -101,11 +101,11 @@ return {
   --  The configuration is done below. Search for lspconfig to find it below.
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
-    version = 'v0.1',
+    version = 'v2.*',
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
-      {'williamboman/mason.nvim', version = 'v1.10'},
-      {'williamboman/mason-lspconfig.nvim', version = 'v1.29'},
+      {'mason-org/mason.nvim', version = 'v2.*'},
+      {'mason-org/mason-lspconfig.nvim', version = 'v2.*'},
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
