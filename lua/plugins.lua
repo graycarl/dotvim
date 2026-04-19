@@ -10,7 +10,7 @@ return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
-    version = "3.13.2",
+    version = "*",
     cond = function()
       -- Only enabled with neovim version > 0.9.4
       return vim.fn.has('nvim-0.9.4') == 1
