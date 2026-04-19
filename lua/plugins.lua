@@ -71,8 +71,14 @@ return {
     config = require('setup.nvim_tree').init
   },
   -- Load only when $NERD_FONT exists.
-  {'nvim-tree/nvim-web-devicons', lazy = true, cond = function () return vim.env.NERD_FONT end},
-  {'godlygeek/tabular', version = '1.0.0'},
+  {
+    'nvim-tree/nvim-web-devicons',
+    lazy = true,
+    cond = function ()
+      return vim.env.NERD_FONT
+    end
+  },
+  {'godlygeek/tabular', version = '*'},
   'rhysd/vim-gfm-syntax',
 
   -- Fuzzy Finder (files, lsp, etc)
