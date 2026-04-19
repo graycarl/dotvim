@@ -173,7 +173,7 @@ return {
   -- Run tests with vim
   {
     'vim-test/vim-test',
-    version = 'v2.1',
+    version = '*',
     init = require('setup.vim-test').init,
   },
 
