@@ -145,7 +145,7 @@ return {
   },
   {
     'github/copilot.vim',
-    version = 'v1.*',
+    version = '*',
     cond = function()
       return vim.env.VIM_AI == "copilot"
     end,
