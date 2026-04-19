@@ -48,6 +48,7 @@ return {
   -- Fancier statusline
   {
     'nvim-lualine/lualine.nvim',
+    version = '*',
     opts = require('setup.lualine'),
   },
   -- "gc" to comment visual regions/lines
