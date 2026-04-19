@@ -4,7 +4,7 @@ return {
   -- Itself
   {
     'folke/lazy.nvim',
-    version = 'v11.*',
+    version = '*',
   },
   -- Which key
   {
