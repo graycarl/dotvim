@@ -8,7 +8,7 @@
   "copilot.vim": { "branch": "release", "commit": "a12fd5672110c8aa7e3c8419e28c96943ca179be" },
   "everforest": { "branch": "master", "commit": "62408f6cb189606bc4b16832ada29be3ae33515f" },
   "fidget.nvim": { "branch": "main", "commit": "ef99df04a1c53a453602421bc0f756997edc8289" },
-  "friendly-snippets": { "branch": "main", "commit": "572f5660cf05f8cd8834e096d7b4c921ba18e175" },
+  "friendly-snippets": { "branch": "main", "commit": "6cd7280adead7f586db6fccbd15d2cac7e2188b9" },
   "gemini.nvim": { "branch": "master", "commit": "c638a431a810e43951a8227684c3236bd2708b4a" },
   "gitsigns.nvim": { "branch": "main", "commit": "a462f416e2ce4744531c6256252dee99a7d34a83" },
   "gruvbox.nvim": { "branch": "main", "commit": "61b0b3be2f0cfd521667403a0367298144d6c165" },
