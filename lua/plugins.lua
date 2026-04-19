@@ -54,7 +54,7 @@ return {
   -- "gc" to comment visual regions/lines
   {
     'numToStr/Comment.nvim',
-    version = 'v0.8',
+    version = '*',
     config = true
   },
 
