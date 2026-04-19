@@ -166,7 +166,7 @@ return {
   -- Use <C-\> to toggle terminal in floating window
   {
     'akinsho/toggleterm.nvim',
-    version = 'v2.12',
+    version = '*',
     config = require('setup.toggleterm').config,
   },
 
