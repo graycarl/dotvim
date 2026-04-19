@@ -38,10 +38,10 @@ return {
   },
 
   -- Git related plugins
-  {'tpope/vim-fugitive', version = 'v3.7'},
+  {'tpope/vim-fugitive', version = '*'},
   {
     'lewis6991/gitsigns.nvim',
-    version = 'v0.9',
+    version = '*',
     opts = require('setup.gitsigns').opts
   },
 
