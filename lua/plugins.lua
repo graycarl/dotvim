@@ -118,8 +118,8 @@ return {
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim', version='1.4', opts = {} },
 
-      -- Additional lua configuration, makes nvim stuff amazing!
-      'folke/neodev.nvim',
+      -- Faster LuaLS setup, lazydev instead of deprecated neodev
+      { 'folke/lazydev.nvim', version = '*', opts = {} },
 
       -- Add lint support to lsp
       'mfussenegger/nvim-lint'
