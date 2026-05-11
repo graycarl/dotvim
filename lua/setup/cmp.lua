@@ -33,7 +33,7 @@ local function config()
           fallback()
         end
       end, { 'i', 's' }),
-      ['<C-K>'] = cmp.mapping(function(fallback)
+      ['<C-l>'] = cmp.mapping(function(fallback)
         if luasnip.jumpable(-1) then
           luasnip.jump(-1)
         else
