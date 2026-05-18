@@ -157,7 +157,7 @@ return {
     'nvim-treesitter/nvim-treesitter',
     version = '*',
     dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects',
+      { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'main' },
     },
     build = ":TSUpdate",
     config = require('setup.treesitter').config,
