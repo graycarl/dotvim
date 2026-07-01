@@ -152,14 +152,18 @@ return {
     init = require('setup.copilot').init,
   },
 
-  -- Treesitter: Highlight, edit, and navigate code
+  -- Treesitter: community fork that provides :TSInstall (parser management)
+  -- and queries. Original nvim-treesitter/nvim-treesitter is archived.
+  -- Highlighting, folding, indentation are all Neovim 0.12 built-ins.
   {
-    'nvim-treesitter/nvim-treesitter',
-    version = '*',
+    'neovim-treesitter/nvim-treesitter',
+    branch = 'main',
+    lazy = false,
     dependencies = {
-      { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'main' },
+      'neovim-treesitter/treesitter-parser-registry',
+      { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'main' }
     },
-    build = ":TSUpdate",
+    build = ':TSUpdate',
     config = require('setup.treesitter').config,
   },
 

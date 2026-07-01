@@ -1,20 +1,25 @@
 local function config()
-  ---@diagnostic disable-next-line: missing-fields
-  require('nvim-treesitter.configs').setup({
-    -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'lua', 'python', 'rust', 'tsx', 'vimdoc', 'vim' },
+  -- Install parsers (handled by neovim-treesitter community fork via :TSInstall)
+  require('nvim-treesitter').install({ 'c', 'cpp', 'lua', 'python', 'rust', 'tsx', 'vimdoc', 'vim' })
 
-    -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-    auto_install = false,
+  -- Highlighting is auto-enabled by Neovim 0.12 built-in for buffers with parsers.
+  -- No plugin config needed for highlight.
 
-    highlight = { enable = true },
-    indent = { enable = true },
-    textobjects = {
+  -- Treesitter-based indentation
+  vim.api.nvim_create_autocmd('FileType', {
+    callback = function(args)
+      vim.bo[args.buf].indentexpr = "v:lua.vim.treesitter.indentexpr()"
+    end,
+  })
+
+  -- Text objects (via nvim-treesitter-textobjects on 'main' branch)
+  local ok, textobjects = pcall(require, 'nvim-treesitter-textobjects')
+  if ok then
+    textobjects.setup({
       select = {
         enable = true,
-        lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+        lookahead = true,
         keymaps = {
-          -- You can use the capture groups defined in textobjects.scm
           ['aa'] = '@parameter.outer',
           ['ia'] = '@parameter.inner',
           ['af'] = '@function.outer',
@@ -23,8 +28,8 @@ local function config()
           ['ic'] = '@class.inner',
         },
       },
-    },
-  })
+    })
+  end
 end
 
 return {
