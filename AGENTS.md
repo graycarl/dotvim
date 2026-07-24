@@ -99,7 +99,7 @@
 | `mappings.lua` | 全局快捷键 | 不要在此处添加 LSP 或文件类型相关的映射 |
 | `setup/vim.lua` | Neovim 核心选项 | 缩进、搜索、折叠、备份、编码、UI 等基础设置 |
 | `setup/lsp.lua` | LSP 完整配置 | mason、lspconfig、fidget、lint；`on_attach` 回调定义 LSP 映射 |
-| `setup/cmp.lua` | 自动补全 | nvim-cmp + LuaSnip，Tab/Shift-Tab 导航 |
+| `setup/blink.lua` | 自动补全 | blink.cmp + LuaSnip，Tab/Shift-Tab 导航；`<C-l>` 向后跳 snippet |
 | `setup/treesitter.lua` | 语法高亮/文本对象 | 文本对象映射：`aa`/`ia`(参数)、`af`/`if`(函数)、`ac`/`ic`(类) |
 | `setup/telescope.lua` | 模糊搜索 | 定义 `<C-p>`、`<leader>sf`、`<leader>sg` 等搜索命令 |
 | `setup/lualine.lua` | 状态栏 | 图标跟随 `$NERD_FONT` |

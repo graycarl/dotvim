@@ -93,9 +93,9 @@ local servers = {
 }
 
 -- lazydev.nvim handles LuaLS config automatically via opts = {}
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+-- blink.cmp advertises the extra completion capabilities to servers
+-- (get_lsp_capabilities already merges Neovim's built-in defaults).
+local capabilities = require('blink.cmp').get_lsp_capabilities()
 
 -- prepend or rust-analyzer in Cargo will be used
 require('mason').setup({PATH="prepend"})

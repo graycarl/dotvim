@@ -123,17 +123,16 @@ return {
   },
 
   -- Autocompletion
+  -- blink.cmp: batteries-included engine (LSP/buffer/snippet/signature +
+  -- Rust fuzzy matcher). version tag pulls a prebuilt fuzzy binary.
   {
-    'hrsh7th/nvim-cmp',
-    version = '*',
+    'saghen/blink.cmp',
+    version = '1.*',
     dependencies = {
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-buffer',
-      'hrsh7th/cmp-nvim-lsp-signature-help',
       'L3MON4D3/LuaSnip',
-      'saadparwaiz1/cmp_luasnip',
+      'rafamadriz/friendly-snippets',
     },
-    config = require('setup.cmp').config,
+    opts = require('setup.blink'),
   },
   {
     "L3MON4D3/LuaSnip",
