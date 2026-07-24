@@ -51,12 +51,8 @@ return {
     version = '*',
     opts = require('setup.lualine'),
   },
-  -- "gc" to comment visual regions/lines
-  {
-    'numToStr/Comment.nvim',
-    version = '*',
-    config = true
-  },
+  -- Commenting ("gc"/"gcc") is provided by Neovim's built-in commenting
+  -- (0.10+), so no plugin is needed.
 
   -- Color schemes
   {"ellisonleao/gruvbox.nvim", version = '*'},
