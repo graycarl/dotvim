@@ -81,7 +81,10 @@ local servers = {
         procMacro = {
           enable = true
         },
-        checkOnSave = {
+        -- New rust-analyzer format: checkOnSave is a boolean toggle,
+        -- the command moved under `check`.
+        checkOnSave = true,
+        check = {
           command = "clippy",
         },
       }
@@ -113,6 +116,23 @@ for server_name, server_opts in pairs(servers) do
   vim.lsp.config(server_name, opts)
   vim.lsp.enable(server_name)
 end
+
+-- Diagnostic appearance. Neovim 0.11+ defaults virtual_text to off, which
+-- makes inline diagnostics easy to miss, so enable it explicitly. Text signs
+-- follow $NERD_FONT and reuse the same E/W/I/H style as lualine.
+vim.diagnostic.config({
+  virtual_text = true,
+  severity_sort = true,
+  float = { border = 'rounded', source = true },
+  signs = vim.env.NERD_FONT and true or {
+    text = {
+      [vim.diagnostic.severity.ERROR] = 'E',
+      [vim.diagnostic.severity.WARN]  = 'W',
+      [vim.diagnostic.severity.INFO]  = 'I',
+      [vim.diagnostic.severity.HINT]  = 'H',
+    },
+  },
+})
 
 -- Turn on lsp status information
 require('fidget').setup()
