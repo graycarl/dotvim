@@ -197,12 +197,6 @@ return {
   { dir = vim.fn.stdpath('config') .. '/pack/my/start/vault' },
   { dir = vim.fn.stdpath('config') .. '/pack/my/start/vimnotes' },
   { dir = vim.fn.stdpath('config') .. '/pack/my/opt/veeva', lazy=true },
-  { dir = vim.fn.stdpath('config') .. '/pack/ai/opt/gemini.nvim',
-    cond = function()
-      return vim.env.VIM_AI == "gemini"
-    end,
-    opts = require('setup.gemini')
-  },
 
   -- DeepSeek FIM inline completion (local plugin, see setup/deepseek.lua)
   { dir = vim.fn.stdpath('config') .. '/pack/my/opt/deepseek-fim',

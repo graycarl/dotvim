@@ -67,7 +67,7 @@
 | 环境变量 | 作用 | 取值 |
 |---------|------|------|
 | `$NERD_FONT` | 是否启用 Nerd Font 图标（devicons、nvim-tree 图标等） | 设置即启用 |
-| `$VIM_AI` | AI 后端选择 | `copilot`、`gemini` 或 `deepseek` |
+| `$VIM_AI` | AI 后端选择 | `copilot` 或 `deepseek` |
 | `$TERM_PROGRAM` | 判断终端类型（Apple_Terminal 禁用 termguicolors） | 自动 |
 | `$VIMHOME` | 在 `init.lua` 中设置为配置目录路径 | 自动 |
 
@@ -107,7 +107,6 @@
 | `setup/toggleterm.lua` | 浮动终端 | `<C-\>` 切换 |
 | `setup/gitsigns.lua` | Git 符号 | 自定义符号样式 |
 | `setup/copilot.lua` | Copilot AI | 白名单文件类型；`<C-J>` 接受补全 |
-| `setup/gemini.lua` | Gemini AI | gemini.nvim 配置；`<C-J>` 接受补全 |
 | `setup/vim-test.lua` | 测试运行 | 策略配置（当前为空，可扩展） |
 | `setup/deepseek.lua` | DeepSeek FIM 补全配置 | 插件本体在 `pack/my/opt/deepseek-fim`；密钥文件、模型、触发、上下文预算、键位 |
 | `setup/vimnote.lua` | 日记模板 | `VimnotesJournalTemplate` 全局变量 |
@@ -181,16 +180,12 @@ vim.lsp.enable(server_name)         -- 启用服务端
 # 使用 Copilot
 export VIM_AI=copilot
 
-# 使用 Gemini
-export VIM_AI=gemini
-
 # 使用 DeepSeek FIM（自研本地插件）
 export VIM_AI=deepseek
 ```
 
-- 三个后端在 `plugins.lua` 中用 `cond` 互斥加载：`copilot.vim`、`gemini.nvim`、`pack/my/opt/deepseek-fim`
-- 三者使用相同的接受快捷键 `<C-J>`
-- `gemini.nvim` 是 `pack/ai/opt/` 下的 git submodule
+- 两个后端在 `plugins.lua` 中用 `cond` 互斥加载：`copilot.vim`、`pack/my/opt/deepseek-fim`
+- 二者使用相同的接受快捷键 `<C-J>`
 
 ### 8.1 DeepSeek FIM（`pack/my/opt/deepseek-fim`）
 
@@ -238,5 +233,4 @@ export VIM_AI=deepseek
 ## 十、Git 注意事项
 
 - `.gitignore` 忽略：`local/`、`.DS_Store`、`.mypy_cache`
-- `pack/ai/opt/gemini.nvim` 是 git submodule，更新需 `git submodule update`
 - `lazy-lock.json` 随插件更新而变更，正常提交即可

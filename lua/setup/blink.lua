@@ -2,7 +2,7 @@
 -- Faithfully reproduces the previous nvim-cmp behaviour (see setup/cmp.lua):
 --   <Tab>/<S-Tab> navigate the menu, <CR> confirms without preselecting,
 --   <C-l> jumps a snippet backward, <C-d>/<C-f> scroll docs, <C-e> hides.
--- <C-J> is intentionally left unmapped so it stays with copilot/gemini.
+-- <C-J> is intentionally left unmapped so it stays with copilot/deepseek.
 return {
   keymap = {
     preset = 'none',
