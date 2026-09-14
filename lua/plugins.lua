@@ -203,4 +203,13 @@ return {
     end,
     opts = require('setup.gemini')
   },
+
+  -- DeepSeek FIM inline completion (local plugin, see setup/deepseek.lua)
+  { dir = vim.fn.stdpath('config') .. '/pack/my/opt/deepseek-fim',
+    main = 'deepseek',
+    cond = function()
+      return vim.env.VIM_AI == "deepseek"
+    end,
+    opts = require('setup.deepseek')
+  },
 }
