@@ -24,6 +24,7 @@ return {
   completion = {
     -- Disabled to avoid overlapping with copilot.vim's inline preview.
     ghost_text = { enabled = false },
+    list = { selection = { preselect = false, auto_insert = true } },
   },
 
   sources = {
