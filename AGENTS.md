@@ -21,7 +21,7 @@
 ├── ftdetect/                # 自定义文件类型检测
 ├── pack/                    # Vim 原生包（packpath），通过 lazy.nvim 引用加载
 │   ├── my/start/            # 自启动本地插件
-│   └── my/opt/              # 按需加载的本地插件
+│   └── my/opt/              # 按需加载的本地插件（veeva、deepseek-fim）
 └── local/                   # 本地私有配置（不提交 git）
 ```
 
@@ -67,7 +67,7 @@
 | 环境变量 | 作用 | 取值 |
 |---------|------|------|
 | `$NERD_FONT` | 是否启用 Nerd Font 图标（devicons、nvim-tree 图标等） | 设置即启用 |
-| `$VIM_AI` | AI 后端选择 | `copilot` 或 `gemini` |
+| `$VIM_AI` | AI 后端选择 | `copilot`、`gemini` 或 `deepseek` |
 | `$TERM_PROGRAM` | 判断终端类型（Apple_Terminal 禁用 termguicolors） | 自动 |
 | `$VIMHOME` | 在 `init.lua` 中设置为配置目录路径 | 自动 |
 
@@ -109,6 +109,7 @@
 | `setup/copilot.lua` | Copilot AI | 白名单文件类型；`<C-J>` 接受补全 |
 | `setup/gemini.lua` | Gemini AI | gemini.nvim 配置；`<C-J>` 接受补全 |
 | `setup/vim-test.lua` | 测试运行 | 策略配置（当前为空，可扩展） |
+| `setup/deepseek.lua` | DeepSeek FIM 补全配置 | 插件本体在 `pack/my/opt/deepseek-fim`；密钥文件、模型、触发、上下文预算、键位 |
 | `setup/vimnote.lua` | 日记模板 | `VimnotesJournalTemplate` 全局变量 |
 
 ---
@@ -182,11 +183,42 @@ export VIM_AI=copilot
 
 # 使用 Gemini
 export VIM_AI=gemini
+
+# 使用 DeepSeek FIM（自研本地插件）
+export VIM_AI=deepseek
 ```
 
-- `copilot.vim` 和 `gemini.nvim` 的加载条件（`cond`）互斥
-- 两者使用相同的接受快捷键 `<C-J>`
+- 三个后端在 `plugins.lua` 中用 `cond` 互斥加载：`copilot.vim`、`gemini.nvim`、`pack/my/opt/deepseek-fim`
+- 三者使用相同的接受快捷键 `<C-J>`
 - `gemini.nvim` 是 `pack/ai/opt/` 下的 git submodule
+
+### 8.1 DeepSeek FIM（`pack/my/opt/deepseek-fim`）
+
+用 DeepSeek 的 FIM 接口（`https://api.deepseek.com/beta/completions`，`prompt` + `suffix`）
+提供与 copilot 手感一致的紫色 ghost text 补全，前端为纯虚文本（复用 `CopilotSuggestion`
+高亮，颜色由 `plugin/copilot_color.vim` 统一设置）。
+
+| 模块 | 职责 |
+|------|------|
+| `lua/deepseek/init.lua` | setup、插入模式触发状态机（autocmd / debounce / throttle / 取消）、键位、`:DeepSeek` 命令 |
+| `lua/deepseek/context.lua` | 上下文装配：`# Path:` 标记 + 文件头部 + 光标前内容（按 token 预算裁剪） |
+| `lua/deepseek/api.lua` | curl 请求（key 走 0600 配置文件，不进 argv）、过滤链、会话统计 |
+| `lua/deepseek/render.lua` | extmark 渲染、粘性建议裁剪、清理 |
+
+设计要点（改动前请先读）：
+
+- **粘性建议**：API 固有延迟约 1s（实测与 prompt 大小无关），因此已展示的建议在你继续输入时按前缀
+  裁剪而不是立即消失，避免闪烁。改动触发逻辑时不要破坏它。
+- **前缀缓存**：prompt 头部保持稳定（`# Path:` + 文件头部），实测长 prompt 缓存命中率约 98%，
+  命中价 $0.006/M vs 未命中 $0.3/M。
+- **suffix 重合裁剪**：FIM 模型会复述光标后内容，必须裁剪，否则补全会重复。
+- 不做流式（实测首包被服务端缓冲，收益 <150ms），不做多候选循环（`<M-\>` 换一个）。
+
+键位：`<C-J>` 接受整体、`<M-Right>` 接受一词、`<M-C-Right>` 接受一行、`<M-\>` 换一个候选、
+`<C-]>` 关闭。命令：`:DeepSeek`（状态）、`:DeepSeek toggle`、`:DeepSeek stats`、`:DeepSeek refresh`。
+
+密钥：`local/deepseek.key`（`local/` 已 gitignore，权限保持 600，内容为一行 API key）。
+文件类型白名单与 `setup/copilot.lua` 保持一致。
 
 ---
 
