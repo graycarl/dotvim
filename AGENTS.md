@@ -190,32 +190,34 @@ export VIM_AI=deepseek
 ### 8.1 DeepSeek FIM（`pack/my/opt/deepseek-fim`）
 
 用 DeepSeek 的 FIM 接口（`https://api.deepseek.com/beta/completions`，`prompt` + `suffix`）
-提供与 copilot 手感一致的紫色 ghost text 补全，前端为纯虚文本（复用 `CopilotSuggestion`
-高亮，颜色由 `plugin/copilot_color.vim` 统一设置）。
+提供与 copilot 手感一致的紫色 ghost text 补全（纯虚文本，复用 `CopilotSuggestion` 高亮，
+颜色由 `plugin/copilot_color.vim` 统一设置）。
+
+**完整文档（架构、键位/命令、配置、跨文件上下文、A/B 数据、未来优化点）在插件目录内：
+`pack/my/opt/deepseek-fim/README.md` —— 改动这个插件前先读它。**
 
 | 模块 | 职责 |
 |------|------|
 | `lua/deepseek/init.lua` | setup、插入模式触发状态机（autocmd / debounce / throttle / 取消）、键位、`:DeepSeek` 命令 |
-| `lua/deepseek/context.lua` | 上下文装配：`# Path:` 标记 + 文件头部 + 光标前内容（按 token 预算裁剪） |
+| `lua/deepseek/context.lua` | prompt/suffix 装配：`# Path:` 标记 + 文件头 + 光标前内容（按 token 预算裁剪） |
 | `lua/deepseek/api.lua` | curl 请求（key 走 0600 配置文件，不进 argv）、过滤链、会话统计 |
 | `lua/deepseek/render.lua` | extmark 渲染、粘性建议裁剪、清理 |
+| `lua/deepseek/cross_file.lua` | 被 import 文件的签名摘要（实验特性）+ buffer 级缓存 |
+| `lua/deepseek/eval.lua` | 离线 A/B 评测（`:DeepSeek eval`）、空补全死因诊断 |
 
-设计要点（改动前请先读）：
+仓库级要点（其余看 README）：
 
-- **粘性建议**：API 固有延迟约 1s（实测与 prompt 大小无关），因此已展示的建议在你继续输入时按前缀
-  裁剪而不是立即消失，避免闪烁。改动触发逻辑时不要破坏它。
-- **前缀缓存**：prompt 头部保持稳定（`# Path:` + 文件头部），实测长 prompt 缓存命中率约 98%，
-  命中价 $0.006/M vs 未命中 $0.3/M。
-- **suffix 重合裁剪**：FIM 模型会复述光标后内容，必须裁剪，否则补全会重复。
-- 不做流式（实测首包被服务端缓冲，收益 <150ms），不做多候选循环（`<M-\>` 换一个）。
-
-键位：`<C-J>` 接受整体、`<M-Right>` 接受一词、`<M-C-Right>` 接受一行、`<M-\>` 换一个候选、
-`<C-]>` 关闭。命令：`:DeepSeek`（状态）、`:DeepSeek toggle`、`:DeepSeek stats`、`:DeepSeek refresh`。
-
-密钥：`local/deepseek.key`（`local/` 已 gitignore，权限保持 600，内容为一行 API key）。
-文件类型白名单与 `setup/copilot.lua` 保持一致。
-
----
+- 配置在 `lua/setup/deepseek.lua`；key 在 `local/deepseek.key`（`local/` 已 gitignore，权限保持 600）；
+  文件类型白名单与 `setup/copilot.lua` 保持一致，接受键同样是 `<C-J>`。
+- **粘性建议**（继续输入时按前缀裁剪已显示的建议）和**稳定 prompt 头部**（前缀缓存命中的前提，
+  命中价 $0.006/M vs 未命中 $0.3/M）是两个不要破坏的设计点；FIM 模型会复述光标后内容，
+  `api.filter` 必须裁掉。
+- **跨文件上下文**（`cross_file.enabled`，默认 `true`）：会把被 import 的本地文件**签名**发到
+  DeepSeek API，只读项目根内文件并跳过依赖目录与凭证类文件。实测**无可靠收益**、prompt token
+  +21%~31%（两次 A/B 共 94 个配对样本，数据见 README），默认开启只是方便手动体验；
+  `:DeepSeek cross` 热切换，`:DeepSeek ctx` 查看注入了什么。
+- `:DeepSeek status|stats|toggle|refresh|ctx|eval|cross`；`api.filter` 的第 4 个参数 `trace`
+  能逐级回放过滤过程，用于排查"补全为什么是空的"。
 
 ## 九、文件修改通用规则
 
