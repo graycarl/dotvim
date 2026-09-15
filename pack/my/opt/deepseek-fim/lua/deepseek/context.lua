@@ -62,11 +62,12 @@ end
 
 ---Split the buffer at the cursor into raw prefix/suffix text (byte exact).
 ---@param bufnr integer
+---@param pos integer[]|nil `{row(1-based), col(0-based)}`, defaults to the window cursor
 ---@return string prefix
 ---@return string suffix
-local function split_at_cursor(bufnr)
+local function split_at_cursor(bufnr, pos)
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-  local pos = vim.api.nvim_win_get_cursor(0)
+  pos = pos or vim.api.nvim_win_get_cursor(0)
   local row, col = pos[1] - 1, pos[2]
   local cur = lines[row + 1] or ''
 
@@ -123,10 +124,14 @@ end
 ---Assemble the FIM prompt parts for the current cursor position.
 ---@param bufnr integer
 ---@param opts table
+---@param stable_extra string|nil extra material belonging to the *stable* part
+---  of the prompt (cross-file summaries).  Not used by the runtime yet; the
+---  evaluator uses it to A/B the same layout the integration would produce.
+---@param pos integer[]|nil cursor position override, for the evaluator
 ---@return table|nil ctx `{ prefix, suffix, typed_prefix }`
 ---@return string|nil err
-function M.build(bufnr, opts)
-  local prefix, suffix = split_at_cursor(bufnr)
+function M.build(bufnr, opts, stable_extra, pos)
+  local prefix, suffix = split_at_cursor(bufnr, pos)
   if #prefix < (opts.min_prompt_chars or 10) then
     return nil, 'context too short'
   end
@@ -136,25 +141,43 @@ function M.build(bufnr, opts)
   local total_chars = math.floor((c.total_tokens or 8000) * chars_per_token)
   local prefix_chars = math.floor(total_chars * (c.prefix_ratio or 0.70))
   local suffix_chars = total_chars - prefix_chars
+  local extra = stable_extra or ''
+  if extra ~= '' then
+    -- Keep the total budget constant: the extra material is taken out of the
+    -- current file's window.
+    prefix_chars = math.max(0, prefix_chars - #extra)
+  end
 
-  local head_chars_budget = math.max(0, math.min(c.head_chars or 1000, prefix_chars))
-  local head = ''
-  local code = ''
-  if #prefix > prefix_chars and head_chars_budget > 0 then
+  local head_budget = math.max(0, math.min(c.head_chars or 1000, prefix_chars))
+  local head, code = '', ''
+  if #prefix > prefix_chars and head_budget > 0 then
     -- The file does not fit in the budget: keep the head (imports, module level
     -- definitions) plus the code right before the cursor, so that the model
     -- still sees which APIs exist.  head + code can never overlap because their
     -- budgets sum to at most prefix_chars < #prefix.
-    head = head_chars(prefix, head_chars_budget)
+    head = head_chars(prefix, head_budget)
     code = tail_chars(prefix, prefix_chars - #head)
-    local leader = comment_leader(vim.bo[bufnr].filetype)
-    head = head .. '\n' .. leader .. ' ... (rest of file omitted)\n'
   else
     code = tail_chars(prefix, prefix_chars)
   end
 
+  local leader = comment_leader(vim.bo[bufnr].filetype)
+  local parts = { M.marker(bufnr) .. '\n' }
+  if head ~= '' then
+    parts[#parts + 1] = head .. '\n'
+  end
+  if extra ~= '' then
+    parts[#parts + 1] = extra .. '\n'
+  end
+  -- Whenever something was skipped the model must be told, otherwise it reads
+  -- the head / other files as the code immediately before the cursor.
+  if #prefix > prefix_chars or extra ~= '' then
+    parts[#parts + 1] = leader .. ' ... (rest of file omitted)\n'
+  end
+  parts[#parts + 1] = code
+
   return {
-    prefix = M.marker(bufnr) .. '\n' .. head .. code,
+    prefix = table.concat(parts),
     suffix = head_chars(suffix, suffix_chars),
     typed_prefix = prefix,
   }

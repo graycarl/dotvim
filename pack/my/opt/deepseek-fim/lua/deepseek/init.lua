@@ -10,6 +10,7 @@
 -- ~1s API latency instead of flickering the ghost text away.
 local api = require('deepseek.api')
 local context = require('deepseek.context')
+local cross_file = require('deepseek.cross_file')
 local render = require('deepseek.render')
 
 local M = {}
@@ -43,6 +44,18 @@ local defaults = {
   max_lines = 10,
   min_prompt_chars = 10,
   context = { total_tokens = 8000, prefix_ratio = 0.70, head_chars = 1000 },
+  -- Cross-file context (see `:DeepSeek ctx` / `:DeepSeek eval`): implemented and
+  -- measurable, but NOT wired into the prompt path yet.
+  cross_file = {
+    enabled = true,
+    max_files = 6,
+    max_lines = 25,
+    max_chars = 1200,
+    max_scan = 200,
+    read_lines = 1000,
+    separate = false,
+    lua_locals = false,
+  },
   keymaps = {
     accept = '<C-J>',
     accept_word = '<M-Right>',
@@ -204,6 +217,21 @@ end
 
 local fire
 
+---Signature summaries of the modules this buffer imports, or '' when the
+---feature is off / nothing resolves.  Cached per buffer (see cross_file.lua).
+---@param bufnr integer
+---@return string
+local function cross_text(bufnr)
+  if cfg.cross_file and cfg.cross_file.enabled == false then
+    return ''
+  end
+  local ok, xf = pcall(cross_file.cached_build, bufnr, cfg)
+  if not ok or type(xf) ~= 'table' then
+    return ''
+  end
+  return xf.text or ''
+end
+
 ---Request a completion (called by the debounce timer, or manually).
 ---@param manual boolean|nil true when triggered by `<M-\>`/`:DeepSeek refresh`
 function fire(manual)
@@ -212,7 +240,7 @@ function fire(manual)
   if not state.enabled or not mode_insert() or pum_visible() or not buffer_allowed(bufnr) then
     return
   end
-  local ctx, err = context.build(bufnr, cfg)
+  local ctx, err = context.build(bufnr, cfg, cross_text(bufnr))
   if not ctx then
     state.last_error = err
     return
@@ -332,6 +360,17 @@ local function status_lines()
     ),
     ('  pending  : %s'):format(state.pending and 'yes' or 'no'),
   }
+  if cfg.cross_file and cfg.cross_file.enabled == false then
+    lines[#lines + 1] = '  cross-file: off'
+  else
+    local xf = cross_file._cache()
+    if xf and xf.bufnr == bufnr and xf.text ~= '' then
+      lines[#lines + 1] =
+        ('  cross-file: %d file(s), %d bytes (hits %d)'):format(#xf.files, #xf.text, xf.hits or 0)
+    else
+      lines[#lines + 1] = '  cross-file: on (nothing resolved for this buffer)'
+    end
+  end
   if state.suggestion then
     lines[#lines + 1] = ('  showing  : %d chars'):format(#state.suggestion.text)
   end
@@ -352,6 +391,20 @@ local function status_lines()
   return lines
 end
 
+---Report lines in a scratch split (used by `:DeepSeek ctx` / `eval`).
+---@param name string
+---@param lines string[]
+local function show_lines(name, lines)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.bo[buf].modifiable = false
+  vim.bo[buf].bufhidden = 'wipe'
+  pcall(vim.api.nvim_buf_set_name, buf, name)
+  vim.cmd('botright split')
+  vim.api.nvim_win_set_buf(0, buf)
+  vim.keymap.set('n', 'q', '<Cmd>close!<CR>', { buffer = buf, nowait = true })
+end
+
 ---@return string[]
 local function stats_lines()
   local s = api.stats
@@ -367,7 +420,8 @@ end
 
 function M._commands()
   vim.api.nvim_create_user_command('DeepSeek', function(args)
-    local sub = args.args ~= '' and args.args or 'status'
+    local fargs = args.fargs
+    local sub = fargs[1] or 'status'
     if sub == 'toggle' then
       state.enabled = not state.enabled
       if not state.enabled then
@@ -378,15 +432,55 @@ function M._commands()
       vim.notify(table.concat(stats_lines(), '\n'), vim.log.levels.INFO)
     elseif sub == 'refresh' then
       M.refresh()
+    elseif sub == 'cross' then
+      cfg.cross_file = cfg.cross_file or {}
+      cfg.cross_file.enabled = cfg.cross_file.enabled == false
+      vim.notify(
+        'DeepSeek: cross-file context ' .. (cfg.cross_file.enabled and 'on' or 'off'),
+        vim.log.levels.INFO
+      )
+      M.refresh()
+    elseif sub == 'ctx' then
+      -- Which files the cross-file block would pull in, and the block itself.
+      local xf = require('deepseek.cross_file').build(vim.api.nvim_get_current_buf(), cfg)
+      local lines = {
+        ('cross-file block: %d bytes, %d file(s)'):format(#xf.text, #xf.files),
+      }
+      for _, f in ipairs(xf.files) do
+        lines[#lines + 1] = ('  + %s  (from %q)'):format(f.rel, f.spec)
+      end
+      for _, s in ipairs(xf.skipped) do
+        lines[#lines + 1] = ('  - %s: %s'):format(s.spec, s.reason)
+      end
+      lines[#lines + 1] = ''
+      vim.list_extend(lines, vim.split(xf.text, '\n', { plain = true }))
+      show_lines('deepseek-ctx', lines)
+    elseif sub == 'eval' then
+      local file = vim.api.nvim_buf_get_name(0)
+      if file == '' then
+        vim.notify('DeepSeek: eval needs a file-backed buffer', vim.log.levels.WARN)
+        return
+      end
+      local n = tonumber(fargs[2]) or 4
+      local modes = fargs[3] == 'all' and { 'call_site', 'line_end' } or { 'call_site' }
+      vim.notify('DeepSeek: evaluating ' .. file, vim.log.levels.INFO)
+      require('deepseek.eval').run({
+        cfg = cfg,
+        files = { file },
+        n = n,
+        modes = modes,
+        quiet = true,
+        on_done = function(report) show_lines('deepseek-eval', report.lines) end,
+      })
     elseif sub == 'status' then
       vim.notify(table.concat(status_lines(), '\n'), vim.log.levels.INFO)
     else
       vim.notify('DeepSeek: unknown subcommand: ' .. sub, vim.log.levels.WARN)
     end
   end, {
-    nargs = '?',
+    nargs = '*',
     complete = function()
-      return { 'status', 'stats', 'toggle', 'refresh' }
+      return { 'status', 'stats', 'toggle', 'refresh', 'ctx', 'eval', 'cross' }
     end,
   })
 end
@@ -441,6 +535,16 @@ function M.setup(opts)
     { 'InsertEnter', 'CursorMovedI', 'TextChangedI', 'CompleteChanged' },
     { group = group, callback = function() vim.schedule(M.schedule) end }
   )
+  -- Summarising the imported files costs a few ms; do it while the user is
+  -- still typing instead of inside the request path.
+  vim.api.nvim_create_autocmd('InsertEnter', {
+    group = group,
+    callback = function()
+      vim.schedule(function()
+        pcall(cross_file.cached_build, vim.api.nvim_get_current_buf(), cfg)
+      end)
+    end,
+  })
   vim.api.nvim_create_autocmd('InsertLeavePre', {
     group = group,
     callback = function() M.dismiss() end,

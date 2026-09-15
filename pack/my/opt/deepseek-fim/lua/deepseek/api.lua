@@ -105,30 +105,46 @@ end
 ---@param text string
 ---@param ctx table result of `context.build()` (prefix/suffix)
 ---@param opts table
+---Post-process a raw completion.
+---@param text string
+---@param ctx table result of `context.build()` (prefix/suffix)
+---@param opts table
+---@param trace table|nil optional array that receives `{ name, text }` snapshots
+---  of every stage, so a dropped completion can be explained afterwards
 ---@return string
-function M.filter(text, ctx, opts)
+function M.filter(text, ctx, opts, trace)
+  local function step(name, value)
+    if trace then
+      trace[#trace + 1] = { name = name, text = value }
+    end
+    return value
+  end
   if type(text) ~= 'string' or text == '' then
-    return ''
+    return step('no-response', '')
   end
   text = text:gsub('\r\n', '\n'):gsub('\r', '\n'):gsub('%z', '')
-  text = trim_suffix_overlap(text, ctx.suffix)
-  text = trim_prefix_duplicate(text, ctx.typed_prefix)
-  text = text:gsub('%s+$', '')
-  if text == '' or has_repeated_line(text) then
-    return ''
+  step('normalize', text)
+  text = step('trim_suffix_overlap', trim_suffix_overlap(text, ctx.suffix))
+  text = step('trim_prefix_duplicate', trim_prefix_duplicate(text, ctx.typed_prefix))
+  text = step('trim_trailing_ws', (text:gsub('%s+$', '')))
+  if text == '' then
+    return step('dropped-empty', '')
+  end
+  if has_repeated_line(text) then
+    return step('dropped-repetitive', '')
   end
   local max_lines = opts.max_lines or 10
   local lines = vim.split(text, '\n', { plain = true })
   if #lines > max_lines then
-    text = table.concat(vim.list_slice(lines, 1, max_lines), '\n')
+    text = step('truncate-lines', table.concat(vim.list_slice(lines, 1, max_lines), '\n'))
   end
-  return text
+  return step('kept', text)
 end
 
 ---@param job table|nil
 ---@param res table
 ---@param started integer hrtime
----@param cb fun(text: string|nil, err: string|nil)
+---@param cb fun(text: string|nil, err: string|nil, usage: table|nil)
 function M._complete(job, res, started, cb)
   local ms = (vim.uv.hrtime() - started) / 1e6
   local payload, status = (res.stdout or ''):match('^(.*)\n(%d%d%d)$')
@@ -159,7 +175,7 @@ function M._complete(job, res, started, cb)
     local msg = (data and data.error and data.error.message) or payload or ''
     M.stats.failed = M.stats.failed + 1
     M.last = { ms = ms, status = status, error = ('HTTP %d: %s'):format(status, msg) }
-    return cb(nil, M.last.error)
+    return cb(nil, M.last.error, M.last)
   end
 
   local usage = (data and data.usage) or {}
@@ -167,21 +183,29 @@ function M._complete(job, res, started, cb)
   M.stats.prompt_tokens = M.stats.prompt_tokens + (usage.prompt_tokens or 0)
   M.stats.completion_tokens = M.stats.completion_tokens + (usage.completion_tokens or 0)
   M.stats.cached_tokens = M.stats.cached_tokens + cached
-  M.last = {
+  local choice = data and data.choices and data.choices[1]
+  local record = {
     ms = ms,
     status = status,
     prompt_tokens = usage.prompt_tokens or 0,
     completion_tokens = usage.completion_tokens or 0,
     cached_tokens = cached,
+    -- `stop` = the model decided to insert nothing, `length` = ran into
+    -- max_tokens; both are worth telling apart when a completion is empty.
+    finish_reason = choice and choice.finish_reason or nil,
+    choices = data and data.choices and #data.choices or 0,
   }
-  local text = (data and data.choices and data.choices[1] and data.choices[1].text) or ''
-  cb(text, nil)
+  M.last = record
+  local text = (choice and choice.text) or ''
+  cb(text, nil, record)
 end
 
 ---Fire a FIM completion request.
 ---@param body table JSON request body
 ---@param opts table
----@param cb fun(text: string|nil, err: string|nil)
+---@param cb fun(text: string|nil, err: string|nil, usage: table|nil) `usage` is
+---  the per-request token/time record, safe to keep when several requests are in
+---  flight at once (unlike `api.last`)
 ---@return table|nil job handle with `:kill()`
 function M.request(body, opts, cb)
   local function reply(text, err)

@@ -54,6 +54,25 @@ return {
     head_chars = 1000,
   },
 
+  -- Cross-file context: signature summaries of the local modules this buffer
+  -- imports, prepended to the prompt right before the "rest of file omitted"
+  -- marker.  `:DeepSeek cross` toggles it live; `:DeepSeek ctx` shows what it
+  -- would pull in.
+  --
+  -- Measured A/B (94 paired samples over 2 runs, numbers in the plugin
+  -- README): no reliable gain, +21~31% prompt tokens.  Kept on for hands-on
+  -- evaluation; set `enabled = false` for the measured baseline.
+  cross_file = {
+    enabled = true,
+    max_files = 6, -- at most this many imported files are summarised
+    max_lines = 25, -- per file
+    max_chars = 1200, -- per file
+    max_scan = 200, -- imports are looked for in the first N lines
+    read_lines = 1000, -- only the head of an imported file is read
+    separate = false, -- blank line between files (layout A/B knob)
+    lua_locals = false, -- include `local function` (private helpers) in Lua
+  },
+
   keymaps = {
     accept = '<C-J>',
     accept_word = '<M-Right>',
