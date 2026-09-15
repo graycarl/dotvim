@@ -3,10 +3,10 @@
 用 DeepSeek 的 FIM（Fill-In-the-Middle）接口做 **copilot 风格的 inline ghost text 补全**：
 纯虚文本、无 popup、`<C-J>` 接受，手感与 `copilot.vim` 对齐。
 
-它是自研的本地插件（不依赖任何第三方 Lua 库），只在 `$VIM_AI == "deepseek"` 时加载，
+它是自研的本地插件（不依赖任何第三方 Lua 库），只在 `$VIM_AI` 为 `deepseek` 时加载，
 与 `copilot.vim`（`$VIM_AI=copilot`）互斥。配置在 `lua/setup/deepseek.lua`。
 
-```
+```text
 lua/deepseek/
   init.lua        触发状态机、键位、接受、命令
   context.lua     prompt/suffix 装配（token 预算、文件头、省略标记）
@@ -28,7 +28,7 @@ echo 'sk-...' > ~/.vim/local/deepseek.key && chmod 600 ~/.vim/local/deepseek.key
 ## 键位与命令
 
 | 键 | 作用 |
-|---|---|
+| --- | --- |
 | `<C-J>` | 接受整段建议 |
 | `<M-Right>` | 只接受一个词 |
 | `<M-C-Right>` | 只接受一行 |
@@ -36,7 +36,7 @@ echo 'sk-...' > ~/.vim/local/deepseek.key && chmod 600 ~/.vim/local/deepseek.key
 | `<C-]>` | 丢弃当前建议 |
 
 | 命令 | 作用 |
-|---|---|
+| --- | --- |
 | `:DeepSeek` / `:DeepSeek status` | 开关状态、模型、key 是否可读、当前 filetype 是否启用、cross-file 状态、最近一次请求耗时/token |
 | `:DeepSeek toggle` | 全局开关补全 |
 | `:DeepSeek cross` | 热切换跨文件上下文（切换后立刻重新请求当前行） |
@@ -50,7 +50,7 @@ echo 'sk-...' > ~/.vim/local/deepseek.key && chmod 600 ~/.vim/local/deepseek.key
 见 `lua/setup/deepseek.lua`（全量注释版）。要点与默认值：
 
 | 键 | 默认 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | `end_point` | `https://api.deepseek.com/beta/completions` | FIM 只在 `beta` 路径下 |
 | `model` | `deepseek-flash` | 也可用 `deepseek-v4-pro` |
 | `key_file` | `~/.vim/local/deepseek.key` | 权限 600 |
@@ -68,10 +68,10 @@ echo 'sk-...' > ~/.vim/local/deepseek.key && chmod 600 ~/.vim/local/deepseek.key
 
 ### 触发与状态机（`init.lua`）
 
-```
+```text
 InsertEnter/CursorMovedI/TextChangedI/CompleteChanged
    └─ schedule() ──守卫(enabled/filetype/buftype/mode/pumvisible) ──> debounce 300ms ──> fire()
-                                                                        throttle 800ms
+                                                                      throttle 800ms
 fire(): context.build() → api.request() → api.filter() → render.show()
 ```
 
@@ -86,11 +86,11 @@ fire(): context.build() → api.request() → api.filter() → render.show()
 
 ### 上下文装配（`context.lua`）
 
-```
+```text
 # Path: <相对项目根的路径>        ← 无文件名时退化为 # Language: python
 <文件头 ~1000 字符>               ← 仅当文件超出预算时
-[cross-file 块]                  ← 见下，可选
-# ... (rest of file omitted)     ← 只要跳过过任何内容就必须有这个标记
+[cross-file 块]                   ← 见下，可选
+# ... (rest of file omitted)      ← 只要跳过过任何内容就必须有这个标记
 <光标前代码（= prompt 结尾）>
 ```
 
@@ -120,7 +120,7 @@ Content-Type: application/json
 ### 过滤链（`api.filter`）
 
 | 阶段 | 作用 |
-|---|---|
+| --- | --- |
 | `normalize` | CRLF/`\0` 归一 |
 | `trim_suffix_overlap` | **FIM 模型会复述光标后内容，必须裁剪**，否则补全会重复 |
 | `trim_prefix_duplicate` | 模型偶尔回显 prompt 尾部（≥12 字符重叠），裁掉 |
@@ -143,7 +143,7 @@ Content-Type: application/json
 
 `<C-J>` 不是简单地"插入文本"，而是让映射返回一个键序列，用**表达式寄存器**插入：
 
-```
+```text
 <C-R><C-R>=v:lua.require("deepseek").queued_text()<CR>   ← 单行
 <C-R><C-O>=...<CR>                                       ← 多行（<C-O> 避免 autoindent 二次缩进）
 ```
@@ -160,7 +160,7 @@ Content-Type: application/json
 
 把当前 buffer **直接 import 的本地文件**摘要成签名列表，附着在 prompt 的稳定区。
 
-```
+```text
 # Path: src/report.py
 """..."""
 from .config import read_config
@@ -177,8 +177,8 @@ def read_config(path: str) -> dict: ...
 ### 路径解析
 
 | 语言 | 规则 |
-|---|---|
-| Python | `from .a import b` 按点数上溯（`rest == ''` 时落到 `__init__.py`）；`import a.b` 在 `[项目根, 项目根/src, 当前目录]` 下找 `a/b.py`、`a/b/__init__.py` |
+| --- | --- |
+| Python | `from .a import b` 按点数上溯（`rest` 为空时落到 `__init__.py`）；`import a.b` 在 `[项目根, 项目根/src, 当前目录]` 下找 `a/b.py`、`a/b/__init__.py` |
 | Lua | `require('a.b')` 在**从当前目录到项目根的每个祖先目录**及其 `lua/` 子目录下找 `a/b.lua`、`a/b/init.lua`（兼容 `<pkg>/lua/` 这种 nvim runtimepath 布局） |
 | Rust | `crate::` → `<root>/src`；`super::` → 父目录；`self::` → 同目录；`mod x;` → `x.rs` / `x/mod.rs` |
 | TS/JS | 只解析相对路径（`.ts/.tsx/.js/.jsx` 及 `index.*`）；裸 specifier 一律跳过（`node_modules` 无价值且会挤爆预算） |
@@ -222,7 +222,7 @@ def read_config(path: str) -> dict: ...
 两次独立运行（25 个文件 = Gomoku + HBKit + 本仓库；`base` 与 `cross` 在同一光标点配对）：
 
 | 运行 | 请求 | 配对样本 | 目标桶 first | 目标桶 lead1 | 目标桶 sim | 目标桶 simm | 配对 simm (p) |
-|---|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | A | 120 | 54 | 4/26 → 4/26 | 7/26 → 7/26 | 0.246 → 0.169 | 0.254 → 0.190 | 14 好 / 19 差 / 21 平 (0.49) |
 | B | 90 | 40 | 0/18 → 2/18 | 3/18 → 5/18 | 0.220 → 0.194 | 0.220 → 0.165 | 10 / 13 / 17 (0.68) |
 
@@ -274,7 +274,7 @@ def read_config(path: str) -> dict: ...
 ### A. 上下文与 prompt
 
 | # | 想法 | 预期收益 | 成本 | 备注 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | A1 | 文件 outline（顶层符号清单）替代"只截 1000 字符的文件头" | 中高（长文件里文件头到后面就没用了） | 低（复用 cross_file 的摘要器） | 与 A2 一起做 |
 | A2 | 预算四桶化（对齐 Copilot 的 prefix 35 / suffix 15 / stable 35 / volatile 15） | 中（现在 prefix 独占 70%，8000 token 常常花不完） | 低（改 ratio 计算） | 先测 `prefix_ratio` 敏感度 |
 | A3 | 当前作用域感知：光标深嵌时把最外层函数签名重贴回 volatile 区最前 | 中（仅超大函数有用） | 中（treesitter 查询） | 不能紧邻光标 |
@@ -287,7 +287,7 @@ def read_config(path: str) -> dict: ...
 ### B. 触发与延迟
 
 | # | 想法 | 预期收益 | 成本 | 备注 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | B1 | **推测性请求**：在 debounce 前用上一次上下文先发一发，命中就省一次往返 | 高（直接砍掉 ~1.1s 中的等待） | 中高（要管理更多在途请求/成本） | Copilot 有 `isSpeculative` |
 | B2 | 空闲预取：`InsertEnter` 后停顿即预发一轮 | 中 | 中 | 与 B1 共用基础设施 |
 | B3 | 自适应 debounce（按打字速度/接受率） | 中 | 低 | 先加统计再调 |
@@ -298,7 +298,7 @@ def read_config(path: str) -> dict: ...
 ### C. 质量与后处理
 
 | # | 想法 | 预期收益 | 成本 | 备注 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | C1 | **语法校验过滤**：把补全插进影子 buffer，用 treesitter 看 `ERROR` 节点是否增加 | 高（比启发式靠谱） | 中 | 也可用于"缩进与上下文不一致就重排" |
 | C2 | 缩进/括号配平修正 | 中 | 中 | 现在完全信任模型给的缩进 |
 | C3 | 更强的重复检测（现在只有"同一行 ≥3 次"） | 中 | 低 | 可借鉴 Copilot 的 n-gram `isRepetitive` |
@@ -307,7 +307,7 @@ def read_config(path: str) -> dict: ...
 ### D. 工程与可观测性
 
 | # | 想法 | 预期收益 | 成本 | 备注 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | D1 | 请求日志 ring buffer（`:DeepSeek log`：prompt/raw/filtered/耗时） | 高（排查"这次补得怪"） | 低 | trace 目前只对空结果保留 |
 | D2 | **回放 fixture**：把评测用过的请求/响应存盘，回归测试不再花钱 | 高 | 低 | 现在每次评测都真调 API |
 | D3 | 会话级接受率统计（接受/忽略/按词/按行） | 高（用真实使用判断改动，而非离线指标） | 低 | 最该先做的一个 |
