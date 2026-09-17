@@ -6,9 +6,9 @@
 -- split by whether they *need* knowledge from another file, so "does this help?"
 -- becomes a number instead of a feeling.
 --
--- Deliberately not wired into the runtime: `context.build()` grows two optional
--- arguments (extra stable material + cursor override) that only this harness
--- passes, so the A/B measures the exact layout an integration would produce.
+-- The cursor override is only used by this harness, so the A/B is always run
+-- through the same `context.build()` layout the runtime produces (cross-file
+-- material above the `# Path:` marker).
 --
 --   require('deepseek.eval').run({ files = { 'a.py' }, n = 3, cfg = cfg })
 --   :DeepSeek eval 3

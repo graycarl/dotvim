@@ -87,17 +87,20 @@ fire(): context.build() → api.request() → api.filter() → render.show()
 ### 上下文装配（`context.lua`）
 
 ```text
-# Path: <相对项目根的路径>        ← 无文件名时退化为 # Language: python
+[cross-file 块]                   ← 可选，见下；没有它时 prompt 与未启用时逐字节相同
+# Path: <相对项目根的路径>        ← 无文件名时退化为 # Language: python；硬边界：以下都属于当前文件
 <文件头 ~1000 字符>               ← 仅当文件超出预算时
-[cross-file 块]                   ← 见下，可选
-# ... (rest of file omitted)      ← 只要跳过过任何内容就必须有这个标记
+# ... (rest of file omitted)      ← 仅当当前文件被截断时
 <光标前代码（= prompt 结尾）>
 ```
 
 `suffix` = 光标后代码（占 30% 预算）。关键约束：
 
-- **只有光标前代码是"紧邻上文"**，文件头/cross-file 块必须用省略标记隔开，否则模型会把它们
+- **只有光标前代码是"紧邻上文"**，中间一旦发生截断就必须用省略标记隔开，否则模型会把文件头
   当成当前文件的续写；
+- cross-file 块放在 `# Path:` **之上**，由 `# Path:` 本身充当与当前文件的边界（每个块还有
+  自己的 `# From:` 标签），因此不需要省略标记兼职做分隔；顺带也把"实测无收益"的材料推得
+  离生成点更远；
 - 截断按**行边界**，不会切半行；
 - CRLF 由 nvim 的 `fileformat` 处理，buffer 内容里不含 `\r`。
 
@@ -158,18 +161,19 @@ Content-Type: application/json
 
 ## 跨文件上下文（`cross_file.lua`）
 
-把当前 buffer **直接 import 的本地文件**摘要成签名列表，附着在 prompt 的稳定区。
+把当前 buffer **直接 import 的本地文件**摘要成签名列表，**放在 prompt 最前面**
+（`# Path:` 之上，见上一节的布局）；`# Path:` 因此成为当前文件的硬边界。
 
 ```text
-# Path: src/report.py
-"""..."""
-from .config import read_config
 # From: src/config.py
 class Config:
     timeout: int
     def merge(self, other: Config) -> Config: ...
 def read_config(path: str) -> dict: ...
-# ... (rest of file omitted)
+# Path: src/report.py
+"""..."""
+from .config import read_config
+# ... (rest of file omitted)      ← 只有当前文件真被截断时才有
     def flush(self):
         return read_config(
 ```
@@ -282,7 +286,7 @@ def read_config(path: str) -> dict: ...
 | A5 | 注释/字符串感知的 `max_lines`（注释里不要给 10 行） | 中（减少垃圾多行补全） | 低 | 不进 prompt，只调参数 |
 | A6 | 跨文件"按需裁剪"：只放光标附近真正用到的名字的签名 | 未知 | 中 | **会破坏缓存稳定性**，需要迟滞（只在 `BufWritePost` 重排） |
 | A7 | 分隔标记 A/B：`# From:` vs DeepSeek-Coder repo-level 风格（`<file_sep>`+路径） | 未知 | 低 | `cross_file.separate` 已是同类的布局开关 |
-| A8 | 放置位置 A/B：摘要紧邻光标 vs 现在隔一个省略标记 | 未知 | 低 | `context.build(stable_extra)` 只需换拼装顺序 |
+| A8 | 位置 A/B：摘要置于 `# Path:` 之上（**现状**）vs 紧邻光标（`# Path:` 之后、`# ... (rest of file omitted)` 之前） | 未知 | 低 | 已按"之上"落地；再 A/B 用 `context.build(stable_extra)` 换拼装顺序即可 |
 
 ### B. 触发与延迟
 

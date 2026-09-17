@@ -6,6 +6,10 @@
 -- where tokens are approximated by characters (1 token ~= 3.5 chars) so that no
 -- tokenizer dependency is needed.
 --
+-- Optional cross-file summaries go *above* the marker, so that `# Path:` is a
+-- hard boundary: everything below it belongs to the current file.  Without
+-- cross-file material the prompt is byte-identical to the plain layout.
+--
 -- The prefix is kept stable (marker first, then a growing block of code) which
 -- is what makes DeepSeek's prompt cache hit: cached prompt tokens are ~50x
 -- cheaper than cache misses.
@@ -125,8 +129,9 @@ end
 ---@param bufnr integer
 ---@param opts table
 ---@param stable_extra string|nil extra material belonging to the *stable* part
----  of the prompt (cross-file summaries).  Not used by the runtime yet; the
----  evaluator uses it to A/B the same layout the integration would produce.
+---  of the prompt (cross-file summaries).  It is emitted above the `# Path:`
+---  marker; the evaluator uses it to A/B the same layout the integration
+---  produces.
 ---@param pos integer[]|nil cursor position override, for the evaluator
 ---@return table|nil ctx `{ prefix, suffix, typed_prefix }`
 ---@return string|nil err
@@ -162,16 +167,21 @@ function M.build(bufnr, opts, stable_extra, pos)
   end
 
   local leader = comment_leader(vim.bo[bufnr].filetype)
-  local parts = { M.marker(bufnr) .. '\n' }
-  if head ~= '' then
-    parts[#parts + 1] = head .. '\n'
-  end
+  local parts = {}
+  -- Other files first: the marker then opens the current file, and nothing has
+  -- to separate the summaries from the code.  Keeping them far from the cursor
+  -- also matches their value (measured: no reliable gain).
   if extra ~= '' then
     parts[#parts + 1] = extra .. '\n'
   end
-  -- Whenever something was skipped the model must be told, otherwise it reads
-  -- the head / other files as the code immediately before the cursor.
-  if #prefix > prefix_chars or extra ~= '' then
+  parts[#parts + 1] = M.marker(bufnr) .. '\n'
+  if head ~= '' then
+    parts[#parts + 1] = head .. '\n'
+  end
+  -- Only the code right before the cursor is "immediately preceding text", so
+  -- whenever the file was actually truncated the model must be told; the marker
+  -- no longer doubles as a separator for the cross-file block above `# Path:`.
+  if #prefix > prefix_chars then
     parts[#parts + 1] = leader .. ' ... (rest of file omitted)\n'
   end
   parts[#parts + 1] = code
