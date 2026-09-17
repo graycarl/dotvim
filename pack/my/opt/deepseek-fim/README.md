@@ -70,11 +70,15 @@ echo 'sk-...' > ~/.vim/local/deepseek.key && chmod 600 ~/.vim/local/deepseek.key
 
 ```text
 InsertEnter/CursorMovedI/TextChangedI/CompleteChanged
-   └─ schedule() ──守卫(enabled/filetype/buftype/mode/pumvisible) ──> debounce 300ms ──> fire()
+   └─ schedule() ──守卫(enabled/filetype/buftype/mode/pumvisible/行尾) ──> debounce 300ms ──> fire()
                                                                       throttle 800ms
 fire(): context.build() → api.request() → api.filter() → render.show()
 ```
 
+- **只在行尾触发**（写死的行为，不可配置）：光标后还有**非空白**字符时既不请求，
+  也不保留已显示的建议（`schedule()` 直接 `dismiss()`）；行尾的空白不算"后面有字符"。
+  理由：中段补全的虚文本必须覆盖真实字符，而 FIM 模型倾向于复述光标后内容
+  （正是 `trim_suffix_overlap` 要清理的东西），可用率低还白花钱。
 - **粘性建议（sticky）**：已显示的建议在你继续输入时按"已输入前缀"裁剪，而不是立刻消失。
   API 固有延迟约 1.1s（实测与 prompt 大小无关），粘性建议是掩盖延迟、避免闪烁的关键。
   改动触发逻辑时不要破坏它。

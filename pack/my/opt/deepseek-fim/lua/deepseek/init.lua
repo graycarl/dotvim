@@ -106,6 +106,25 @@ local function buffer_allowed(bufnr)
   return cfg.filetypes[vim.bo[bufnr].filetype] == true
 end
 
+---True when the cursor sits at the end of its line, ignoring trailing blanks.
+---@return boolean
+local function at_line_end()
+  local col = vim.api.nvim_win_get_cursor(0)[2]
+  return vim.api.nvim_get_current_line():sub(col + 1):match('^%s*$') ~= nil
+end
+
+---Guards shared by the debounce timer and by manual requests.  Completions are
+---only requested at the end of a line: mid-line the ghost text would have to
+---overlay real characters that the model tends to restate anyway.
+---@param bufnr integer
+---@return boolean
+local function can_request(bufnr)
+  if not state.enabled or not mode_insert() or pum_visible() or not buffer_allowed(bufnr) then
+    return false
+  end
+  return at_line_end()
+end
+
 ---Identify "the same place in the same buffer"; used to drop stale responses.
 ---@param bufnr integer
 ---@return string
@@ -237,7 +256,7 @@ end
 function fire(manual)
   state.timer = nil
   local bufnr = vim.api.nvim_get_current_buf()
-  if not state.enabled or not mode_insert() or pum_visible() or not buffer_allowed(bufnr) then
+  if not can_request(bufnr) then
     return
   end
   local ctx, err = context.build(bufnr, cfg, cross_text(bufnr))
@@ -315,7 +334,9 @@ end
 ---Re-evaluate what should be on screen (called from insert-mode autocmds).
 function M.schedule()
   local bufnr = vim.api.nvim_get_current_buf()
-  if not state.enabled or not mode_insert() or pum_visible() or not buffer_allowed(bufnr) then
+  if not can_request(bufnr) then
+    -- Includes "cursor is not at the line end": an already shown suggestion no
+    -- longer applies either, so drop it along with any in-flight request.
     return M.dismiss()
   end
 
@@ -359,6 +380,7 @@ local function status_lines()
       buffer_allowed(bufnr) and 'active' or 'skipped'
     ),
     ('  pending  : %s'):format(state.pending and 'yes' or 'no'),
+    ('  trigger  : %s'):format(at_line_end() and 'at line end' or 'mid-line (idle)'),
   }
   if cfg.cross_file and cfg.cross_file.enabled == false then
     lines[#lines + 1] = '  cross-file: off'
