@@ -143,6 +143,7 @@
 | `fts.vim` | 文件类型全局设置 | 禁用 python provider、markdown 折叠等 |
 | `search.vim` | 通用搜索命令 | `:S` / `:SG` 命令（基于 grep / fugitive） |
 | `highlight_yank.lua` | 复制高亮 | 复制后短暂高亮 |
+| `json_to_yaml.lua` | JSON 转 YAML | `:ToYaml` 预览、`:ToYaml!` 写入同名 `.yaml`（后端复用 `~/.shell/tools/json2yaml.py`） |
 | `lastcursor.vim` | 光标记忆 | 重新打开文件时回到上次位置 |
 | `large_files.vim` | 大文件保护 | >10MB 的文件禁用语法高亮、撤销、只读打开 |
 | `start_screen.vim` | 启动界面 | 显示 ASCII art 和快捷选项（带"hongbo"品牌） |
