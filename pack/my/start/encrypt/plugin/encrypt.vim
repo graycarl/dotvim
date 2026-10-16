@@ -89,9 +89,11 @@ augroup encrypted
   autocmd BufReadPost,FileReadPost *.enc let &ch = ch_save|unlet ch_save
   autocmd BufReadPost,FileReadPost *.enc execute ":doautocmd BufReadPost " . expand("%:r")
 
-  " Restore viminfo when the last encrypted buffer goes away. BufWipeout
-  " alone is too narrow: :bdelete only fires BufUnload+BufDelete.
-  autocmd BufWipeout,BufDelete,BufUnload *.enc call s:MaybeRestoreViminfo()
+  " Restore viminfo when the last encrypted buffer goes away. NOTE: do
+  " not add BufUnload here -- quitting Vim unloads all buffers, and
+  " restoring viminfo at that point would let the shada written on exit
+  " leak plaintext from the encrypted buffer.
+  autocmd BufWipeout,BufDelete *.enc call s:MaybeRestoreViminfo()
   " Convert all text to encrypted text before writing
   autocmd BufWritePre,FileWritePre *.enc set bin
   autocmd BufWritePre,FileWritePre *.enc call s:EncryptBuffer()
