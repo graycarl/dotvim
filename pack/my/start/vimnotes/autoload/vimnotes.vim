@@ -37,8 +37,13 @@ function vimnotes#buffer_init_journal()
     " Remove all the content first
     normal ggdG
     let prev_note = s:previous_note(b:notes_journal_date)
-    let tasks = join(s:copy_unfinished_tasks_from(prev_note), "\n")
-    let titles = join(s:copy_repeat_titles_from(prev_note), "\n")
+    if empty(prev_note)
+        let tasks = ""
+        let titles = ""
+    else
+        let tasks = join(s:copy_unfinished_tasks_from(prev_note), "\n")
+        let titles = join(s:copy_repeat_titles_from(prev_note), "\n")
+    endif
     let projects = "- Project 1\n- Project 2"
     for line in g:VimnotesJournalTemplate
         let line = substitute(line, "{date}", b:notes_journal_datestr, "g")
@@ -189,12 +194,14 @@ function s:previous_note(date)
     let i = 0
     let current = a:date
     while i < 100
+        let i += 1
         let current = s:date_previous(current)
         let fn = s:date_to_journal_fn(current)
         if getftype(fn) == "file"
             return fn
         endif
     endwhile
+    return ""
 endfunction
 
 " }}} Private Functions "
