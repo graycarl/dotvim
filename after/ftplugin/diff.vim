@@ -2,7 +2,7 @@
 " 
 " Fold by file name: `diff --git a/xxx b/xxx`
 
-function MyDiffFold()
+function! MyDiffFold()
     let l:line = getline(v:lnum)
     if l:line =~ '^diff --git'
         return '0'
