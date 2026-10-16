@@ -1,4 +1,19 @@
 " Transparent editing encrypted files.
+" Run openssl with the password passed via a 0600 temp file, so the
+" secret never appears in the shell command line (visible in `ps`) and
+" passwords containing quotes cannot break the command.
+function! s:OpensslFilter(args) abort
+  let l:passfile = tempname()
+  call writefile([], l:passfile, 'b')
+  call setfperm(l:passfile, 'rw-------')
+  call writefile([b:secret], l:passfile, 'b')
+  try
+    execute '1,$!/usr/bin/openssl aes-256-cbc ' . a:args . ' -salt -pass file:' . shellescape(l:passfile)
+  finally
+    call delete(l:passfile)
+  endtry
+endfunction
+
 augroup encrypted
   au!
 
@@ -13,8 +28,7 @@ augroup encrypted
   autocmd BufReadPre,FileReadPre *.enc let ch_save = &ch|set ch=2
   " Read password
   autocmd BufReadPre,FileReadPre,BufNewFile *.enc let b:secret = inputsecret("Password: ")
-  " (If you use tcsh, you may need to alter this line.)
-  autocmd BufReadPost,FileReadPost *.enc execute "1,$!/usr/bin/openssl aes-256-cbc -d -md md5 -salt -k '" . b:secret . "'"
+  autocmd BufReadPost,FileReadPost *.enc call s:OpensslFilter('-d -md md5')
 
   " Switch to normal mode for editing
   autocmd BufReadPost,FileReadPost *.enc set nobin
@@ -22,9 +36,8 @@ augroup encrypted
   autocmd BufReadPost,FileReadPost *.enc execute ":doautocmd BufReadPost " . expand("%:r")
 
   " Convert all text to encrypted text before writing
-  " (If you use tcsh, you may need to alter this line.)
   autocmd BufWritePre,FileWritePre *.enc set bin
-  autocmd BufWritePre,FileWritePre *.enc execute "1,$!/usr/bin/openssl aes-256-cbc -md md5 -salt -k '" . b:secret . "'"
+  autocmd BufWritePre,FileWritePre *.enc call s:OpensslFilter('-md md5')
   " Undo the encryption so we are back in the normal text, directly
   " after the file has been written.
   autocmd BufWritePost,FileWritePost *.enc set nobin
