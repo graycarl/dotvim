@@ -60,7 +60,7 @@ function! s:MaybeRestoreViminfo() abort
   endif
   let l:wiping = str2nr(expand('<abuf>'))
   for l:buf in range(1, bufnr('$'))
-    if l:buf != l:wiping && bufexists(l:buf) && bufname(l:buf) =~# '\.enc$'
+    if l:buf != l:wiping && bufloaded(l:buf) && bufname(l:buf) =~# '\.enc$'
       return
     endif
   endfor
@@ -89,8 +89,9 @@ augroup encrypted
   autocmd BufReadPost,FileReadPost *.enc let &ch = ch_save|unlet ch_save
   autocmd BufReadPost,FileReadPost *.enc execute ":doautocmd BufReadPost " . expand("%:r")
 
-  " Restore viminfo when the last encrypted buffer goes away
-  autocmd BufWipeout *.enc call s:MaybeRestoreViminfo()
+  " Restore viminfo when the last encrypted buffer goes away. BufWipeout
+  " alone is too narrow: :bdelete only fires BufUnload+BufDelete.
+  autocmd BufWipeout,BufDelete,BufUnload *.enc call s:MaybeRestoreViminfo()
   " Convert all text to encrypted text before writing
   autocmd BufWritePre,FileWritePre *.enc set bin
   autocmd BufWritePre,FileWritePre *.enc call s:EncryptBuffer()
