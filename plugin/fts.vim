@@ -6,7 +6,7 @@
 " 在 pyenv 环境下，vim 自动寻找可用的 python provider 会比较慢，所以在没有明确需求的情况下，
 " 先禁用 python3 provider，未来需要的话，可以按 help 中的方法手动启用。
 " See `:help provider-python`
-let g:loaded_python_provider = 0
+let g:loaded_python3_provider = 0
 
 " Python code width
 let g:python_code_width_limit = 100
