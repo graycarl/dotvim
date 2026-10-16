@@ -18,6 +18,11 @@ endfunction
 " so a careless :w cannot encrypt the error output back over the file,
 " which would destroy the original ciphertext irreversibly.
 function! s:DecryptBuffer() abort
+  " Reset any lock from a previous failed attempt so :e! can retry.
+  " ('nomodifiable' persists across :e!, so it must be lifted here,
+  " before the filter replaces the buffer contents.)
+  unlet! b:encrypt_failed
+  setlocal modifiable noreadonly
   call s:OpensslFilter('-d -md md5')
   if v:shell_error != 0
     let b:encrypt_failed = 1
