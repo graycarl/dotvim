@@ -43,12 +43,37 @@ function! s:EncryptBuffer() abort
   call s:OpensslFilter('-md md5')
 endfunction
 
+" 'viminfo' is a global option: clear it while an encrypted file is open
+" (so nothing leaks to ~/.viminfo), and restore the original value when
+" the last .enc buffer is wiped out -- otherwise the whole session
+" silently stops saving cursor marks, registers and history.
+function! s:DisableViminfo() abort
+  if !exists('s:viminfo_save')
+    let s:viminfo_save = &viminfo
+  endif
+  set viminfo=
+endfunction
+
+function! s:MaybeRestoreViminfo() abort
+  if !exists('s:viminfo_save')
+    return
+  endif
+  let l:wiping = str2nr(expand('<abuf>'))
+  for l:buf in range(1, bufnr('$'))
+    if l:buf != l:wiping && bufexists(l:buf) && bufname(l:buf) =~# '\.enc$'
+      return
+    endif
+  endfor
+  let &viminfo = s:viminfo_save
+  unlet s:viminfo_save
+endfunction
+
 augroup encrypted
   au!
 
   " First make sure nothing is written to ~/.viminfo while editing
   " an encrypted file.
-  autocmd BufReadPre,FileReadPre *.enc set viminfo=
+  autocmd BufReadPre,FileReadPre *.enc call s:DisableViminfo()
   " We don't want a various options which write unencrypted data to disk
   autocmd BufReadPre,FileReadPre *.enc set noswapfile noundofile nobackup
 
@@ -64,6 +89,8 @@ augroup encrypted
   autocmd BufReadPost,FileReadPost *.enc let &ch = ch_save|unlet ch_save
   autocmd BufReadPost,FileReadPost *.enc execute ":doautocmd BufReadPost " . expand("%:r")
 
+  " Restore viminfo when the last encrypted buffer goes away
+  autocmd BufWipeout *.enc call s:MaybeRestoreViminfo()
   " Convert all text to encrypted text before writing
   autocmd BufWritePre,FileWritePre *.enc set bin
   autocmd BufWritePre,FileWritePre *.enc call s:EncryptBuffer()
