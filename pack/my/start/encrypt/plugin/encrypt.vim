@@ -14,6 +14,30 @@ function! s:OpensslFilter(args) abort
   endtry
 endfunction
 
+" Decrypt the buffer; on failure (most likely a wrong password) lock it
+" so a careless :w cannot encrypt the error output back over the file,
+" which would destroy the original ciphertext irreversibly.
+function! s:DecryptBuffer() abort
+  call s:OpensslFilter('-d -md md5')
+  if v:shell_error != 0
+    let b:encrypt_failed = 1
+    setlocal readonly nomodifiable
+    echohl ErrorMsg
+    echom 'encrypt.vim: decryption failed (wrong password?). Buffer locked read-only; reopen with :e! and the correct password.'
+    echohl None
+  endif
+endfunction
+
+" Encrypt the buffer before writing. Refuse to write when decryption
+" previously failed in this buffer (even for :w!).
+function! s:EncryptBuffer() abort
+  if get(b:, 'encrypt_failed', 0)
+    echoerr 'encrypt.vim: refusing to write: decryption previously failed (wrong password?). Reopen with :e! first.'
+    return
+  endif
+  call s:OpensslFilter('-md md5')
+endfunction
+
 augroup encrypted
   au!
 
@@ -28,7 +52,7 @@ augroup encrypted
   autocmd BufReadPre,FileReadPre *.enc let ch_save = &ch|set ch=2
   " Read password
   autocmd BufReadPre,FileReadPre,BufNewFile *.enc let b:secret = inputsecret("Password: ")
-  autocmd BufReadPost,FileReadPost *.enc call s:OpensslFilter('-d -md md5')
+  autocmd BufReadPost,FileReadPost *.enc call s:DecryptBuffer()
 
   " Switch to normal mode for editing
   autocmd BufReadPost,FileReadPost *.enc set nobin
@@ -37,7 +61,7 @@ augroup encrypted
 
   " Convert all text to encrypted text before writing
   autocmd BufWritePre,FileWritePre *.enc set bin
-  autocmd BufWritePre,FileWritePre *.enc call s:OpensslFilter('-md md5')
+  autocmd BufWritePre,FileWritePre *.enc call s:EncryptBuffer()
   " Undo the encryption so we are back in the normal text, directly
   " after the file has been written.
   autocmd BufWritePost,FileWritePost *.enc set nobin
