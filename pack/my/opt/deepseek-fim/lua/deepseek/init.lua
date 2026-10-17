@@ -80,6 +80,18 @@ local state = {
   last_shown_text = nil,
 }
 
+---Stop and close the debounce timer, if any.  `vim.defer_fn` only closes its
+---timer when the callback fires, so a timer we stop ourselves would leak a
+---libuv handle unless we close it here.
+local function stop_timer()
+  local timer = state.timer
+  state.timer = nil
+  if timer and not timer:is_closing() then
+    timer:stop()
+    timer:close()
+  end
+end
+
 ---Temperatures used for repeated manual requests; the first entry follows the
 ---`temperature` option.
 local temperatures = { 0, 0.3, 0.7 }
@@ -168,10 +180,7 @@ end
 
 ---Drop the current suggestion and any in-flight request.
 function M.dismiss()
-  if state.timer then
-    state.timer:stop()
-    state.timer = nil
-  end
+  stop_timer()
   if state.suggestion then
     render.clear(state.suggestion.buf)
     state.suggestion = nil
