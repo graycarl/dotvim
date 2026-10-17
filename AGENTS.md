@@ -107,7 +107,6 @@
 | `setup/toggleterm.lua` | 浮动终端 | `<C-\>` 切换 |
 | `setup/gitsigns.lua` | Git 符号 | 自定义符号样式 |
 | `setup/copilot.lua` | Copilot AI | 白名单文件类型；`<C-J>` 接受补全 |
-| `setup/vim-test.lua` | 测试运行 | 策略配置（当前为空，可扩展） |
 | `setup/deepseek.lua` | DeepSeek FIM 补全配置 | 插件本体在 `pack/my/opt/deepseek-fim`；密钥文件、模型、触发、上下文预算、键位 |
 | `setup/vimnote.lua` | 日记模板 | `VimnotesJournalTemplate` 全局变量 |
 

@@ -67,5 +67,3 @@ nnoremap <buffer> <F6> :TestNearest<CR>
 nnoremap <buffer> <F7> :TestFile<CR>
 " Show local variables on failure
 let test#python#pytest#options = '--showlocals'
-" pdb mode is not work with test.vim
-" let test#python#pytest#options = '--pdb'
