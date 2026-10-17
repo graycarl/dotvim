@@ -3,6 +3,10 @@ if exists("b:did_my_ftplugin")
 endif
 let b:did_my_ftplugin = 1
 
+augroup my_ftplugin_python
+  autocmd! * <buffer>
+augroup END
+
 " About folding
 " Use global treesitter folding
 " setlocal foldmethod=indent
@@ -22,7 +26,7 @@ function! s:run_buffer()
         execute '!python' shellescape(@%, 1)
     endif
 endfunction
-command! -nargs=0 Run call s:run_buffer()
+command! -buffer -nargs=0 Run call s:run_buffer()
 nnoremap <buffer> <F5> :Run<CR>
 
 " Ruff formatter for current file
@@ -33,21 +37,30 @@ function! s:run_ruff_fix()
         execute '!uv run ruff check --fix' shellescape(@%, 1)
     endif
 endfunction
-command! -nargs=0 RuffFix call s:run_ruff_fix()
+command! -buffer -nargs=0 RuffFix call s:run_ruff_fix()
 nnoremap <buffer> <F8> :RuffFix<CR>
 
 " We should not let a single line's length more than 80 charaters
 if g:python_code_width_limit
-    au BufWinEnter <buffer> let w:m2=matchadd('ErrorMsg', '\%>'. g:python_code_width_limit . 'v.\+', -1)
+    " delete the previous match first: BufWinEnter fires every time the
+    " buffer enters a window, re-adding would pile up duplicate matches
+    au my_ftplugin_python BufWinEnter <buffer> silent! call matchdelete(get(w:, 'm2', -1))
+          \ | let w:m2=matchadd('ErrorMsg', '\%>'. g:python_code_width_limit . 'v.\+', -1)
 endif
 
-" Remove trailing white space
-au BufWritePre <buffer> %s/\s\+$//e
+" Remove trailing white space without moving the cursor or clobbering
+" the search register on every save
+function! s:strip_trailing_ws()
+    let l:view = winsaveview()
+    silent! keepjumps keeppatterns %s/\s\+$//e
+    call winrestview(l:view)
+endfunction
+au my_ftplugin_python BufWritePre <buffer> call <SID>strip_trailing_ws()
 
 " Lint on save
 " about `ignore_errors`, see source code and
 " <https://github.com/mfussenegger/nvim-lint/pull/570>
-au BufWritePost <buffer> lua require('lint').try_lint(nil, { ignore_errors = true })
+au my_ftplugin_python BufWritePost <buffer> lua require('lint').try_lint(nil, { ignore_errors = true })
 
 " Run pytest for current test case
 nnoremap <buffer> <F6> :TestNearest<CR>
