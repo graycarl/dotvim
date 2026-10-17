@@ -595,7 +595,7 @@ function M.run(opts)
     while inflight < concurrency and #jobs > 0 do
       local item = table.remove(jobs, 1)
       inflight = inflight + 1
-      local job = api.request({
+      api.request({
         model = cfg.model,
         prompt = item.ctx.prefix,
         suffix = item.ctx.suffix,
@@ -612,11 +612,10 @@ function M.run(opts)
           pump()
         end
       end)
-      if not job and inflight > 0 then
-        -- `api.request` failed before starting (missing key, ...): the callback
-        -- is still scheduled, so do not stall the pool.
-        inflight = inflight - 1
-      end
+      -- Note: even when `api.request` fails synchronously (missing key, ...)
+      -- it still schedules the callback above, which performs the matching
+      -- `inflight - 1` and `pump()`.  Decrementing here too would silently
+      -- widen the concurrency budget by one for every failed request.
     end
   end
   report.expected = #jobs
