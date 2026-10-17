@@ -55,8 +55,8 @@ return {
   },
 
   -- Cross-file context: signature summaries of the local modules this buffer
-  -- imports, prepended to the prompt right before the "rest of file omitted"
-  -- marker.  `:DeepSeek cross` toggles it live; `:DeepSeek ctx` shows what it
+  -- imports, prepended to the prompt above the `# Path:` marker (see
+  -- context.build()).  `:DeepSeek cross` toggles it live; `:DeepSeek ctx` shows what it
   -- would pull in.
   --
   -- Measured A/B (94 paired samples over 2 runs, numbers in the plugin

@@ -115,12 +115,11 @@ end
 ---  `line_end`  - cursor at the end of a code line, ground truth = next line
 ---  `call_site` - cursor right after `(` of a call to an imported name
 ---@param lines string[]
----@param ft string
 ---@param tokens table
 ---@param defs table
 ---@param mode string
 ---@return table[]
-local function samples(lines, ft, tokens, defs, mode)
+local function samples(lines, tokens, defs, mode)
   local out = {}
   if mode == 'line_end' then
     for i = 1, #lines - 1 do
@@ -304,7 +303,6 @@ end
 
 ---Metrics for one completion.
 ---  first      first identifier matches the ground truth
----  exact      first line identical
 ---  exact_norm identical ignoring whitespace
 ---  lead1      at least one leading token matches (graded, see `lead`)
 ---  lead       number of matching leading tokens, capped at 8
@@ -323,11 +321,9 @@ local function compare(comp, gt)
   local longer_m = math.max(#cm, #gt_tokens)
   return {
     first = ct_first ~= nil and gt_first ~= nil and ct_first == gt_first,
-    exact = c ~= '' and c == g,
     exact_norm = c ~= '' and (c:gsub('%s+', '')) == (g:gsub('%s+', '')),
     lead = lead,
     lead1 = lead >= 1,
-    lead4 = lead >= 4,
     f1 = token_f1(ct, gt_tokens),
     sim = longer > 0 and (1 - levenshtein(ct, gt_tokens) / longer) or 0,
     f1m = token_f1(cm, gt_tokens),
@@ -341,10 +337,8 @@ local function tally(records)
   local t = {
     n = 0,
     first = 0,
-    exact = 0,
     exact_norm = 0,
     lead1 = 0,
-    lead4 = 0,
     lead = 0,
     f1 = 0,
     sim = 0,
@@ -361,10 +355,8 @@ local function tally(records)
     t.errors = t.errors + (r.err and 1 or 0)
     t.empty = t.empty + (r.comp == '' and 1 or 0)
     t.first = t.first + (r.first and 1 or 0)
-    t.exact = t.exact + (r.exact and 1 or 0)
     t.exact_norm = t.exact_norm + (r.exact_norm and 1 or 0)
     t.lead1 = t.lead1 + (r.lead1 and 1 or 0)
-    t.lead4 = t.lead4 + (r.lead4 and 1 or 0)
     t.lead = t.lead + (r.lead or 0)
     t.f1 = t.f1 + (r.f1 or 0)
     t.sim = t.sim + (r.sim or 0)
@@ -422,8 +414,6 @@ end
 ---  max_requests  integer default 40
 ---  concurrency   integer default 2
 ---  quiet         boolean do not print, only return the report
----  dry           boolean only list the sampled positions, no API calls
----  record_raw    boolean keep the raw response and filter trace for every sample
 ---  on_done       fun(report: table)|nil
 ---@return table report `{ lines = string[], records = table, totals = table }`
 function M.run(opts)
@@ -474,7 +464,7 @@ function M.run(opts)
       end
       vim.bo[buf].filetype = ft
       for _, mode in ipairs(modes) do
-        for _, s in ipairs(pick(samples(lines, ft, tokens, defs, mode), n)) do
+        for _, s in ipairs(pick(samples(lines, tokens, defs, mode), n)) do
           s.path = path
           s.ft = ft
           s.buf = buf
@@ -506,23 +496,6 @@ function M.run(opts)
       jobs[#jobs + 1] = { sample = s, variant = 'cross', ctx = s.cross }
     end
   end
-  if opts.dry then
-    say('deepseek eval (dry run): %d files, %d candidate requests', files, #jobs)
-    for _, job in ipairs(jobs) do
-      if job.variant == 'base' then
-        say('  %-10s %-11s %-16s line %-4d gt=%q', job.sample.mode, job.sample.bucket,
-          vim.fn.fnamemodify(job.sample.path, ':t'), job.sample.row,
-          vim.trim(job.sample.gt):sub(1, 60))
-      end
-    end
-    for _, buf in ipairs(scratch) do
-      pcall(vim.api.nvim_buf_delete, buf, { force = true })
-    end
-    if opts.on_done then
-      opts.on_done(report)
-    end
-    return report
-  end
   say('deepseek eval: %d files, %d requests, model %s', files, #jobs, cfg.model)
   if #jobs == 0 then
     say('no samples found')
@@ -552,16 +525,14 @@ function M.run(opts)
       gt = item.sample.gt,
       suffix = item.ctx.suffix,
       comp = comp,
-      -- Kept for empty results (and for everything with `record_raw`) so a
-      -- dropped completion can be traced back to the filter stage that ate it.
-      raw = (comp == '' or opts.record_raw) and text or nil,
-      trace = (comp == '' or opts.record_raw) and trace or nil,
+      -- Kept for empty results so a dropped completion can be traced back to
+      -- the filter stage that ate it.
+      raw = comp == '' and text or nil,
+      trace = comp == '' and trace or nil,
       first = m.first,
-      exact = m.exact,
       exact_norm = m.exact_norm,
       lead = m.lead,
       lead1 = m.lead1,
-      lead4 = m.lead4,
       f1 = m.f1,
       sim = m.sim,
       f1m = m.f1m,

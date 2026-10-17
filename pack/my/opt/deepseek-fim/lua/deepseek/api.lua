@@ -105,10 +105,6 @@ end
 ---@param text string
 ---@param ctx table result of `context.build()` (prefix/suffix)
 ---@param opts table
----Post-process a raw completion.
----@param text string
----@param ctx table result of `context.build()` (prefix/suffix)
----@param opts table
 ---@param trace table|nil optional array that receives `{ name, text }` snapshots
 ---  of every stage, so a dropped completion can be explained afterwards
 ---@return string
@@ -141,11 +137,10 @@ function M.filter(text, ctx, opts, trace)
   return step('kept', text)
 end
 
----@param job table|nil
 ---@param res table
 ---@param started integer hrtime
 ---@param cb fun(text: string|nil, err: string|nil, usage: table|nil)
-function M._complete(job, res, started, cb)
+function M._complete(res, started, cb)
   local ms = (vim.uv.hrtime() - started) / 1e6
   local payload, status = (res.stdout or ''):match('^(.*)\n(%d%d%d)$')
   status = tonumber(status)
@@ -252,7 +247,7 @@ function M.request(body, opts, cb)
   job = vim.system(args, { text = true, stdin = payload }, function(res)
     os.remove(conf)
     vim.schedule(function()
-      M._complete(job, res, started, cb)
+      M._complete(res, started, cb)
     end)
   end)
   return job
