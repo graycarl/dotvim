@@ -11,10 +11,6 @@ return {
     "folke/which-key.nvim",
     event = "VeryLazy",
     version = "*",
-    cond = function()
-      -- Only enabled with neovim version > 0.9.4
-      return vim.fn.has('nvim-0.9.4') == 1
-    end,
     opts = {},
     keys = {
       {
@@ -129,15 +125,10 @@ return {
     'saghen/blink.cmp',
     version = '1.*',
     dependencies = {
-      'L3MON4D3/LuaSnip',
+      { 'L3MON4D3/LuaSnip', version = '*' },
       'rafamadriz/friendly-snippets',
     },
     opts = require('setup.blink'),
-  },
-  {
-    "L3MON4D3/LuaSnip",
-    version = "*",
-    dependencies = { "rafamadriz/friendly-snippets" }
   },
   {
     'github/copilot.vim',
