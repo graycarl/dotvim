@@ -44,8 +44,8 @@ local defaults = {
   max_lines = 10,
   min_prompt_chars = 10,
   context = { total_tokens = 8000, prefix_ratio = 0.70, head_chars = 1000 },
-  -- Cross-file context (see `:DeepSeek ctx` / `:DeepSeek eval`): implemented and
-  -- measurable, but NOT wired into the prompt path yet.
+  -- Cross-file context (see `:DeepSeek ctx` / `:DeepSeek eval`): signature
+  -- summaries of imported local modules, prepended above the `# Path:` marker.
   cross_file = {
     enabled = true,
     max_files = 6,
@@ -250,9 +250,6 @@ local fire
 ---@param bufnr integer
 ---@return string
 local function cross_text(bufnr)
-  if cfg.cross_file and cfg.cross_file.enabled == false then
-    return ''
-  end
   local ok, xf = pcall(cross_file.cached_build, bufnr, cfg)
   if not ok or type(xf) ~= 'table' then
     return ''
@@ -367,14 +364,6 @@ function M.schedule()
     delay = math.max(delay, cfg.throttle - since)
   end
   state.timer = vim.defer_fn(fire, delay)
-end
-
----Internal state, for tests and `:DeepSeek`.
----@return table
-function M._debug()
-  return { enabled = state.enabled, pending = state.pending ~= nil, suggestion = state.suggestion,
-           timer = state.timer ~= nil, last_error = state.last_error,
-           last_request_at = state.last_request_at }
 end
 
 ---@return string[]

@@ -691,15 +691,6 @@ function M.root_of(dir)
   return found and vim.fs.dirname(found) or dir
 end
 
----@param bufnr integer
----@return string
-function M.root(bufnr)
-  local name = vim.api.nvim_buf_get_name(bufnr)
-  local dir = name ~= '' and vim.fs.dirname(name) or vim.uv.cwd()
-  return vim.fs.root(bufnr, { '.git', 'pyproject.toml', 'setup.py', 'package.json', 'Cargo.toml' })
-    or dir
-end
-
 ---Path shown in the `From:` marker: relative to the project root.
 ---@param path string
 ---@param root string
