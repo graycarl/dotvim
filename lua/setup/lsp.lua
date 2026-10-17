@@ -1,9 +1,6 @@
 -- This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(_, bufnr)
 
-  -- Enable inlay hints
-  -- vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-
   local nmap = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
@@ -17,8 +14,6 @@ local on_attach = function(_, bufnr)
 
   nmap('gD', vim.lsp.buf.definition, '[G]oto [D]efinition')
   nmap('<leader>fr', require('telescope.builtin').lsp_references, '[F]ind [R]eferences')
-  -- nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-  -- nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
   nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
