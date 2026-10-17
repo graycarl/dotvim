@@ -3,7 +3,6 @@ function vault#write_backup()
         return
     endif
     let vault_bk_dir = expand(g:VaultBackupDir) . "/" . s:hash(expand("%:p:h"), 4)
-    echo vault_bk_dir
     if !isdirectory(vault_bk_dir)
         call mkdir(vault_bk_dir, 'p')
     endif
