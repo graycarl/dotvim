@@ -3,9 +3,7 @@
 " Public Functions {{{ "
 
 function vimnotes#open_today(bang)
-    if a:bang == "!"
-        echo "open in current window"
-    else
+    if a:bang != "!"
         vsp
     endif
     execute "lcd " . g:VimnotesRootDir
