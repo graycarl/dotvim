@@ -1,2 +1,4 @@
 local/
 .pi/
+.DS_Store
+.mypy_cache/
