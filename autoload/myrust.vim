@@ -1,8 +1,3 @@
-if exists('did_autoload_myrust') || &cp || version < 700
-    finish
-endif
-let did_autoload_myrust = 1
-
 function myrust#Run()
     let l:cargo = cargo#nearestCargo(0)
     if len(l:cargo) == 0
