@@ -13,7 +13,7 @@ augroup StartScreen
   " 使用 StdinReadPre 检测是否真正空启动
   autocmd StdinReadPre * let s:std_in=1
   autocmd VimEnter *
-        \  if !exists('s:std_in') && argc() == 0 && !exists('b:start_screen_shown') && &filetype == '' |
+        \  if !exists('s:std_in') && argc() == 0 && &filetype == '' |
         \    call s:show() |
         \  endif
 augroup END
@@ -38,12 +38,6 @@ function! s:show() abort
   call s:set_mappings()
   call s:set_syntax()
 
-endfunction
-
-function! s:close() abort
-  if &filetype ==# 'start_screen'
-    silent! close
-  endif
 endfunction
 
 " 内容生成 ===============================================
