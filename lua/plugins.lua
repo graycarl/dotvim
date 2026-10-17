@@ -171,11 +171,7 @@ return {
   },
 
   -- Run tests with vim
-  {
-    'vim-test/vim-test',
-    version = '*',
-    init = require('setup.vim-test').init,
-  },
+  { 'vim-test/vim-test', version = '*' },
 
   -- Http client
   {
