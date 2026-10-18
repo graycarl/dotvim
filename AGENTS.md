@@ -110,8 +110,8 @@
 | `setup/deepseek.lua` | DeepSeek FIM 补全配置 | 插件本体在 `pack/my/opt/deepseek-fim`；密钥文件、模型、触发、上下文预算、键位 |
 | `setup/vimnote.lua` | 日记模板 | `VimnotesJournalTemplate` 全局变量 |
 | `autoload/my.vim` | 公共 VimL 函数 | 目前仅 `my#Goto_parent_dir`（`mappings.lua` 的 `-` 映射） |
-| `autoload/myrust.vim` | Rust 智能运行 | `myrust#Run()`：examples 目录下跑 `cargo run --example`，否则 `:Crun`（依赖 Nvim runtime 自带的 cargo 命令） |
-| `ftdetect/ebnf.vim` | `.ebnf` 文件类型检测 | 唯一的自定义 ftdetect |
+| `autoload/myrust.vim` | Rust 智能运行 | `myrust#Run()`：examples 目录下跑 `cargo run --example`，否则 `:Crun`，无 cargo 工程时 `:RustRun`（命令均由 Nvim runtime 提供） |
+| `ftdetect/ebnf.vim` | `.ebnf` 文件类型检测 | 顶层 `ftdetect/` 下唯一文件 |
 
 ---
 
@@ -161,7 +161,7 @@
 | `start/vault` | 自启动 | `.vault` 密码本：写时备份、`<buffer>` 命令 `CopyItemValue` |
 | `start/vimnotes` | 自启动 | 日记系统：`:NotesToday`、模板填充、任务勾选；ft 为复合型 `markdown.vimnotes` |
 | `opt/veeva` | 按需 | 工作工具集（git/jira 等），由 `local/local.lua` 里 `require('lazy').load` 启用 |
-| `opt/deepseek-fim` | 按需 | DeepSeek FIM 补全（`$VIM_AI=deepseek` 时启用），详见 §8.1 |
+| `opt/deepseek-fim` | 条件加载 | DeepSeek FIM 补全（`$VIM_AI=deepseek` 时启用），详见 §8.1 |
 
 ---
 
