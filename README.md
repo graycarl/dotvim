@@ -3,7 +3,7 @@
 Some key plugins:
 
 - lazy.nvim: Plugin manager
-- mason and lsp and cmp
+- mason, lspconfig and blink.cmp
 - telescope.nvim
 
 
@@ -32,4 +32,4 @@ Lazy currently does not support packages. So we need to enabled local packages i
 { dir = vim.fn.stdpath('config') .. '/pack/my/opt/veeva', lazy=true },
 ```
 
-To enable veeva plugin, you can add `require('lazy').load({plugins={'veeva'}})` in `local.lua`.
+To enable veeva plugin, you can add `require('lazy').load({plugins={'veeva'}})` in `local/local.lua`.
