@@ -1,9 +1,12 @@
 " vim:foldmethod=marker
 
-if exists("b:did_ftplugin")
+" The filetype is the compound `markdown.vimnotes`, and the built-in
+" markdown ftplugin sets b:did_ftplugin before this file runs -- so the
+" guard must use a plugin-specific variable.
+if exists("b:did_vimnotes_ftplugin")
   finish
 endif
-let b:did_ftplugin = 1
+let b:did_vimnotes_ftplugin = 1
 
 " Init buffer metadata {{{ "
 
@@ -36,7 +39,10 @@ function s:MkNonExDir(file, buf)
         endif
     endif
 endfunction
-autocmd BufWritePre <buffer> :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+augroup vimnotes_ftplugin
+  autocmd! * <buffer>
+  autocmd BufWritePre <buffer> call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+augroup END
 " }}} Auto Commands "
 
 " Bindings {{{ "
