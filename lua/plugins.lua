@@ -106,9 +106,8 @@ return {
       {'mason-org/mason.nvim', version = 'v2.*'},
       {'mason-org/mason-lspconfig.nvim', version = 'v2.*'},
 
-      -- Useful status updates for LSP
-      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', version='1.4', opts = {} },
+      -- Useful status updates for LSP (set up in setup/lsp.lua)
+      { 'j-hui/fidget.nvim', version='1.4' },
 
       -- Faster LuaLS setup, lazydev instead of deprecated neodev
       { 'folke/lazydev.nvim', version = '*', opts = {} },
