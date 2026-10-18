@@ -17,7 +17,7 @@ local function config()
       }
   }
   -- Mappings
-  vim.keymap.set('n', '<C-p>', require('telescope.builtin').git_files, { desc = '[S]earch [F]iles' })
+  vim.keymap.set('n', '<C-p>', require('telescope.builtin').git_files, { desc = '[G]it [F]iles' })
   vim.keymap.set('n', '<leader><leader>', require('telescope.builtin').builtin, { desc = '[\\] Start telescope' })
   vim.keymap.set('n', '<localleader>/', function()
     -- You can pass additional configuration to telescope to change theme, layout, etc.
