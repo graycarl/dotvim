@@ -109,6 +109,9 @@
 | `setup/copilot.lua` | Copilot AI | 白名单文件类型；`<C-J>` 接受补全 |
 | `setup/deepseek.lua` | DeepSeek FIM 补全配置 | 插件本体在 `pack/my/opt/deepseek-fim`；密钥文件、模型、触发、上下文预算、键位 |
 | `setup/vimnote.lua` | 日记模板 | `VimnotesJournalTemplate` 全局变量 |
+| `autoload/my.vim` | 公共 VimL 函数 | 目前仅 `my#Goto_parent_dir`（`mappings.lua` 的 `-` 映射） |
+| `autoload/myrust.vim` | Rust 智能运行 | `myrust#Run()`：examples 目录下跑 `cargo run --example`，否则 `:Crun`，无 cargo 工程时 `:RustRun`（命令均由 Nvim runtime 提供） |
+| `ftdetect/ebnf.vim` | `.ebnf` 文件类型检测 | 顶层 `ftdetect/` 下唯一文件 |
 
 ---
 
@@ -119,7 +122,7 @@
 | 文件 | 主要设置 |
 |------|---------|
 | `python.vim` | 折叠（2 级）、`<F5>` 运行、`<F8>` ruff fix、自动 lint、`<F6>`/`<F7>` 测试、行宽检查 |
-| `rust.vim` | `<F5>` 运行、`<F6>` build、`<F7>` test、折叠 2 级 |
+| `rust.vim` | `<F5>` 智能运行（`myrust#Run`）、`<F6>` `:Cbuild`、`<F7>` `:Ctest`（cargo 命令由 Nvim runtime 提供）、折叠 2 级 |
 | `markdown.vim` | 表格格式化（`gq`）、tab 2 空格、中文 formatoptions |
 | `lua.vim` | tab 2 空格、写文件自动去尾随空格 |
 | `javascript.vim` | tab 2 空格 |
@@ -149,6 +152,16 @@
 | `redir_tab.vim` | 命令输出 | `:RedirTab <cmd>` 在新标签中显示命令输出 |
 | `copilot_color.vim` | Copilot 颜色 | 设置 Copilot 补全提示色为紫色（`#9933ff`） |
 | `pi.vim` | pi 入口 | `:PI` 命令打开 pi 终端 |
+
+### `pack/my/` 本地插件（通过 lazy.nvim 以 `dir` 引用）
+
+| 插件 | 加载 | 功能 |
+|------|------|------|
+| `start/encrypt` | 自启动 | `.enc` 文件透明加解密（openssl；`-md md5` 是为兼容既有密文，不要升级） |
+| `start/vault` | 自启动 | `.vault` 密码本：写时备份、`<buffer>` 命令 `CopyItemValue` |
+| `start/vimnotes` | 自启动 | 日记系统：`:NotesToday`、模板填充、任务勾选；ft 为复合型 `markdown.vimnotes` |
+| `opt/veeva` | 按需 | 工作工具集（git/jira 等），由 `local/local.lua` 里 `require('lazy').load` 启用 |
+| `opt/deepseek-fim` | 条件加载 | DeepSeek FIM 补全（`$VIM_AI=deepseek` 时启用），详见 §8.1 |
 
 ---
 
@@ -234,5 +247,5 @@ export VIM_AI=deepseek
 
 ## 十、Git 注意事项
 
-- `.gitignore` 忽略：`local/`、`.DS_Store`、`.mypy_cache`
+- `.gitignore` 忽略：`local/`、`.pi/`、`.DS_Store`、`.mypy_cache`
 - `lazy-lock.json` 随插件更新而变更，正常提交即可
