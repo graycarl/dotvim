@@ -1,5 +1,10 @@
 " vim:foldmethod=marker
 
+if exists("b:did_ftplugin")
+  finish
+endif
+let b:did_ftplugin = 1
+
 " Init buffer metadata {{{ "
 
 let b:notes_journal_datestr = expand("%:t:r")
