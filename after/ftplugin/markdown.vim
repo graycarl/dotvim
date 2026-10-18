@@ -1,5 +1,5 @@
 " from: https://github.com/plasticboy/vim-markdown/blob/master/ftplugin/markdown.vim
-function! TableFormat()
+function! MarkdownTableFormat()
     if match(getline(v:lnum), '^|') == -1 && match(getline(v:lnum+1), '^|') == -1
         return -1
     endif
@@ -23,7 +23,7 @@ function! TableFormat()
 endfunction
 " Use gq to format table.
 " When it failed(not a table), it will fail back to internal format program.
-set formatexpr=TableFormat()
+setlocal formatexpr=MarkdownTableFormat()
 
 setlocal tabstop=2
 setlocal shiftwidth=2
