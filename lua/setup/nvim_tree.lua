@@ -1,6 +1,6 @@
 -- Nvim tree
 
-local function init()
+local function config()
   require("nvim-tree").setup({
     hijack_netrw = false,
     renderer = vim.env.NERD_FONT and {} or {
@@ -19,4 +19,4 @@ local function init()
   vim.keymap.set('n', 'T', ':NvimTreeFindFileToggle<CR>')
 end
 
-return { init = init }
+return { config = config }

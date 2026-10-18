@@ -60,7 +60,7 @@ return {
   {
     'nvim-tree/nvim-tree.lua',
     version = '*',
-    config = require('setup.nvim_tree').init
+    config = require('setup.nvim_tree').config
   },
   -- Load only when $NERD_FONT exists.
   {
