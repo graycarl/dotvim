@@ -144,6 +144,7 @@
 | `colorswitch.lua` | 配色切换 | `F3`/`F4` 切换，`ColorSwitchSave` 保存到 `local/colorswitch.lua` |
 | `fts.vim` | 文件类型全局设置 | 禁用 python provider、markdown 折叠等 |
 | `search.vim` | 通用搜索命令 | `:S` / `:SG` 命令（基于 grep / fugitive） |
+| `terminal_background.lua` | 明暗跟随终端 | 查询 OSC 11 背景色→自动切 `background`；`UIEnter`/`VimEnter`/`FocusGained`/`VimResume` 重查，`:TerminalBackground` 手动调试 |
 | `highlight_yank.lua` | 复制高亮 | 复制后短暂高亮 |
 | `json_to_yaml.lua` | JSON 转 YAML | `:ToYaml` 预览、`:ToYaml!` 写入同名 `.yaml`（后端复用 `~/.shell/tools/json2yaml.py`） |
 | `lastcursor.vim` | 光标记忆 | 重新打开文件时回到上次位置 |
