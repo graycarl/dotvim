@@ -33,8 +33,17 @@
 -- |SwitchColor|) sticks until the ghostty theme actually changes again (or you
 -- run `:GhosttyTheme` to force a re-align).
 --
+-- The statusline is refreshed as part of every switch: lualine (and friends)
+-- build their highlight groups once, at setup time. lualine does hook
+-- ColorScheme/OptionSet('background') itself, but that only helps while its
+-- augroup is intact and its `theme` is not pinned to a static table, and it can
+-- resolve the theme from a 'background' that was flipped a moment ago. So the
+-- switch re-runs its setup() and drops cached lualine themes, so a light/dark
+-- flip can never be served from the palette cache of the previous background.
+--
 -- Settings (all optional):
 --
+--   vim.g.ghostty_theme_statusline = false " do not refresh the statusline
 --   vim.g.ghostty_theme_follow = false    " background only, no colorscheme switch
 --   vim.g.ghostty_theme_config = '...'    " default: $XDG_CONFIG_HOME/ghostty/config
 --   vim.g.ghostty_theme_colors = {        " extra OSC-11 background colour map
@@ -316,6 +325,39 @@ local function resolve_from_config()
   return { scheme = scheme, bg = bg, id = 'cfg:' .. name, source = 'config', name = name }
 end
 
+-- Statusline plugins (lualine, ...) cache their theme when they are set up.
+-- Neovim does fire ColorScheme, but relying on the plugin's own hook alone is
+-- fragile: the hook may be gone, the theme may have been resolved while
+-- 'background' was still the old value, and `require`d theme modules keep the
+-- palette of the background they were first loaded with. Re-setup explicitly
+-- and redraw, so the statusline always ends up matching the new colorscheme.
+---@return boolean refreshed true when a statusline plugin was re-setup
+local function refresh_statusline()
+  if vim.g.ghostty_theme_statusline == false then
+    return false
+  end
+  local refreshed = false
+  if package.loaded['lualine'] then
+    -- Gruvbox & co. keep light/dark palettes in separate modules, others cache
+    -- a palette module that is computed from the *current* 'background'; drop
+    -- them all so the next setup() recomputes instead of reusing.
+    for name in pairs(package.loaded) do
+      if type(name) == 'string' and name:match('^lualine%.themes%.') then
+        package.loaded[name] = nil
+      end
+    end
+    refreshed = pcall(function()
+      require('lualine').setup()
+    end)
+  end
+  -- the statusline keeps its old look until something forces a redraw
+  pcall(vim.cmd, 'redrawstatus!')
+  if vim.o.showtabline ~= 0 and vim.o.tabline ~= '' then
+    pcall(vim.cmd, 'redrawtabline')
+  end
+  return refreshed
+end
+
 -- Apply a resolved spec. Only touches 'background'/colorscheme when the theme
 -- identity changed (unless `force`), so manual choices are preserved.
 local function apply(spec, force)
@@ -366,6 +408,7 @@ local function apply(spec, force)
     end
   end
   applying = false
+  local statusline = refresh_statusline()
 
   last = {
     id = spec.id,
@@ -376,6 +419,7 @@ local function apply(spec, force)
     color = spec.color,
     name = spec.name,
     detected = detected,
+    statusline = statusline,
     skipped = false,
   }
 end
@@ -391,12 +435,13 @@ local function report()
       last.bg
     )
   end
-  return ('ghostty theme: %s via %s%s -> background=%s, colorscheme=%s'):format(
+  return ('ghostty theme: %s via %s%s -> background=%s, colorscheme=%s%s'):format(
     last.id,
     last.source,
     last.color and (' ' .. last.color) or '',
     last.bg,
-    last.colors or 'none'
+    last.colors or 'none',
+    last.statusline and ', statusline refreshed' or ''
   )
 end
 
@@ -519,6 +564,7 @@ vim.api.nvim_create_autocmd('OptionSet', {
     -- only rebuild their highlights when they are (re)loaded
     pcall(vim.cmd.colorscheme, vim.g.colors_name)
     applying = false
+    refresh_statusline()
   end,
 })
 
