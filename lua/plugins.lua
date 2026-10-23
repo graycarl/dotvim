@@ -78,7 +78,7 @@ return {
     'nvim-telescope/telescope.nvim',
     version = '*',
     dependencies = {
-      {'nvim-lua/plenary.nvim', version = '*'}
+      {'nvim-lua/plenary.nvim'}
     },
     config = require('setup.telescope').config,
   },
