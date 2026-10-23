@@ -69,6 +69,7 @@ local THEME_DIRS = {
 }
 
 local applying = false -- guards the OptionSet('background') hook
+local warned = false -- only nag once about a missing palette
 local last = nil -- last applied state, see apply()
 local appearance_cache = nil
 local appearance_at = 0
@@ -177,10 +178,18 @@ local function config_path()
 end
 
 -- Parse a ghostty config or theme file: `background`, `foreground`,
--- `palette = N=#rrggbb` and `theme`. Colour values are read with norm(), so a
--- trailing comment on the same line does not confuse them.
-local function read_config(path)
-  local data = { palette = {} }
+-- `palette = N=#rrggbb`, `theme` and `config-file` includes. Colour values are
+-- read with norm(), so a trailing comment on the same line does not confuse
+-- them. Includes are followed like ghostty does: relative to the including
+-- file, `?` prefix = optional, `~` expanded, later directives win.
+local function read_config(path, data, seen)
+  data = data or { palette = {} }
+  seen = seen or {}
+  if seen[path] then
+    return data
+  end
+  seen[path] = true
+
   local file = io.open(path, 'r')
   if not file then
     return data
@@ -198,6 +207,14 @@ local function read_config(path)
         end
       elseif key == 'theme' then
         data.theme = strip_comment(value)
+      elseif key == 'config-file' then
+        -- `config-file = ?auto/theme.ghostty` (the theme picker writes here)
+        local target = value:gsub('^%?%s*', ''):gsub('^"(.*)"$', '%1')
+        target = target:gsub('^~', vim.env.HOME or '~')
+        if target:sub(1, 1) ~= '/' then
+          target = (path:match('^(.*)/[^/]*$') or '.') .. '/' .. target
+        end
+        read_config(target, data, seen)
       end
     end
   end
@@ -555,7 +572,7 @@ end
 
 local function report()
   if not last then
-    return 'ghostty theme: nothing resolved (yet)'
+    return ('ghostty theme: no palette found in %s'):format(config_path())
   end
   if last.skipped then
     return ('ghostty theme: %s unchanged, kept colorscheme=%s (background=%s)'):format(
@@ -599,11 +616,17 @@ end
 local function sync(verbose, force)
   local spec = resolve()
   if not spec then
-    if verbose then
-      vim.notify(('ghostty theme: no palette in %s'):format(config_path()), vim.log.levels.WARN)
+    -- only complain once per session: a missing ghostty config is not fatal
+    if verbose or not warned then
+      warned = true
+      vim.notify(
+        ('ghostty theme: no `theme =`/`background =` in %s, leaving colours alone'):format(config_path()),
+        vim.log.levels.WARN
+      )
     end
     return
   end
+  warned = false
   apply(spec, force)
   if verbose then
     vim.notify(report(), vim.log.levels.INFO)
