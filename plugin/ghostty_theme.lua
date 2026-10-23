@@ -1,101 +1,75 @@
--- ghostty theme sync: follow the terminal's theme in Neovim
+-- ghostty palette sync: paint Neovim with the terminal's own colours
 --
--- Keeps the Neovim colorscheme in step with the ghostty theme (and the
--- light/dark variant of `theme = light:...,dark:...`).
+-- The active ghostty theme (`theme = ...` in the ghostty config, resolved to
+-- its light/dark half with the macOS appearance) provides `background`,
+-- `foreground` and `palette 0-15`. Neovim's highlight groups are generated
+-- from those colours directly -- no named colorscheme is involved -- so any
+-- ghostty theme drives Neovim: builtin themes, user themes, or inline
+-- `background =`/`palette =` lines, and the two sides cannot drift apart.
 --
--- Neovim 0.12 already has a builtin TermResponse handler that parses an OSC 11
--- reply and sets 'background' ("tui_term_has_dark_bg"), but it only knows
--- light/dark -- it cannot tell gruvbox from catppuccin, and inside tmux the
--- reply never arrives at all (tmux swallows the query).
+--   ghostty theme file    ->  Neovim
+--   background            ->  'background' (light/dark from luminance), Normal.bg
+--   foreground            ->  Normal.fg
+--   palette 1-6 / 9-14    ->  red/green/yellow/blue/magenta/cyan; of each pair
+--                             the one with the better contrast against bg wins
+--   palette 8             ->  Comment (else a blend of fg towards bg)
+--   mix(bg, fg, 6%)       ->  CursorLine, ColorColumn, TabLine
+--   mix(bg, fg, 10%)      ->  StatusLine, Pmenu, TabLineSel, Folded
+--   mix(bg, fg, 20%)      ->  Visual, QuickFixLine
+--   mix(bg, fg, 30%)      ->  WinSeparator
+--   mix(bg, fg, 55%)      ->  LineNr, NonText, Whitespace
 --
--- So this plugin resolves the *theme* from two sources, in this order:
+-- The two surface blends are the ones ~/.shell/tools/ghostty-tmux-theme.py
+-- feeds tmux (themedark-grey / themelight-grey), so the Neovim statusline and
+-- the tmux status bar end up the same colour. `terminal_color_0..15` are set
+-- from the palette as well, so :terminal matches the real terminal.
 --
---   1. The ghostty config file (`theme = ...`), which is exact and works
---      everywhere, including inside tmux. `theme = light:A,dark:B` is resolved
---      with the macOS appearance (that is what ghostty itself follows).
---   2. An OSC 11 query as a fallback, when the config carries no `theme =`
---      (e.g. inline `background = #rrggbb`): the reply color is looked up in a
---      table of known ghostty backgrounds.
---
--- The colorscheme is then switched to the matching Neovim scheme, with
--- 'background' set first (schemes read it when they load). The builtin table
--- only maps pairs whose background color is identical in Ghostty and in the
--- Neovim colorscheme, so the switch is invisible when both sides agree:
---
---   gruvbox     Gruvbox Light      / Gruvbox Dark        #fbf1c7 / #282828
---   kanagawa    Kanagawa Lotus     / Kanagawa Wave       #f2ecbc / #1f1f28
---   onenord     Onenord Light      / Onenord             #f7f8fa / #2e3440
---   catppuccin  Catppuccin Latte   / Catppuccin Mocha    #eff1f5 / #1e1e2e
---   everforest  Everforest Light … / Everforest Dark …   (approx colours)
---   onedark     Atom One Light     / Atom One Dark       #f9f9f9 / #21252b
---
--- Only *changes* are followed: after a sync, a manual `:colorscheme foo` (or
--- |SwitchColor|) sticks until the ghostty theme actually changes again (or you
--- run `:GhosttyTheme` to force a re-align).
---
--- The statusline is refreshed as part of every switch: lualine (and friends)
--- build their highlight groups once, at setup time. lualine does hook
--- ColorScheme/OptionSet('background') itself, but that only helps while its
--- augroup is intact and its `theme` is not pinned to a static table, and it can
--- resolve the theme from a 'background' that was flipped a moment ago. So the
--- switch re-runs its setup() and drops cached lualine themes, so a light/dark
--- flip can never be served from the palette cache of the previous background.
+-- Only *changes* are followed: after a sync a manual `:colorscheme foo` sticks
+-- until the ghostty theme (or its colours) changes again, or you run
+-- `:GhosttyTheme` to force a re-align. Colours are GUI-only, so this wants
+-- 'termguicolors' (enabled in lua/setup/vim.lua except on Apple Terminal).
 --
 -- Settings (all optional):
 --
---   vim.g.ghostty_theme_statusline = false " do not refresh the statusline
---   vim.g.ghostty_theme_follow = false    " background only, no colorscheme switch
---   vim.g.ghostty_theme_config = '...'    " default: $XDG_CONFIG_HOME/ghostty/config
---   vim.g.ghostty_theme_colors = {        " extra OSC-11 background colour map
---     ['#181616'] = { 'kanagawa', 'dark' },   " Kanagawa Dragon
---   }
---   vim.g.ghostty_theme_schemes = {       " extra theme-name matching rules
---     { pattern = 'nordic', scheme = 'nordic' },
---   }
+--   vim.g.ghostty_theme_config = '...'     " default: $XDG_CONFIG_HOME/ghostty/config
+--   vim.g.ghostty_theme_statusline = false " keep lualine's colours after a switch
 --
 -- Commands: `:GhosttyTheme` re-resolves and reports,
--- `:GhosttyTheme!` also lists the known mappings.
+-- `:GhosttyTheme!` also prints the palette in use.
 
--- Above this relative luminance the terminal counts as light
+-- Relative luminance above which a background counts as light
 local LIGHT_THRESHOLD = 0.35
 
--- Timeout (ms) for the terminal to answer the OSC 11 fallback query
-local RESPONSE_TIMEOUT = 800
-
--- Background colour -> colorscheme. Keys are lowercase `#rrggbb`.
-local BUILTIN_COLORS = {
-  ['#fbf1c7'] = { 'gruvbox', 'light' }, -- Gruvbox Light
-  ['#282828'] = { 'gruvbox', 'dark' }, -- Gruvbox Dark / Gruvbox Material Dark
-  ['#f2ecbc'] = { 'kanagawa', 'light' }, -- Kanagawa Lotus
-  ['#1f1f28'] = { 'kanagawa', 'dark' }, -- Kanagawa Wave / Kanagawabones
-  ['#f7f8fa'] = { 'onenord', 'light' }, -- Onenord Light
-  ['#2e3440'] = { 'onenord', 'dark' }, -- Onenord
-  ['#eff1f5'] = { 'catppuccin', 'light' }, -- Catppuccin Latte
-  ['#1e1e2e'] = { 'catppuccin', 'dark' }, -- Catppuccin Mocha
-  ['#fffbef'] = { 'everforest', 'light' }, -- Everforest Light Hard
-  ['#272e33'] = { 'everforest', 'dark' }, -- Everforest Dark Hard
-  ['#f9f9f9'] = { 'onedark', 'light' }, -- Atom One Light
-  ['#21252b'] = { 'onedark', 'dark' }, -- Atom One Dark / One Dark Two
+-- xterm palette, for entries a theme/config leaves unset
+local DEFAULT_PALETTE = {
+  [0] = '#000000',
+  [1] = '#cc0000',
+  [2] = '#4e9a06',
+  [3] = '#c4a000',
+  [4] = '#3465a4',
+  [5] = '#75507b',
+  [6] = '#06989a',
+  [7] = '#d3d7cf',
+  [8] = '#555753',
+  [9] = '#ef2929',
+  [10] = '#8ae234',
+  [11] = '#fce94f',
+  [12] = '#729fcf',
+  [13] = '#ad7fa8',
+  [14] = '#34e2e2',
+  [15] = '#eeeeec',
 }
 
--- ghostty theme *name* -> colorscheme (matched as a lowercase substring)
-local BUILTIN_SCHEMES = {
-  { pattern = 'gruvbox', scheme = 'gruvbox' },
-  { pattern = 'kanagawa', scheme = 'kanagawa' },
-  { pattern = 'onenord', scheme = 'onenord' },
-  { pattern = 'catppuccin', scheme = 'catppuccin' },
-  { pattern = 'everforest', scheme = 'everforest' },
-  { pattern = 'one dark', scheme = 'onedark' },
-  { pattern = 'onedark', scheme = 'onedark' },
+-- Theme directories, user themes first
+local THEME_DIRS = {
+  (vim.env.XDG_CONFIG_HOME or (vim.env.HOME .. '/.config')) .. '/ghostty/themes',
+  '/Applications/Ghostty.app/Contents/Resources/ghostty/themes',
+  '/usr/local/share/ghostty/themes',
+  '/usr/share/ghostty/themes',
 }
 
--- Substrings that mark an explicit background in a theme name
-local LIGHT_HINTS = { 'light', 'latte', 'lotus', 'day' }
-local DARK_HINTS = { 'dark', 'mocha', 'wave', 'dragon', 'night', 'noir', 'black' }
-
-local pending = false
 local applying = false -- guards the OptionSet('background') hook
-local last = nil -- last resolved state, see apply() below
+local last = nil -- last applied state, see apply()
 local appearance_cache = nil
 local appearance_at = 0
 
@@ -108,138 +82,68 @@ local function run(cmd)
   return vim.trim(result)
 end
 
--- sRGB channel linearization, for WCAG relative luminance
-local function linearize(c)
-  if c <= 0.04045 then
-    return c / 12.92
-  end
-  return ((c + 0.055) / 1.055) ^ 2.4
-end
-
-local function luminance(r, g, b)
-  return 0.2126 * linearize(r) + 0.7152 * linearize(g) + 0.0722 * linearize(b)
-end
-
-local function hex(v)
-  return ('%02x'):format(math.floor(v * 255 + 0.5))
-end
-
--- "#rrggbb" for the given 0..1 channels
-local function color_key(r, g, b)
-  return '#' .. hex(r) .. hex(g) .. hex(b)
-end
-
--- Normalize a mapping key: lowercase, expand 3-digit hex
-local function normalize_key(key)
-  key = key:lower()
-  local r, g, b = key:match('^#(%x)(%x)(%x)$')
-  if r then
-    return ('#%s%s%s%s%s%s'):format(r, r, g, g, b, b)
-  end
-  return key
-end
-
--- Parse an OSC 11 reply, e.g. "\27]11;rgb:2020/1111/1b1b\27\\" or with BEL
-local function parse_osc11(sequence)
-  local r, g, b = sequence:match(']11;rgba?:(%x+)/(%x+)/(%x+)')
+-- "#rgb" / "#rrggbb" / "#rrggbbaa" -> r, g, b (0..255)
+local function rgb(value)
+  local r, g, b = value:match('^#?(%x%x)(%x%x)(%x%x)')
   if not r then
+    r, g, b = value:match('^#?(%x)(%x)(%x)')
+    if not r then
+      return nil
+    end
+    r, g, b = r .. r, g .. g, b .. b
+  end
+  return tonumber(r, 16), tonumber(g, 16), tonumber(b, 16)
+end
+
+local function hexstr(r, g, b)
+  local function clamp(v)
+    return math.max(0, math.min(255, math.floor(v + 0.5)))
+  end
+  return ('#%02x%02x%02x'):format(clamp(r), clamp(g), clamp(b))
+end
+
+-- Normalise a colour value to lowercase "#rrggbb" (alpha dropped), or nil
+local function norm(value)
+  local found = value and value:match('#%x+')
+  if not found then
     return nil
   end
-  local function channel(value)
-    if #value == 1 then
-      return (tonumber(value, 16) / 15)
-    elseif #value == 2 then
-      return (tonumber(value, 16) / 255)
-    elseif #value == 3 then
-      return (tonumber(value, 16) / 4095)
-    end
-    return (tonumber(value, 16) / 65535)
-  end
-  return channel(r), channel(g), channel(b)
+  local r, g, b = rgb(found)
+  return r and hexstr(r, g, b) or nil
 end
 
-local function color_map()
-  local map = {}
-  for key, spec in pairs(BUILTIN_COLORS) do
-    map[key] = spec
+-- sRGB channel linearization, for WCAG relative luminance
+local function linearize(v)
+  if v <= 0.04045 then
+    return v / 12.92
   end
-  local user = vim.g.ghostty_theme_colors
-  if type(user) == 'table' then
-    for key, spec in pairs(user) do
-      if type(key) == 'string' then
-        if type(spec) == 'string' then
-          map[normalize_key(key)] = { spec }
-        elseif type(spec) == 'table' then
-          map[normalize_key(key)] = { spec[1] or spec.scheme, spec[2] or spec.bg }
-        end
-      end
-    end
-  end
-  return map
+  return ((v + 0.055) / 1.055) ^ 2.4
 end
 
-local function scheme_rules()
-  local rules = {}
-  for _, rule in ipairs(BUILTIN_SCHEMES) do
-    table.insert(rules, rule)
+local function luminance(color)
+  local r, g, b = rgb(color)
+  if not r then
+    return 0
   end
-  local user = vim.g.ghostty_theme_schemes
-  if type(user) == 'table' then
-    for _, rule in ipairs(user) do
-      if type(rule) == 'table' and rule.pattern and rule.scheme then
-        table.insert(rules, rule)
-      end
-    end
-  end
-  return rules
+  return 0.2126 * linearize(r / 255) + 0.7152 * linearize(g / 255) + 0.0722 * linearize(b / 255)
 end
 
--- Colorschemes come from the runtimepath, so ask the completer instead of
--- relying on a pcall (a failed `:colorscheme` also resets highlights).
-local function scheme_available(name)
-  if not name or name == '' then
-    return false
+local function contrast(a, b)
+  local la, lb = luminance(a), luminance(b)
+  if la < lb then
+    la, lb = lb, la
   end
-  return vim.tbl_contains(vim.fn.getcompletion(name, 'color'), name)
+  return (la + 0.05) / (lb + 0.05)
 end
 
--- Resolve a ghostty theme name into (colorscheme, 'light'|'dark'|nil)
-local function name_spec(name)
-  if not name or name == '' then
-    return nil, nil
+-- Blend colour a towards b by t (0..1)
+local function mix(a, b, t)
+  local ar, ag, ab = rgb(a)
+  local br, bg, bb = rgb(b)
+  if not (ar and br) then
+    return a
   end
-  local lower = name:lower()
-  local scheme = nil
-  for _, rule in ipairs(scheme_rules()) do
-    if lower:find(rule.pattern, 1, true) then
-      scheme = rule.scheme
-      break
-    end
-  end
-  local bg = nil
-  for _, hint in ipairs(LIGHT_HINTS) do
-    if lower:find(hint, 1, true) then
-      bg = 'light'
-      break
-    end
-  end
-  if not bg then
-    for _, hint in ipairs(DARK_HINTS) do
-      if lower:find(hint, 1, true) then
-        bg = 'dark'
-        break
-      end
-    end
-  end
-  return scheme, bg
-end
-
-local function ghostty_config_path()
-  return (
-    vim.g.ghostty_theme_config
-    or (vim.env.XDG_CONFIG_HOME and (vim.env.XDG_CONFIG_HOME .. '/ghostty/config'))
-    or (vim.env.HOME .. '/.config/ghostty/config')
-  )
+  return hexstr(ar + (br - ar) * t, ag + (bg - ag) * t, ab + (bb - ab) * t)
 end
 
 -- Strip a trailing `# comment`, respecting quoted strings
@@ -264,28 +168,56 @@ local function strip_comment(value)
   return (table.concat(out):gsub('%s+$', ''))
 end
 
--- Parse `key = value` lines (last one wins), skipping comments and blanks
-local function read_ghostty_config(path)
-  local kv = {}
+local function config_path()
+  return (
+    vim.g.ghostty_theme_config
+    or (vim.env.XDG_CONFIG_HOME and (vim.env.XDG_CONFIG_HOME .. '/ghostty/config'))
+    or (vim.env.HOME .. '/.config/ghostty/config')
+  )
+end
+
+-- Parse a ghostty config or theme file: `background`, `foreground`,
+-- `palette = N=#rrggbb` and `theme`. Colour values are read with norm(), so a
+-- trailing comment on the same line does not confuse them.
+local function read_config(path)
+  local data = { palette = {} }
   local file = io.open(path, 'r')
   if not file then
-    return kv
+    return data
   end
   for line in file:lines() do
     local key, value = line:match('^%s*([%w%-_]+)%s*=%s*(.-)%s*$')
     if key then
-      value = strip_comment(value)
-      if value ~= '' then
-        kv[key] = value
+      if key == 'background' or key == 'foreground' then
+        data[key] = norm(value) or data[key]
+      elseif key == 'palette' then
+        local index, color = value:match('^(%d+)%s*=%s*(.-)$')
+        index, color = tonumber(index), norm(color)
+        if index and color then
+          data.palette[index] = color
+        end
+      elseif key == 'theme' then
+        data.theme = strip_comment(value)
       end
     end
   end
   file:close()
-  return kv
+  return data
 end
 
--- macOS appearance: 'light' | 'dark'. This is what ghostty follows for
--- `theme = light:...,dark:...`. Cached because it spawns a process.
+-- Read a theme file by name, from the first directory that has it
+local function read_theme(name)
+  for _, dir in ipairs(THEME_DIRS) do
+    local path = dir .. '/' .. name
+    if vim.uv.fs_stat(path) then
+      return read_config(path)
+    end
+  end
+  return nil
+end
+
+-- macOS appearance: 'light' | 'dark', which is what ghostty follows for
+-- `theme = light:...,dark:...`. Cached, it spawns a process.
 local function appearance()
   local now = vim.uv.now()
   if appearance_cache and (now - appearance_at) < 10000 then
@@ -297,50 +229,280 @@ local function appearance()
   return appearance_cache
 end
 
--- Resolve the active ghostty theme from the config file.
--- Returns { scheme, bg, id, source } or nil.
-local function resolve_from_config()
-  local kv = read_ghostty_config(ghostty_config_path())
-
-  local theme = kv.theme
-  if not theme then
+-- Pick the theme name of the active light/dark variant
+local function active_name(theme)
+  if not theme or theme == '' then
     return nil
   end
-
   local light, dark = theme:match('^%s*light:%s*"([^"]*)"%s*,%s*dark:%s*"([^"]*)"')
-  local name
   if light and dark then
-    name = (appearance() == 'light') and light or dark
-  else
-    name = theme:gsub('^"(.*)"$', '%1')
+    return (appearance() == 'light') and light or dark
   end
-  if name == '' then
-    return nil
+  dark = theme:match('^%s*dark:%s*"([^"]*)"%s*$')
+  if dark then
+    return dark
   end
-
-  local scheme, bg = name_spec(name)
-  if not scheme and not bg then
-    return nil
+  light = theme:match('^%s*light:%s*"([^"]*)"%s*$')
+  if light then
+    return light
   end
-  return { scheme = scheme, bg = bg, id = 'cfg:' .. name, source = 'config', name = name }
+  return (theme:gsub('^"(.*)"$', '%1'))
 end
 
--- Statusline plugins (lualine, ...) cache their theme when they are set up.
--- Neovim does fire ColorScheme, but relying on the plugin's own hook alone is
--- fragile: the hook may be gone, the theme may have been resolved while
--- 'background' was still the old value, and `require`d theme modules keep the
--- palette of the background they were first loaded with. Re-setup explicitly
--- and redraw, so the statusline always ends up matching the new colorscheme.
----@return boolean refreshed true when a statusline plugin was re-setup
+-- Resolve the colours in use: { bg, fg, palette, name, source, id } or nil
+local function resolve()
+  local config = read_config(config_path())
+  local name = active_name(config.theme)
+  local theme = name and read_theme(name) or nil
+
+  -- ghostty applies config values on top of the theme
+  local bg = config.background or (theme and theme.background)
+  if not bg then
+    return nil
+  end
+  local fg = config.foreground
+    or (theme and theme.foreground)
+    or (luminance(bg) > LIGHT_THRESHOLD and '#1a1a1a' or '#e6e6e6')
+
+  local palette = {}
+  for i = 0, 15 do
+    palette[i] = config.palette[i]
+      or (theme and theme.palette[i])
+      or DEFAULT_PALETTE[i]
+  end
+
+  local keys = { bg, fg }
+  for i = 0, 15 do
+    keys[#keys + 1] = palette[i]
+  end
+  return {
+    bg = bg,
+    fg = fg,
+    palette = palette,
+    name = (theme and name) or 'config',
+    source = theme and 'theme' or 'config',
+    id = table.concat(keys, ':'),
+  }
+end
+
+-- Named colours, derived from the palette
+local function roles(spec)
+  local bg, fg, palette = spec.bg, spec.fg, spec.palette
+  local fg_contrast = contrast(fg, bg)
+  -- of two candidates (base and bright), take the readabler one
+  local function pick(a, b)
+    return (contrast(a, bg) >= contrast(b, bg)) and a or b
+  end
+  -- ... and nudge it towards the foreground until it is readable on bg, which
+  -- saves low-contrast palettes (e.g. Man Page's colours on its yellow bg)
+  local function ensure(color, min)
+    for i = 0, 10 do
+      if contrast(color, bg) >= min then
+        break
+      end
+      color = mix(color, fg, i / 10)
+    end
+    return color
+  end
+  local function accent(base, bright)
+    return ensure(pick(palette[base], palette[bright]), 3.0)
+  end
+  -- palette 8 is the conventional comment colour, but some themes set it to
+  -- the foreground (or to something invisible): then blend, don't shout
+  local comment = palette[8]
+  local comment_contrast = contrast(comment, bg)
+  if comment_contrast < 1.8 or comment_contrast > 0.62 * fg_contrast then
+    comment = mix(bg, fg, 0.45)
+  end
+  return {
+    bg = bg,
+    fg = fg,
+    shade = mix(bg, fg, 0.06),
+    surface = mix(bg, fg, 0.10),
+    select = mix(bg, fg, 0.20),
+    border = mix(bg, fg, 0.30),
+    muted = mix(bg, fg, 0.55),
+    comment = comment,
+    red = accent(1, 9),
+    green = accent(2, 10),
+    yellow = accent(3, 11),
+    blue = accent(4, 12),
+    magenta = accent(5, 13),
+    cyan = accent(6, 14),
+  }
+end
+
+local function highlight_groups(c)
+  local groups = {
+    Normal = { fg = c.fg, bg = c.bg },
+    NormalNC = { fg = c.fg, bg = c.bg },
+    NormalFloat = { fg = c.fg, bg = c.surface },
+    FloatBorder = { fg = c.border, bg = c.surface },
+    FloatTitle = { fg = c.yellow, bg = c.surface, bold = true },
+
+    CursorLine = { bg = c.shade },
+    CursorColumn = { bg = c.shade },
+    ColorColumn = { bg = c.shade },
+    LineNr = { fg = c.muted },
+    CursorLineNr = { fg = c.yellow, bold = true },
+    SignColumn = { bg = c.bg },
+    FoldColumn = { fg = c.muted, bg = c.bg },
+    Folded = { fg = c.muted, bg = c.surface },
+    NonText = { fg = c.muted },
+    EndOfBuffer = { fg = c.bg },
+    Whitespace = { fg = c.shade },
+    VertSplit = { fg = c.border },
+    WinSeparator = { fg = c.border },
+    Conceal = { fg = c.muted },
+
+    Visual = { bg = c.select },
+    Search = { fg = c.bg, bg = c.yellow },
+    IncSearch = { fg = c.bg, bg = c.cyan },
+    CurSearch = { fg = c.bg, bg = c.magenta },
+    MatchParen = { fg = c.yellow, bg = c.select, bold = true },
+    QuickFixLine = { bg = c.select },
+
+    StatusLine = { fg = c.fg, bg = c.surface },
+    StatusLineNC = { fg = c.muted, bg = c.shade },
+    StatusLineTerm = { fg = c.fg, bg = c.surface },
+    StatusLineTermNC = { fg = c.muted, bg = c.shade },
+    TabLine = { fg = c.muted, bg = c.shade },
+    TabLineSel = { fg = c.fg, bg = c.surface, bold = true },
+    TabLineFill = { bg = c.bg },
+
+    Pmenu = { fg = c.fg, bg = c.surface },
+    PmenuSel = { fg = c.bg, bg = c.blue },
+    PmenuSbar = { bg = c.shade },
+    PmenuThumb = { bg = c.muted },
+    WildMenu = { fg = c.bg, bg = c.blue },
+
+    Comment = { fg = c.comment, italic = true },
+    Constant = { fg = c.cyan },
+    String = { fg = c.green },
+    Character = { fg = c.green },
+    Number = { fg = c.cyan },
+    Boolean = { fg = c.cyan },
+    Float = { fg = c.cyan },
+    Identifier = { fg = c.fg },
+    Function = { fg = c.blue },
+    Statement = { fg = c.magenta },
+    Conditional = { fg = c.magenta },
+    Repeat = { fg = c.magenta },
+    Label = { fg = c.magenta },
+    Operator = { fg = c.cyan },
+    Keyword = { fg = c.magenta },
+    Exception = { fg = c.red },
+    PreProc = { fg = c.magenta },
+    Include = { fg = c.magenta },
+    Define = { fg = c.magenta },
+    Macro = { fg = c.magenta },
+    PreCondit = { fg = c.magenta },
+    Type = { fg = c.yellow },
+    StorageClass = { fg = c.yellow },
+    Structure = { fg = c.yellow },
+    Typedef = { fg = c.yellow },
+    Special = { fg = c.yellow },
+    SpecialChar = { fg = c.yellow },
+    SpecialComment = { fg = c.yellow, italic = true },
+    Delimiter = { fg = c.muted },
+    Tag = { fg = c.cyan },
+    Debug = { fg = c.red },
+    Underlined = { underline = true },
+    Ignore = { fg = c.muted },
+    Error = { fg = c.red },
+    Todo = { fg = c.yellow, bg = c.shade, bold = true },
+
+    ErrorMsg = { fg = c.red },
+    WarningMsg = { fg = c.yellow },
+    MoreMsg = { fg = c.green },
+    ModeMsg = { fg = c.green, bold = true },
+    Question = { fg = c.green },
+    Title = { fg = c.yellow, bold = true },
+    Directory = { fg = c.blue },
+
+    DiffAdd = { fg = c.green, bg = mix(c.bg, c.green, 0.15) },
+    DiffChange = { fg = c.yellow, bg = mix(c.bg, c.yellow, 0.15) },
+    DiffDelete = { fg = c.red, bg = mix(c.bg, c.red, 0.15) },
+    DiffText = { fg = c.yellow, bg = mix(c.bg, c.yellow, 0.35) },
+    diffAdded = { fg = c.green },
+    diffRemoved = { fg = c.red },
+    diffChanged = { fg = c.yellow },
+    diffFile = { fg = c.blue },
+    diffLine = { fg = c.muted },
+    diffNewFile = { fg = c.yellow },
+    diffOldFile = { fg = c.red },
+  }
+
+  for _, diag in ipairs({
+    { 'Error', c.red },
+    { 'Warn', c.yellow },
+    { 'Info', c.cyan },
+    { 'Hint', c.comment },
+    { 'Ok', c.green },
+  }) do
+    local level, color = diag[1], diag[2]
+    groups['Diagnostic' .. level] = { fg = color }
+    groups['DiagnosticUnderline' .. level] = { sp = color, undercurl = true }
+    groups['DiagnosticVirtualText' .. level] = { fg = color, bg = mix(c.bg, color, 0.10) }
+  end
+
+  return groups
+end
+
+-- Captures Neovim does not link to a classic group by itself (or links to
+-- something we do not define), so treesitter output stays consistent
+local LINKS = {
+  ['@variable'] = 'Identifier',
+  ['@variable.parameter'] = 'Identifier',
+  ['@variable.member'] = 'Identifier',
+  ['@field'] = 'Identifier',
+  ['@property'] = 'Identifier',
+  ['@function.call'] = 'Function',
+  ['@function.method'] = 'Function',
+  ['@method'] = 'Function',
+  ['@method.call'] = 'Function',
+  ['@keyword.function'] = 'Keyword',
+  ['@keyword.operator'] = 'Operator',
+  ['@conditional'] = 'Conditional',
+  ['@repeat'] = 'Repeat',
+  ['@namespace'] = 'Include',
+  ['@string.special'] = 'SpecialChar',
+  ['@punctuation.bracket'] = 'Delimiter',
+  ['@punctuation.delimiter'] = 'Delimiter',
+}
+
+-- Replace every highlight group with the ones derived from `spec`
+local function paint(spec)
+  local c = roles(spec)
+  vim.cmd('highlight clear')
+  if vim.fn.exists('syntax_on') == 1 then
+    vim.cmd('syntax reset')
+  end
+  vim.g.colors_name = 'ghostty'
+  for name, group in pairs(highlight_groups(c)) do
+    vim.api.nvim_set_hl(0, name, group)
+  end
+  for name, target in pairs(LINKS) do
+    vim.api.nvim_set_hl(0, name, { link = target })
+  end
+  for i = 0, 15 do
+    vim.g['terminal_color_' .. i] = spec.palette[i]
+  end
+  -- plugins rebuild their own groups on ColorScheme; we never load a
+  -- colorscheme file, so fire the event ourselves
+  vim.api.nvim_exec_autocmds('ColorScheme', { pattern = 'ghostty' })
+end
+
+-- Statusline plugins (lualine, ...) build their highlight groups at setup time,
+-- and painting above wiped them. Re-run lualine's setup, dropping cached theme
+-- modules so a light/dark flip is not served from the previous background.
+---@return boolean refreshed true when lualine was re-setup
 local function refresh_statusline()
   if vim.g.ghostty_theme_statusline == false then
     return false
   end
   local refreshed = false
   if package.loaded['lualine'] then
-    -- Gruvbox & co. keep light/dark palettes in separate modules, others cache
-    -- a palette module that is computed from the *current* 'background'; drop
-    -- them all so the next setup() recomputes instead of reusing.
     for name in pairs(package.loaded) do
       if type(name) == 'string' and name:match('^lualine%.themes%.') then
         package.loaded[name] = nil
@@ -350,7 +512,6 @@ local function refresh_statusline()
       require('lualine').setup()
     end)
   end
-  -- the statusline keeps its old look until something forces a redraw
   pcall(vim.cmd, 'redrawstatus!')
   if vim.o.showtabline ~= 0 and vim.o.tabline ~= '' then
     pcall(vim.cmd, 'redrawtabline')
@@ -358,8 +519,8 @@ local function refresh_statusline()
   return refreshed
 end
 
--- Apply a resolved spec. Only touches 'background'/colorscheme when the theme
--- identity changed (unless `force`), so manual choices are preserved.
+-- Apply a resolved spec. Only repaints when the colours changed (or `force`),
+-- so a manual `:colorscheme` sticks until ghostty actually changes.
 local function apply(spec, force)
   if not spec then
     return
@@ -369,56 +530,24 @@ local function apply(spec, force)
     return
   end
 
-  local follow = vim.g.ghostty_theme_follow ~= false
-  local scheme = follow and spec.scheme or nil
-  local target = spec.bg
-  local detected = spec.detected
-  local previous = vim.g.colors_name
-
-  if target == nil then
-    target = detected or vim.o.background
-  end
-
+  local target = luminance(spec.bg) > LIGHT_THRESHOLD and 'light' or 'dark'
   applying = true
-  local switched = false
-  if scheme_available(scheme) and previous ~= scheme then
-    -- 'background' must be right *before* loading, schemes read it on load
-    vim.o.background = target
-    local ok, err = pcall(vim.cmd.colorscheme, scheme)
-    if ok then
-      switched = true
-    else
-      vim.notify(('ghostty theme: colorscheme %q failed: %s'):format(scheme, err), vim.log.levels.WARN)
-      scheme = nil
-      if previous then
-        pcall(vim.cmd.colorscheme, previous)
-      end
-      target = detected or vim.o.background
-    end
+  if vim.o.background ~= target then
+    vim.o.background = target -- schemes read it, and 'highlight clear' uses it
   end
-  if not switched then
-    scheme = scheme_available(scheme) and scheme or nil
-    if vim.o.background ~= target then
-      vim.o.background = target
-      -- schemes that embed light/dark variants (kanagawa, everforest, onedark)
-      -- only rebuild their highlights when they are (re)loaded
-      if vim.g.colors_name then
-        vim.cmd.colorscheme(vim.g.colors_name)
-      end
-    end
-  end
+  paint(spec)
   applying = false
   local statusline = refresh_statusline()
 
   last = {
     id = spec.id,
-    source = spec.source,
-    bg = vim.o.background,
-    scheme = scheme,
-    colors = vim.g.colors_name,
-    color = spec.color,
     name = spec.name,
-    detected = detected,
+    source = spec.source,
+    colors = vim.g.colors_name,
+    bg = spec.bg,
+    fg = spec.fg,
+    background = target,
+    palette = spec.palette,
     statusline = statusline,
     skipped = false,
   }
@@ -426,116 +555,59 @@ end
 
 local function report()
   if not last then
-    return 'ghostty theme: no source resolved (yet)'
+    return 'ghostty theme: nothing resolved (yet)'
   end
   if last.skipped then
     return ('ghostty theme: %s unchanged, kept colorscheme=%s (background=%s)'):format(
-      last.id,
+      last.name,
       last.colors or 'none',
-      last.bg
+      vim.o.background
     )
   end
-  return ('ghostty theme: %s via %s%s -> background=%s, colorscheme=%s%s'):format(
-    last.id,
+  return ('ghostty theme: %s (%s) -> background=%s, colorscheme=%s, bg=%s fg=%s%s'):format(
+    last.name,
     last.source,
-    last.color and (' ' .. last.color) or '',
-    last.bg,
+    last.background,
     last.colors or 'none',
+    last.bg,
+    last.fg,
     last.statusline and ', statusline refreshed' or ''
   )
 end
 
-local function report_map()
-  local lines = { 'ghostty theme: known mappings' }
-  local colors = color_map()
-  local keys = vim.tbl_keys(colors)
-  table.sort(keys)
-  for _, key in ipairs(keys) do
-    local spec = colors[key]
-    table.insert(lines, ('  OSC 11 %s  %s (%s)'):format(key, spec[1] or '?', spec[2] or 'detected'))
+local function report_palette()
+  if not last or not last.palette then
+    return report()
   end
-  for _, rule in ipairs(scheme_rules()) do
-    table.insert(lines, ('  theme  *%s*  %s'):format(rule.pattern, rule.scheme))
+  local rows = {
+    ('ghostty theme: %s (%s)'):format(last.name, last.source),
+    ('  background %s   foreground %s'):format(last.bg, last.fg),
+  }
+  for i = 0, 15, 4 do
+    local cells = {}
+    for j = i, i + 3 do
+      cells[#cells + 1] = ('%2d %s'):format(j, last.palette[j])
+    end
+    rows[#rows + 1] = '  palette  ' .. table.concat(cells, '  ')
   end
-  return table.concat(lines, '\n')
+  return table.concat(rows, '\n')
 end
 
--- Ask the terminal for its background colour and apply the OSC 11 mapping.
-local function sync_from_osc(verbose)
-  if pending or #vim.api.nvim_list_uis() == 0 then
-    return
-  end
-  pending = true
-
-  local id
-  local timer
-  local function finish(ok)
-    if id then
-      pcall(vim.api.nvim_del_autocmd, id)
-      id = nil
-    end
-    if timer then
-      pcall(function()
-        timer:stop()
-        timer:close()
-      end)
-      timer = nil
-    end
-    pending = false
-    if ok and verbose then
-      vim.notify(report(), vim.log.levels.INFO)
-    end
-  end
-
-  id = vim.api.nvim_create_autocmd('TermResponse', {
-    callback = function(event)
-      local sequence = (event.data and event.data.sequence) or ''
-      local r, g, b = parse_osc11(sequence)
-      if not r then
-        return -- someone else's reply (DA1, OSC 4, ...)
-      end
-      local key = color_key(r, g, b)
-      local spec = color_map()[key]
-      local lum = luminance(r, g, b)
-      apply({
-        scheme = spec and spec[1],
-        bg = spec and spec[2],
-        detected = lum > LIGHT_THRESHOLD and 'light' or 'dark',
-        id = 'osc:' .. key,
-        source = 'OSC 11',
-        color = key,
-      })
-      finish(true)
-    end,
-  })
-
-  timer = vim.uv.new_timer()
-  timer:start(
-    RESPONSE_TIMEOUT,
-    0,
-    vim.schedule_wrap(function()
-      finish(false)
-    end)
-  )
-
-  io.stdout:write('\27]11;?\27\\')
-  io.stdout:flush()
-end
-
---- Resolve the active ghostty theme and sync 'background'/colorscheme.
+--- Re-read the ghostty theme and repaint Neovim.
 --- @param verbose boolean|nil Report the result in |:messages|.
---- @param force boolean|nil Re-align even if the theme did not change.
+--- @param force boolean|nil Repaint even when the colours did not change.
 local function sync(verbose, force)
-  local from_config = resolve_from_config()
-  if from_config then
-    apply(from_config, force)
+  local spec = resolve()
+  if not spec then
     if verbose then
-      vim.notify(report(), vim.log.levels.INFO)
+      vim.notify(('ghostty theme: no palette in %s'):format(config_path()), vim.log.levels.WARN)
     end
     return
   end
-  -- no `theme =` in the ghostty config: fall back to the OSC 11 reply colour
-  sync_from_osc(verbose)
+  apply(spec, force)
+  if verbose then
+    vim.notify(report(), vim.log.levels.INFO)
+  end
 end
 
 vim.api.nvim_create_autocmd({ 'UIEnter', 'VimEnter', 'FocusGained', 'VimResume' }, {
@@ -544,37 +616,34 @@ vim.api.nvim_create_autocmd({ 'UIEnter', 'VimEnter', 'FocusGained', 'VimResume' 
   end,
 })
 
--- Neovim's own OSC 11 handling (and `:set background=`) changes 'background'
--- without loading a colorscheme; keep the two in sync.
+-- Neovim's own OSC 11 handling (and `:set background=`) may set 'background'
+-- without touching the highlight groups; the ghostty palette decides here, so
+-- put it back rather than half-switching the editor.
 vim.api.nvim_create_autocmd('OptionSet', {
   pattern = 'background',
   callback = function()
     if applying then
       return
     end
-    local from_config = resolve_from_config()
-    if from_config and from_config.bg and from_config.bg ~= vim.o.background then
-      return -- the terminal side wins, the next sync will fix it
+    local spec = resolve()
+    if not spec then
+      return
     end
-    if not vim.g.colors_name then
+    local target = luminance(spec.bg) > LIGHT_THRESHOLD and 'light' or 'dark'
+    if vim.o.background == target then
       return
     end
     applying = true
-    -- schemes that embed light/dark variants (kanagawa, everforest, onedark)
-    -- only rebuild their highlights when they are (re)loaded
-    pcall(vim.cmd.colorscheme, vim.g.colors_name)
+    vim.o.background = target
     applying = false
-    refresh_statusline()
   end,
 })
 
 vim.api.nvim_create_user_command('GhosttyTheme', function(opts)
   if opts.bang then
-    vim.notify(report_map() .. '\n' .. report(), vim.log.levels.INFO)
-    return
-  end
-  if pending then
+    sync(false, true)
+    vim.notify(report_palette() .. '\n' .. report(), vim.log.levels.INFO)
     return
   end
   sync(true, true)
-end, { bang = true, desc = 'Resolve the ghostty theme and sync background/colorscheme' })
+end, { bang = true, desc = 'Repaint Neovim from the ghostty theme palette' })
