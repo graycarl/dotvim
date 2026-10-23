@@ -66,7 +66,7 @@ function SaveColor()
   end
   file:write('vim.cmd("colorscheme ' .. current .. '")\n')
   -- 'background' is not persisted on purpose: it follows the terminal
-  -- (see plugin/terminal_background.lua)
+  -- (see plugin/ghostty_theme.lua)
   file:close()
 end
 
