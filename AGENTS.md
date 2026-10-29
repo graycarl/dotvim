@@ -100,7 +100,7 @@
 | `setup/vim.lua` | Neovim 核心选项 | 缩进、搜索、折叠、备份、编码、UI 等基础设置 |
 | `setup/lsp.lua` | LSP 完整配置 | mason、lspconfig、fidget、lint；`on_attach` 回调定义 LSP 映射 |
 | `setup/blink.lua` | 自动补全 | blink.cmp + LuaSnip，Tab/Shift-Tab 导航；`<C-l>` 向后跳 snippet |
-| `setup/treesitter.lua` | 语法高亮/文本对象 | 文本对象映射：`aa`/`ia`(参数)、`af`/`if`(函数)、`ac`/`ic`(类) |
+| `setup/treesitter.lua` | 语法高亮/文本对象 | 全局 `FileType` autocmd 对任何装了 parser 的 ft 显式 `vim.treesitter.start()`（带 buftype/重复启动守卫，无 parser 时静默降级保留正则 syntax；>10MB 文件因 `large_files.vim` 抑制 FileType 而自动跳过）；`jsonl` 通过 `register('json','jsonl')` 复用 json parser；文本对象映射：`aa`/`ia`(参数)、`af`/`if`(函数)、`ac`/`ic`(类) |
 | `setup/telescope.lua` | 模糊搜索 | 定义 `<C-p>`、`<leader>sf`、`<leader>sg` 等搜索命令 |
 | `setup/lualine.lua` | 状态栏 | 图标跟随 `$NERD_FONT` |
 | `setup/nvim_tree.lua` | 文件树 | `T` 快捷键切换；图标跟随 `$NERD_FONT` |
@@ -127,6 +127,7 @@
 | `lua.vim` | tab 2 空格、写文件自动去尾随空格 |
 | `javascript.vim` | tab 2 空格 |
 | `yaml.vim` | tab 2 空格、indent 折叠、中文 formatoptions |
+| `jsonl.vim` | JSON Lines：tab 2 空格、`formatoptions-=t`、清空 `comments`/`commentstring`（防 `gcc`/`gq` 写入 `/* */`）；`syntax=json` 仅作 parser 缺失时的降级（正常由 treesitter 接管） |
 | `diff.vim` | 按 `diff --git` 行自定义折叠 |
 
 **修改规则**：
