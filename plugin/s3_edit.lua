@@ -19,6 +19,12 @@
 --     的行/换行表示 —— 保证字节精确（见 AGENTS.md 的说明）
 --   * 写失败一律保留 modified 状态，让 :e! 成为唯一恢复入口
 --
+-- 已知限制（Vim 侧无法拦截的部分）：
+--   * `:w <别的路径>` 不会触发 BufWriteCmd，会把解密后的明文按默认权限写到本地；
+--     需要“另存明文”时请自己注意路径与权限（本插件不提供该功能）
+--   * 显式 `:wshada <file>` 会按 Neovim 自身行为写出寄存器内容（与 'shada' 取值无关）；
+--     正常退出时 'shada' 已被本插件清空，不会写明文
+--
 -- 配置：~/.vim/local/s3.lua（local/ 已 gitignore）
 --     return {
 --       default = 'hhb-vault',
@@ -41,17 +47,27 @@ local fmt = string.format
 local CONFIG_PATH = (vim.env.VIMHOME or vim.fn.stdpath('config')) .. '/local/s3.lua'
 
 -- 与 pack/my/start/encrypt 保持一致；`-md md5` 是为了兼容既有密文，不要升级
-local CIPHER = { 'aes-256-cbc', '-salt', '-md', 'md5' }
+local CIPHER = 'aes-256-cbc'
+local CIPHER_OPTS = { '-salt', '-md', 'md5' }
 
 -- 明文/密文双向的安全上限（服务端 body 上限 6MB）
 local MAX_BODY = 6 * 1024 * 1024
 
+-- openssl 与 encrypt.vim 用同一个（该插件硬编码 /usr/bin/openssl）
+local OPENSSL = '/usr/bin/openssl'
+if vim.fn.executable(OPENSSL) ~= 1 then
+  OPENSSL = vim.fn.exepath('openssl')
+end
+
+--- 当前会话是否已关掉 viminfo / shada（s3 buffer 里是明文，不能进 shada）
+local viminfo_saved = nil
+local quitting = false
+
 local function notify(msg, level)
   msg = 's3_edit: ' .. msg
   if (level or vim.log.levels.INFO) >= vim.log.levels.ERROR then
-    -- 用 nvim_echo 而非 vim.notify：ERROR 级别的 notify 在 autocmd 里会额外打印
-    -- “Error in command line..BufWriteCmd Autocommands for …” 这样嘈杂的上下文行
-    api.nvim_echo({ { msg, 'ErrorMsg' } }, true, {})
+    -- nvim_err_writeln：既会红色显示，也会设 v:errmsg，让 :wq / 脚本能感知失败
+    api.nvim_err_writeln(msg)
   else
     vim.notify(msg, level)
   end
@@ -132,10 +148,13 @@ local function parse_uri(uri)
   return bucket, (rest or '')
 end
 
---- 与 Lambda 端点的白名单保持一致
+--- 与 Lambda 端点的白名单保持一致（NAME_RE: [A-Za-z0-9][A-Za-z0-9._-]{0,60}\.enc）
+--- 注意：端点上限是 1+60+4 = 65，不是 67
+local NAME_MAX = 65
+
 local function check_name(name)
-  if #name < 5 or #name > 67 then
-    err(fmt('文件名长度必须在 5..67 之间：%s', name))
+  if #name < 5 or #name > NAME_MAX then
+    err(fmt('文件名长度必须在 5..%d 之间：%s', NAME_MAX, name))
   end
   if not name:match('^[A-Za-z0-9][A-Za-z0-9._-]*%.enc$') then
     err(fmt('文件名只允许 [A-Za-z0-9._-]、以字母或数字开头、以 .enc 结尾：%s', name))
@@ -185,8 +204,25 @@ local function sha256_file(path)
 end
 
 local function put_confidential(path, lines)
-  vim.fn.writefile(lines, path, 'b')
+  -- 先以 0600 创建再写，避免“写入瞬间是可读权限”的窗口
+  local fd = vim.uv.fs_open(path, 'w', 384) -- 0o600
+  if not fd then
+    err('无法创建临时文件：' .. path)
+  end
+  local ok, werr = pcall(vim.uv.fs_write, fd, table.concat(lines or {}, '\n'))
+  vim.uv.fs_close(fd)
   vim.fn.setfperm(path, 'rw-------')
+  if not ok then
+    err('写临时文件失败：' .. tostring(werr))
+  end
+end
+
+--- 两个文件是否字节相同（<= MAX_BODY，直接读进内存比较）
+local function files_equal(a, b)
+  if file_size(a) ~= file_size(b) then
+    return false
+  end
+  return read_whole(a) == read_whole(b)
 end
 
 --- 临时文件工厂：建出来就是 0600，cleanup() 负责全部删除
@@ -254,6 +290,9 @@ local function http(opts)
 
   local conf = { 'header = ' .. curl_quote('Authorization: Bearer ' .. opts.token) }
   put_confidential(conf_path, conf)
+  -- 响应头/响应体也预建为 0600（curl 会保留已有文件的权限）
+  put_confidential(head_path, {})
+  put_confidential(body_path, {})
 
   local cmd = {
     'curl',
@@ -266,6 +305,10 @@ local function http(opts)
     '--max-time', tostring(opts.timeout or 30),
     '-X', opts.method,
   }
+  if opts.method == 'GET' then
+    -- 别让异常端点把整个响应先落盘（chunked 时 curl 仍会下完，但至少挡住带 Content-Length 的）
+    vim.list_extend(cmd, { '--max-filesize', tostring(MAX_BODY * 2) })
+  end
   for k, v in pairs(opts.headers or {}) do
     vim.list_extend(cmd, { '-H', k .. ': ' .. v })
   end
@@ -284,7 +327,7 @@ local function http(opts)
     vim.fn.delete(head_path)
   end
 
-  if not ok then
+  if not ok or type(res) ~= 'table' then
     cleanup()
     vim.fn.delete(body_path)
     err('请求失败：' .. tostring(res))
@@ -364,35 +407,55 @@ local function get_password(buf)
   return pw
 end
 
-local openssl = vim.fn.exepath('openssl')
-if openssl == '' then
-  openssl = '/usr/bin/openssl'
-end
-
 --- 对文件跑 openssl；mode = 'encrypt' | 'decrypt'
 local function openssl_file(mode, src, dst, password)
   local base = vim.fn.tempname()
   local pass_path = base .. '.pw'
   put_confidential(pass_path, { password })
 
-  local cmd = { openssl, CIPHER[1] }
+  local cmd = { OPENSSL, CIPHER }
   if mode == 'decrypt' then
     table.insert(cmd, '-d')
   end
-  vim.list_extend(cmd, { CIPHER[2], CIPHER[3], CIPHER[4] })
-  vim.list_extend(cmd, { '-salt', '-pass', 'file:' .. pass_path, '-in', src, '-out', dst })
+  vim.list_extend(cmd, CIPHER_OPTS)
+  vim.list_extend(cmd, { '-pass', 'file:' .. pass_path, '-in', src, '-out', dst })
 
   local ok, res = pcall(function()
     return vim.system(cmd, { text = true }):wait(60000)
   end)
   vim.fn.delete(pass_path)
-  if not ok then
+  if not ok or type(res) ~= 'table' then
     return false, tostring(res)
   end
   if res.code ~= 0 then
     return false, (res.stderr or ''):gsub('%s+$', '')
   end
   return true
+end
+
+-- ---------------------------------------------------------------- viminfo / shada
+
+-- s3 buffer 里是明文，但 BufReadCmd 抑制了 BufReadPre，encrypt.vim 的 viminfo 保护
+-- 不会生效（yank 的密码会进 shada）。这里自己管：首个 s3 buffer 清空 &viminfo，
+-- 最后一个销毁时还原；退出时不还原（否则退出时写的 shada 会泄明文）。
+local function disable_viminfo()
+  if viminfo_saved == nil then
+    viminfo_saved = vim.o.viminfo
+    vim.o.viminfo = ''
+  end
+end
+
+local function maybe_restore_viminfo(wiping_buf)
+  if viminfo_saved == nil or quitting then
+    return
+  end
+  for _, b in ipairs(api.nvim_list_bufs()) do
+    if b ~= wiping_buf and api.nvim_buf_is_loaded(b) and api.nvim_buf_get_name(b):match('^s3://') then
+      return
+    end
+  end
+  vim.o.viminfo = viminfo_saved
+  viminfo_saved = nil
 end
 
 -- ---------------------------------------------------------------- buffer 读写
@@ -414,10 +477,11 @@ local function load_file_into_buffer(buf, path)
   end)
 end
 
---- 把 buffer 内容按 Vim 的保存语义（'eol' / 'fileformat'）写到临时文件
+--- 把 buffer 内容逐字节写到临时文件
+--- `++bin` 很关键：否则 `'fixendofline'` 会给无尾换行的明文补一个 <EOL>（不限制 'fileformat' 转换）
 local function write_buffer_to_file(buf, path)
   api.nvim_buf_call(buf, function()
-    vim.cmd('silent noautocmd keepalt write! ' .. vim.fn.fnameescape(path))
+    vim.cmd('silent noautocmd keepalt write! ++bin ' .. vim.fn.fnameescape(path))
   end)
 end
 
@@ -475,14 +539,23 @@ local function list_remote(buf, bucket)
     err('无法解析 /files 响应：' .. body:sub(1, 200))
   end
 
-  local files = data.files
+  -- 只接受符合白名单的 name：列表内容来自服务端，拼进 Ex 命令会被注入
+  local files = {}
+  for _, f in ipairs(data.files) do
+    local name = tostring(f.name or '')
+    local ok_name = pcall(check_name, name)
+    if ok_name then
+      files[#files + 1] = f
+    end
+  end
+
   local names = {}
   local lines = {}
   local width = 20
   for _, f in ipairs(files) do
     width = math.max(width, #tostring(f.name))
   end
-  width = math.min(width, 67)
+  width = math.min(width, NAME_MAX)
 
   vim.list_extend(lines, {
     fmt('%-' .. width .. 's  %9s  %-19s  %s', 'NAME', 'SIZE', 'LAST-MODIFIED', 'ETAG'),
@@ -516,10 +589,11 @@ local function list_remote(buf, bucket)
       if not name then
         return
       end
-      vim.cmd('edit s3://' .. bucket .. '/' .. name)
+      -- 不用 :edit 字符串拼接（name 来自服务端）；nvim_cmd 走参数，不经过 Ex 解析
+      api.nvim_cmd({ cmd = 'edit', args = { 's3://' .. bucket .. '/' .. name } }, {})
     end, { buffer = buf, desc = '打开远端文件' })
     vim.keymap.set('n', 'R', function()
-      vim.cmd('edit! s3://' .. bucket .. '/')
+      api.nvim_cmd({ cmd = 'edit', args = { 's3://' .. bucket .. '/' }, bang = true }, {})
     end, { buffer = buf, desc = '刷新列表' })
     vim.keymap.set('n', 'q', '<Cmd>close<CR>', { buffer = buf, desc = '关闭列表' })
   end)
@@ -532,7 +606,7 @@ end
 local function read_remote(buf, uri)
   local bucket, name = parse_uri(uri)
   apply_buffer_options(buf)
-  vim.b[buf].s3_password = nil
+  disable_viminfo()
 
   if name == '' or name == '/' then
     list_remote(buf, bucket)
@@ -553,7 +627,7 @@ local function read_remote(buf, uri)
     if res.status == 404 and not ok_status then
       -- 远端还没有这个文件：开一个空 buffer，:w 时用 If-None-Match: * 创建
       res.cleanup()
-      vim.b[buf].s3 = { bucket = bucket, name = name, endpoint = remote.endpoint, etag = nil }
+      vim.b[buf].s3 = { bucket = bucket, name = name, endpoint = remote.endpoint, etag = nil, exists = false }
       set_filetype(buf, name)
       vim.bo[buf].modified = false
       notify(fmt('远端还没有 %s，:w 将创建它', name), vim.log.levels.WARN)
@@ -583,13 +657,18 @@ local function read_remote(buf, uri)
     end
 
     local etag = res.headers['etag']
+    if etag == '' then
+      etag = nil
+    end
     local device = res.headers['x-vault-device']
     res.cleanup()
 
     local plain_path = tmp('.plain')
     local ok_dec, dec_err = openssl_file('decrypt', body_path, plain_path, get_password(buf))
     if not ok_dec then
-      -- 与 encrypt.vim 一致：解不开就锁死 buffer，避免把错误内容写回去
+      -- 与 encrypt.vim 一致：解不开就锁死 buffer，避免把错误内容写回去；
+      -- 同时丢掉密码，让 :e! 重新询问（重试就是打错了）
+      vim.b[buf].s3_password = nil
       vim.bo[buf].modifiable = false
       vim.bo[buf].readonly = true
       err(fmt('解密失败（密码错误或文件不是 openssl 密文）：%s\nbuffer 已锁定，请用 :e! 重试', dec_err))
@@ -602,6 +681,7 @@ local function read_remote(buf, uri)
       name = name,
       endpoint = remote.endpoint,
       etag = etag,
+      exists = true,
       sha256 = got_sha,
       device = device,
       size = size,
@@ -625,10 +705,22 @@ local function write_remote(buf)
     err('这个 buffer 不是远端文件（请用 :e s3://<bucket>/<name.enc> 打开）')
   end
 
-  local target = vim.fn.expand('<afile>')
+  -- 用 buffer 名而不是 b:s3 作为写入目标：:saveas / :file 改名后两者会分叉
   local self_name = api.nvim_buf_get_name(buf)
-  if target ~= '' and target ~= self_name then
-    err(fmt('暂不支持写入其它路径：%s（请用 :e 打开目标文件）', target))
+  local uri_bucket, uri_name = parse_uri(self_name)
+  if uri_bucket ~= st.bucket or uri_name ~= st.name then
+    err(fmt(
+      'buffer 名（%s）与远端状态（s3://%s/%s）不一致，写入被拒绝；请关闭后用 :e 重新打开',
+      self_name,
+      st.bucket,
+      st.name
+    ))
+  end
+
+  -- exists == false 才表示“远端确实没有这个文件”；其它情况没有 etag 就不能写
+  local is_create = (st.exists == false)
+  if not is_create and (type(st.etag) ~= 'string' or st.etag == '') then
+    err('端点没有返回 ETag，无法安全写入（避免静默覆盖）；请 :e! 重新打开')
   end
 
   local remote = get_remote(st.bucket)
@@ -636,16 +728,38 @@ local function write_remote(buf)
   check_name(name)
 
   local tmp, drop_temps = temp_factory()
+  local was_modified = vim.bo[buf].modified
 
   local ok, problem = pcall(function()
     local plain_path = tmp('.plain')
     local cipher_path = tmp('.enc')
     write_buffer_to_file(buf, plain_path)
 
-    local ok_enc, enc_err = openssl_file('encrypt', plain_path, cipher_path, get_password(buf))
+    local pw = get_password(buf)
+    if is_create and not vim.g.s3_password and not vim.b[buf].s3_pw_confirmed then
+      -- 新建时密码打错会产生一个永远解不开的远端对象，所以要求再输入一次
+      local ok_in, again = pcall(vim.fn.inputsecret, 'Password (again): ')
+      if not ok_in or type(again) ~= 'string' or again ~= pw then
+        err('两次输入的密码不一致，写入被拒绝')
+      end
+      vim.b[buf].s3_pw_confirmed = true
+    end
+
+    local ok_enc, enc_err = openssl_file('encrypt', plain_path, cipher_path, pw)
     if not ok_enc then
       err('加密失败：' .. tostring(enc_err))
     end
+
+    -- 自检：把刚加密的密文解回来，必须与明文逐字节相同（防止加解密管线失配）
+    local check_path = tmp('.check')
+    local ok_check, check_err = openssl_file('decrypt', cipher_path, check_path, pw)
+    if not ok_check then
+      err('加密自检失败（无法解回刚加密的内容）：' .. tostring(check_err))
+    end
+    if not files_equal(plain_path, check_path) then
+      err('加密自检失败：解回的内容与明文不一致，写入被拒绝')
+    end
+
     local size = file_size(cipher_path) or 0
     if size == 0 then
       err('加密结果为空，写入被拒绝')
@@ -658,10 +772,10 @@ local function write_remote(buf)
       ['Content-Type'] = 'application/octet-stream',
       ['X-Vault-Sha256'] = sha256_file(cipher_path),
     }
-    if st.etag and st.etag ~= '' then
-      headers['If-Match'] = st.etag
-    else
+    if is_create then
       headers['If-None-Match'] = '*'
+    else
+      headers['If-Match'] = st.etag
     end
 
     local res = http({
@@ -680,27 +794,34 @@ local function write_remote(buf)
       vim.fn.delete(res.body)
     end
     if not ok_status then
-      err(status_err .. '\n本地改动仍在 buffer 里：可先另存（:w /tmp/…）或用 :e! 放弃后重做')
+      err(status_err
+        .. '\n本地改动仍在 buffer 里。确认要放弃时用 :e! 重新拉取；'
+        .. '需要保留内容请自己复制出去（注意本 buffer 里是明文）')
     end
 
-    st.etag = new_etag
-    st.sha256 = new_sha and new_sha ~= '' and new_sha or headers['X-Vault-Sha256']
-    st.size = size
-    vim.b[buf].s3 = st   -- Lua table 的修改必须写回 b: 变量
-    vim.bo[buf].modified = false
     if new_etag == nil or new_etag == '' then
-      -- 拿不到新 etag 就不要假装同步成功：清掉 baseline，下次写入前必须重新打开
+      -- 上传成功但端点没给 etag：不假装同步成功，清掉 baseline 逼用户重新打开
       st.etag = nil
+      st.exists = true
       vim.b[buf].s3 = st
+      vim.bo[buf].modified = false
       notify(fmt('已上传 %s，但响应里没有 ETag；请 :e! 重新打开后再继续编辑', name), vim.log.levels.WARN)
       return
     end
+
+    st.etag = new_etag
+    st.exists = true
+    st.sha256 = (new_sha and new_sha ~= '') and new_sha or headers['X-Vault-Sha256']
+    st.size = size
+    vim.b[buf].s3 = st   -- Lua table 的修改必须写回 b: 变量
+    vim.bo[buf].modified = false
     notify(fmt('已上传 %s（etag %s）', name, tostring(new_etag):gsub('"', ''):sub(1, 12)))
   end)
 
   drop_temps()
   if not ok then
-    vim.bo[buf].modified = true
+    -- 写失败不能把“本来是干净的 buffer”标成 modified（否则 :q 被无理由拒绝）
+    vim.bo[buf].modified = was_modified
     err(problem)
   end
 end
@@ -728,11 +849,28 @@ api.nvim_create_autocmd('BufWriteCmd', {
   callback = function(ev)
     local ok, problem = pcall(write_remote, ev.buf)
     if not ok then
-      vim.bo[ev.buf].modified = true
       notify(tostring(problem), vim.log.levels.ERROR)
     end
   end,
   desc = '通过 HTTP 端点写入 s3:// 对象',
+})
+
+-- s3 buffer 消失时恢复 viminfo（退出时不恢复，见 maybe_restore_viminfo）
+api.nvim_create_autocmd({ 'BufWipeout', 'BufDelete' }, {
+  group = group,
+  pattern = 's3://*',
+  callback = function(ev)
+    maybe_restore_viminfo(ev.buf)
+  end,
+  desc = '最后一个 s3 buffer 消失时恢复 viminfo',
+})
+
+api.nvim_create_autocmd('VimLeavePre', {
+  group = group,
+  callback = function()
+    quitting = true
+  end,
+  desc = '退出时不再恢复 viminfo，避免 shada 泄明文',
 })
 
 api.nvim_create_user_command('S3Ls', function(opts)
@@ -750,7 +888,12 @@ api.nvim_create_user_command('S3Ls', function(opts)
     notify(tostring(bucket), vim.log.levels.ERROR)
     return
   end
-  vim.cmd('edit s3://' .. bucket .. '/')
+  -- bucket 名同样不拼 Ex 字符串
+  if type(bucket) ~= 'string' or not bucket:match('^[A-Za-z0-9][A-Za-z0-9._-]*$') then
+    notify(fmt('bucket 名不合法：%s', tostring(bucket)), vim.log.levels.ERROR)
+    return
+  end
+  api.nvim_cmd({ cmd = 'edit', args = { 's3://' .. bucket .. '/' } }, {})
 end, {
   nargs = '?',
   complete = function()
@@ -769,7 +912,7 @@ api.nvim_create_user_command('S3Info', function()
   local lines = {
     'bucket:   ' .. tostring(st.bucket),
     'endpoint: ' .. tostring(st.endpoint),
-    'etag:     ' .. tostring(st.etag or '(无，:w 将创建)'),
+    'etag:     ' .. tostring(st.etag or (st.exists == false and '(无，:w 将创建)' or '(端点未返回)')),
     'sha256:   ' .. tostring(st.sha256 or '-'),
     'device:   ' .. tostring(st.device or '-'),
     'size:     ' .. tostring(st.size or '-'),

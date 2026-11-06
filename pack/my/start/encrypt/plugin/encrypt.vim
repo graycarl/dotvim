@@ -60,7 +60,9 @@ function! s:MaybeRestoreViminfo() abort
   endif
   let l:wiping = str2nr(expand('<abuf>'))
   for l:buf in range(1, bufnr('$'))
+    " s3:// buffer 自带 shell 式的 viminfo 管理（plugin/s3_edit.lua），不算在内
     if l:buf != l:wiping && bufloaded(l:buf) && bufname(l:buf) =~# '\.enc$'
+          \ && bufname(l:buf) !~# '^s3://'
       return
     endif
   endfor

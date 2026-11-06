@@ -54,6 +54,7 @@
 - 示例：`local/colorswitch.lua` — 由 `ColorSwitchSave` 命令自动生成，保存当前配色方案。
 - 示例：`local/s3.lua` — `plugin/s3_edit.lua` 的 `bucket → endpoint + token` 映射，**内含明文设备 token**，权限保持 600，不要提交（`local/` 已 gitignore）。
 - Agent **可以读取** `local/` 的文件以理解用户偏好，但**不应修改**这些文件，除非用户明确要求。
+- `local/s3.lua`、`local/deepseek.key`、`local/colorswitch.lua` 中含凭证/密钥：允许读结构，**禁止把其中的 token/key 回显到对话、日志或提交里**。
 
 ### 2.4 本地小插件（`plugin/`）
 
@@ -155,7 +156,9 @@
 | `redir_tab.vim` | 命令输出 | `:RedirTab <cmd>` 在新标签中显示命令输出 |
 | `copilot_color.vim` | Copilot 颜色 | 设置 Copilot 补全提示色为紫色（`#9933ff`） |
 | `pi.vim` | pi 入口 | `:PI` 命令打开 pi 终端 |
-| `s3_edit.lua` | 远端加密文件编辑 | `nvim s3://<bucket>/<name.enc>` 直接编辑 hhb-vault 这类 HTTP 端点上的 `.enc` 文件（协议见 `~/Sources/AgentHome/vault/README.md`）；`:S3Ls [bucket]` 列文件、`:S3Info` 看元信息；bucket 映射在 `local/s3.lua`（endpoint + token，600）。写路径用 `If-Match` 乐观锁，**冲突只拒绝不覆盖**（无 force/reload 命令，`:e!` 是唯一恢复入口）；`bufreadcmd`/`bufwritecmd` 接管，所以 `encrypt` 插件的 filter autocmd 不会触发——加解密由本插件对临时文件直接跑 openssl（参数**必须**与 `encrypt` 插件一致：`aes-256-cbc -salt -md md5`），密文不经过 buffer 的行表示以保证字节精确；buffer 内只有明文，`noswapfile`/`noundofile`，临时文件 0600 且用完即删；token 通过 0600 的 `curl -K` 配置文件传递（不出现在 `ps`）；`g:s3_password` 是自动化测试用的密码注入点，不要写进配置 |
+| `s3_edit.lua` | 远端加密文件编辑 | `nvim s3://<bucket>/<name.enc>` 直接编辑 hhb-vault 这类 HTTP 端点上的 `.enc` 文件（协议见 `~/Sources/AgentHome/vault/README.md`）；`:S3Ls [bucket]` 列文件（`<CR>` 打开、`R` 刷新）、`:S3Info` 看元信息；bucket 映射在 `local/s3.lua`（endpoint + token，600）。写路径用 `If-Match` 乐观锁，**冲突只拒绝不覆盖**（无 force/reload 命令，`:e!` 是唯一恢复入口），写失败会置 `v:errmsg` 且保留 `modified`；`BufReadCmd`/`BufWriteCmd` 接管，因此 `encrypt` 插件的 filter autocmd 不会触发——加解密由本插件对临时文件直接跑 openssl（`/usr/bin/openssl aes-256-cbc -salt -md md5`，**必须**与 `encrypt` 插件一致），上传前会把密文解回来与明文逐字节比对（自检）；buffer 内只有明文，`noswapfile`/`noundofile`，并自行管理 `&viminfo`（首个 s3 buffer 清空、最后一个销毁时还原、退出不还原）避免 yank 的明文进 shada；明文/密码/响应临时文件全部 0600 且用完即删；token 通过 0600 的 `curl -K` 配置文件传递（不出现在 `ps`）；`:w /tmp/…` 这类“另存”会**绕过**本插件并写出明文，提示里已改掉该建议；`g:s3_password` 是自动化测试用的密码注入点，不要写进配置。命名 `<name>.vault.enc` 时 ft 会命中 `pack/my/start/vault/ftplugin/vault.vim`（折叠/`conceallevel`，其 `<buffer> BufWritePost` 备份不会触发），其余后缀按 `vim.filetype`/同名 ftplugin 推断 |
+
+> `s3_edit.lua` 体量明显大于其它 `plugin/` 条目（自带 HTTP 客户端与加解密管线）。仍放在 `plugin/` 是刻意的：它零第三方依赖、靠 `BufReadCmd` 全局生效，放进 `pack/my/opt` 反而要在 `local/` 里额外写 `require('lazy').load`。代价是文件较长，改动前请先读文件头部的设计说明。
 
 ### `pack/my/` 本地插件（通过 lazy.nvim 以 `dir` 引用）
 
