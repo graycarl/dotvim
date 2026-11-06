@@ -52,6 +52,7 @@
 - `init.lua` 会自动加载 `local/*.vim` 和 `local/*.lua`。
 - 用途：个人工作环境设置（如字体大小、特定项目的插件加载）。
 - 示例：`local/colorswitch.lua` — 由 `ColorSwitchSave` 命令自动生成，保存当前配色方案。
+- 示例：`local/s3.lua` — `plugin/s3_edit.lua` 的 `bucket → endpoint + token` 映射，**内含明文设备 token**，权限保持 600，不要提交（`local/` 已 gitignore）。
 - Agent **可以读取** `local/` 的文件以理解用户偏好，但**不应修改**这些文件，除非用户明确要求。
 
 ### 2.4 本地小插件（`plugin/`）
@@ -154,6 +155,7 @@
 | `redir_tab.vim` | 命令输出 | `:RedirTab <cmd>` 在新标签中显示命令输出 |
 | `copilot_color.vim` | Copilot 颜色 | 设置 Copilot 补全提示色为紫色（`#9933ff`） |
 | `pi.vim` | pi 入口 | `:PI` 命令打开 pi 终端 |
+| `s3_edit.lua` | 远端加密文件编辑 | `nvim s3://<bucket>/<name.enc>` 直接编辑 hhb-vault 这类 HTTP 端点上的 `.enc` 文件（协议见 `~/Sources/AgentHome/vault/README.md`）；`:S3Ls [bucket]` 列文件、`:S3Info` 看元信息；bucket 映射在 `local/s3.lua`（endpoint + token，600）。写路径用 `If-Match` 乐观锁，**冲突只拒绝不覆盖**（无 force/reload 命令，`:e!` 是唯一恢复入口）；`bufreadcmd`/`bufwritecmd` 接管，所以 `encrypt` 插件的 filter autocmd 不会触发——加解密由本插件对临时文件直接跑 openssl（参数**必须**与 `encrypt` 插件一致：`aes-256-cbc -salt -md md5`），密文不经过 buffer 的行表示以保证字节精确；buffer 内只有明文，`noswapfile`/`noundofile`，临时文件 0600 且用完即删；token 通过 0600 的 `curl -K` 配置文件传递（不出现在 `ps`）；`g:s3_password` 是自动化测试用的密码注入点，不要写进配置 |
 
 ### `pack/my/` 本地插件（通过 lazy.nvim 以 `dir` 引用）
 
