@@ -14,6 +14,7 @@
 ├── lua/
 │   ├── plugins.lua          # lazy.nvim 插件清单（唯一入口）
 │   ├── mappings.lua         # 全局快捷键映射
+│   ├── my/                  # 自有基础模块（safe 加载隔离、health 自检）
 │   └── setup/               # 各插件的配置模块，按功能拆分
 ├── plugin/                  # 本地小插件（不依赖 lazy.nvim 的独立功能）
 ├── after/ftplugin/          # 文件类型专用设置
@@ -96,8 +97,10 @@
 
 | 文件 | 职责 | 关键信息 |
 |------|------|---------|
-| `init.lua` | 启动入口 | 设置 `mapleader`、启动 lazy、加载各模块、加载 local 目录 |
-| `plugins.lua` | 插件清单 | 所有第三方与本地插件的声明 |
+| `init.lua` | 启动入口 | 设置 `mapleader`、启动 lazy（包在 `my.safe` 里）、加载各模块、加载 local 目录（逐个 `safe.source`，坏一个不影响其余）；结束时记 `vim.g.my_config_ms` |
+| `my/safe.lua` | 配置加载隔离 | `safe.require/source/run/opts`：失败只影响自己那一项（`lazy.setup` 不再因为单个模块报错而全部不加载），错误记在 `M.errors` 并 notify 一次 |
+| `my/health.lua` | 配置自检 | `:checkhealth my`：加载失败、openssl `-md md5` 往返、`local/s3.lua` 与 `deepseek.key` 的 0600 权限、ghostty 主题可否解析、缺失的 linter/LSP/parser、backup 目录体积 |
+| `plugins.lua` | 插件清单 | 所有第三方与本地插件的声明；`setup/*` 一律通过 `safe.run`（config/init）与 `safe.opts` 引用，不要直接 `require` |
 | `mappings.lua` | 全局快捷键 | 不要在此处添加 LSP 或文件类型相关的映射 |
 | `setup/vim.lua` | Neovim 核心选项 | 缩进、搜索、折叠、备份、编码、UI 等基础设置 |
 | `setup/lsp.lua` | LSP 完整配置 | mason、lspconfig、fidget、lint；`on_attach` 回调定义 LSP 映射 |
@@ -249,6 +252,8 @@ export VIM_AI=deepseek
 6. **本地私有配置** → `local/<文件名>.lua` 或 `.vim`（不提交）
 7. **颜色/主题相关** → 配色方案在 `plugins.lua` 中声明，切换逻辑在 `plugin/colorswitch.lua`
 8. **配置风格**：保持原有风格——VimL 文件用 `vim` 后缀，Lua 文件用 `lua` 后缀；不要混用语言风格
+9. **新增自有基础模块** → `lua/my/<模块>.lua`（不要散落在 `plugin/` 里）；`setup/*` 模块若需要被插件引用，仍返回 `config`/`init`/`opts` 三字段之一
+10. **配置出问题时先跑** `:checkhealth my`，它会列出加载失败的模块、凭证权限、缺失的工具链
 
 ---
 
