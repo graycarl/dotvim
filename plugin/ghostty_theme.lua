@@ -60,28 +60,13 @@ local DEFAULT_PALETTE = {
   [15] = '#eeeeec',
 }
 
--- Theme directories, user themes first
-local THEME_DIRS = {
-  (vim.env.XDG_CONFIG_HOME or (vim.env.HOME .. '/.config')) .. '/ghostty/themes',
-  '/Applications/Ghostty.app/Contents/Resources/ghostty/themes',
-  '/usr/local/share/ghostty/themes',
-  '/usr/share/ghostty/themes',
-}
+-- 解析 ghostty config/主题文件的部分在 lua/my/ghostty.lua（:checkhealth my 共用），
+-- 这里只负责「解析结果 -> 高亮」，避免两份 parser 漂移。
+local G = require('my.ghostty')
 
 local applying = false -- guards the OptionSet('background') hook
 local warned = false -- only nag once about a missing palette
 local last = nil -- last applied state, see apply()
-local appearance_cache = nil
-local appearance_at = 0
-
--- Whitelisted command execution (no shell): returns trimmed stdout or nil
-local function run(cmd)
-  local ok, result = pcall(vim.fn.system, cmd)
-  if not ok or vim.v.shell_error ~= 0 then
-    return nil
-  end
-  return vim.trim(result)
-end
 
 -- "#rgb" / "#rrggbb" / "#rrggbbaa" -> r, g, b (0..255)
 local function rgb(value)
@@ -101,16 +86,6 @@ local function hexstr(r, g, b)
     return math.max(0, math.min(255, math.floor(v + 0.5)))
   end
   return ('#%02x%02x%02x'):format(clamp(r), clamp(g), clamp(b))
-end
-
--- Normalise a colour value to lowercase "#rrggbb" (alpha dropped), or nil
-local function norm(value)
-  local found = value and value:match('#%x+')
-  if not found then
-    return nil
-  end
-  local r, g, b = rgb(found)
-  return r and hexstr(r, g, b) or nil
 end
 
 -- sRGB channel linearization, for WCAG relative luminance
@@ -147,130 +122,14 @@ local function mix(a, b, t)
   return hexstr(ar + (br - ar) * t, ag + (bg - ag) * t, ab + (bb - ab) * t)
 end
 
--- Strip a trailing `# comment`, respecting quoted strings
-local function strip_comment(value)
-  local out, quote = {}, nil
-  for i = 1, #value do
-    local ch = value:sub(i, i)
-    if quote then
-      if ch == quote then
-        quote = nil
-      end
-      out[#out + 1] = ch
-    elseif ch == '"' or ch == "'" then
-      quote = ch
-      out[#out + 1] = ch
-    elseif ch == '#' then
-      break
-    else
-      out[#out + 1] = ch
-    end
-  end
-  return (table.concat(out):gsub('%s+$', ''))
-end
-
-local function config_path()
-  return (
-    vim.g.ghostty_theme_config
-    or (vim.env.XDG_CONFIG_HOME and (vim.env.XDG_CONFIG_HOME .. '/ghostty/config'))
-    or (vim.env.HOME .. '/.config/ghostty/config')
-  )
-end
-
--- Parse a ghostty config or theme file: `background`, `foreground`,
--- `palette = N=#rrggbb`, `theme` and `config-file` includes. Colour values are
--- read with norm(), so a trailing comment on the same line does not confuse
--- them. Includes are followed like ghostty does: relative to the including
--- file, `?` prefix = optional, `~` expanded, later directives win.
-local function read_config(path, data, seen)
-  data = data or { palette = {} }
-  seen = seen or {}
-  if seen[path] then
-    return data
-  end
-  seen[path] = true
-
-  local file = io.open(path, 'r')
-  if not file then
-    return data
-  end
-  for line in file:lines() do
-    local key, value = line:match('^%s*([%w%-_]+)%s*=%s*(.-)%s*$')
-    if key then
-      if key == 'background' or key == 'foreground' then
-        data[key] = norm(value) or data[key]
-      elseif key == 'palette' then
-        local index, color = value:match('^(%d+)%s*=%s*(.-)$')
-        index, color = tonumber(index), norm(color)
-        if index and color then
-          data.palette[index] = color
-        end
-      elseif key == 'theme' then
-        data.theme = strip_comment(value)
-      elseif key == 'config-file' then
-        -- `config-file = ?auto/theme.ghostty` (the theme picker writes here)
-        local target = value:gsub('^%?%s*', ''):gsub('^"(.*)"$', '%1')
-        target = target:gsub('^~', vim.env.HOME or '~')
-        if target:sub(1, 1) ~= '/' then
-          target = (path:match('^(.*)/[^/]*$') or '.') .. '/' .. target
-        end
-        read_config(target, data, seen)
-      end
-    end
-  end
-  file:close()
-  return data
-end
-
--- Read a theme file by name, from the first directory that has it
-local function read_theme(name)
-  for _, dir in ipairs(THEME_DIRS) do
-    local path = dir .. '/' .. name
-    if vim.uv.fs_stat(path) then
-      return read_config(path)
-    end
-  end
-  return nil
-end
-
--- macOS appearance: 'light' | 'dark', which is what ghostty follows for
--- `theme = light:...,dark:...`. Cached, it spawns a process.
-local function appearance()
-  local now = vim.uv.now()
-  if appearance_cache and (now - appearance_at) < 10000 then
-    return appearance_cache
-  end
-  local result = run({ 'defaults', 'read', '-g', 'AppleInterfaceStyle' })
-  appearance_cache = (result == 'Dark') and 'dark' or 'light'
-  appearance_at = now
-  return appearance_cache
-end
-
--- Pick the theme name of the active light/dark variant
-local function active_name(theme)
-  if not theme or theme == '' then
-    return nil
-  end
-  local light, dark = theme:match('^%s*light:%s*"([^"]*)"%s*,%s*dark:%s*"([^"]*)"')
-  if light and dark then
-    return (appearance() == 'light') and light or dark
-  end
-  dark = theme:match('^%s*dark:%s*"([^"]*)"%s*$')
-  if dark then
-    return dark
-  end
-  light = theme:match('^%s*light:%s*"([^"]*)"%s*$')
-  if light then
-    return light
-  end
-  return (theme:gsub('^"(.*)"$', '%1'))
-end
+-- ghostty config 的解析（含 config-file include、引号、`~`、行尾注释、
+-- light/dark 选择）都在 lua/my/ghostty.lua，`:checkhealth my` 共用同一份。
 
 -- Resolve the colours in use: { bg, fg, palette, name, source, id } or nil
 local function resolve()
-  local config = read_config(config_path())
-  local name = active_name(config.theme)
-  local theme = name and read_theme(name) or nil
+  local config = G.read_config(G.config_path())
+  local name = G.active_name(config.theme)
+  local theme = name and G.read_theme(name) or nil
 
   -- ghostty applies config values on top of the theme
   local bg = config.background or (theme and theme.background)
@@ -572,7 +431,7 @@ end
 
 local function report()
   if not last then
-    return ('ghostty theme: no palette found in %s'):format(config_path())
+    return ('ghostty theme: no palette found in %s'):format(G.config_path())
   end
   if last.skipped then
     return ('ghostty theme: %s unchanged, kept colorscheme=%s (background=%s)'):format(
@@ -620,7 +479,7 @@ local function sync(verbose, force)
     if verbose or not warned then
       warned = true
       vim.notify(
-        ('ghostty theme: no `theme =`/`background =` in %s, leaving colours alone'):format(config_path()),
+        ('ghostty theme: no `theme =`/`background =` in %s, leaving colours alone'):format(G.config_path()),
         vim.log.levels.WARN
       )
     end

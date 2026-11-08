@@ -14,6 +14,7 @@
 ├── lua/
 │   ├── plugins.lua          # lazy.nvim 插件清单（唯一入口）
 │   ├── mappings.lua         # 全局快捷键映射
+│   ├── my/                  # 自有基础模块（safe 加载隔离、health 自检）
 │   └── setup/               # 各插件的配置模块，按功能拆分
 ├── plugin/                  # 本地小插件（不依赖 lazy.nvim 的独立功能）
 ├── after/ftplugin/          # 文件类型专用设置
@@ -96,11 +97,14 @@
 
 | 文件 | 职责 | 关键信息 |
 |------|------|---------|
-| `init.lua` | 启动入口 | 设置 `mapleader`、启动 lazy、加载各模块、加载 local 目录 |
-| `plugins.lua` | 插件清单 | 所有第三方与本地插件的声明 |
+| `init.lua` | 启动入口 | 设置 `mapleader`、启动 lazy（包在 `my.safe` 里）、加载各模块、加载 local 目录（逐个 `safe.source`，坏一个不影响其余）；结束时记 `vim.g.my_config_ms` |
+| `my/safe.lua` | 配置加载隔离 | `safe.require/source/fatal/run/opts`：失败只影响自己那一项（`lazy.setup` 不再因为单个模块报错而全部不加载）；错误记在 `M.errors`（首个胜出，带完整堆栈）并**聚合** notify 一次；`fatal` 用于 `lazy.setup`（完整打印 + 让 init 短路后续加载） |
+| `my/ghostty.lua` | ghostty 配置解析器 | `config_path/read_config/theme_path/read_theme/active_name`（含 `config-file` include、引号、`~`、行尾注释、`light:X,dark:Y`）；`plugin/ghostty_theme.lua` 与 `:checkhealth my` **共用这一份**，不要另写 pattern |
+| `my/health.lua` | 配置自检 | `:checkhealth my`：加载失败、openssl `-md md5` 往返（临时文件 0700 目录 + 0600）、`local/s3.lua` 与 `deepseek.key` 的 0600 权限、ghostty 主题（复用 `my/ghostty`）、缺失的 linter/LSP/parser、`'backupdir'` 体积；**每一节自己 pcall**，写坏配置不会让整份报告消失 |
+| `plugins.lua` | 插件清单 | 所有第三方与本地插件的声明；`setup/*` 一律通过 `safe.run`（config/init）与 `safe.opts` 引用，不要直接 `require` |
 | `mappings.lua` | 全局快捷键 | 不要在此处添加 LSP 或文件类型相关的映射 |
 | `setup/vim.lua` | Neovim 核心选项 | 缩进、搜索、折叠、备份、编码、UI 等基础设置 |
-| `setup/lsp.lua` | LSP 完整配置 | mason、lspconfig、fidget、lint；`on_attach` 回调定义 LSP 映射 |
+| `setup/lsp.lua` | LSP 完整配置 | mason、lspconfig、fidget、lint；`on_attach` 回调定义 LSP 映射；文件末尾 `return { servers = servers }` 供 `:checkhealth my` 遍历（不要另维护 LSP 名单） |
 | `setup/blink.lua` | 自动补全 | blink.cmp + LuaSnip，Tab/Shift-Tab 导航；`<C-l>` 向后跳 snippet |
 | `setup/treesitter.lua` | 语法高亮/文本对象 | 全局 `FileType` autocmd 对任何装了 parser 的 ft 显式 `vim.treesitter.start()`（带 buftype/重复启动守卫，无 parser 时静默降级保留正则 syntax；>10MB 文件因 `large_files.vim` 抑制 FileType 而自动跳过）；`jsonl` 通过 `register('json','jsonl')` 复用 json parser；文本对象映射：`aa`/`ia`(参数)、`af`/`if`(函数)、`ac`/`ic`(类) |
 | `setup/telescope.lua` | 模糊搜索 | 定义 `<C-p>`、`<leader>sf`、`<leader>sg` 等搜索命令 |
@@ -147,7 +151,7 @@
 | `colorswitch.lua` | 配色切换 | `F3`/`F4` 切换，`ColorSwitchSave` 保存到 `local/colorswitch.lua` |
 | `fts.vim` | 文件类型全局设置 | 禁用 python provider、markdown 折叠等 |
 | `search.vim` | 通用搜索命令 | `:S` / `:SG` 命令（基于 grep / fugitive） |
-| `ghostty_theme.lua` | 跟随 ghostty 主题 | 从 ghostty 配置/主题文件取 `background`/`foreground`/`palette 0-15`（`theme = light:..,dark:..` 按 macOS 外观选边）**直接生成** Neovim 高亮，`g:colors_name = 'ghostty'`，不再映射任何 vim colorscheme（任意 ghostty 主题都成立）；surface 用与 `~/.shell/tools/ghostty-tmux-theme.py` 相同的 mix(6%/10%/20%)，`terminal_color_0..15` 同步；切完重新 setup lualine（`ghostty_theme_statusline = false` 关闭）；`:GhosttyTheme` 强制重算，`:GhosttyTheme!` 打印 palette |
+| `ghostty_theme.lua` | 跟随 ghostty 主题 | 从 ghostty 配置/主题文件取 `background`/`foreground`/`palette 0-15`（`theme = light:..,dark:..` 按 macOS 外观选边）**直接生成** Neovim 高亮，`g:colors_name = 'ghostty'`，不再映射任何 vim colorscheme（任意 ghostty 主题都成立）；解析部分在 `lua/my/ghostty.lua`（此处只负责解析结果 → 高亮）；surface 用与 `~/.shell/tools/ghostty-tmux-theme.py` 相同的 mix(6%/10%/20%)，`terminal_color_0..15` 同步；切完重新 setup lualine（`ghostty_theme_statusline = false` 关闭）；`:GhosttyTheme` 强制重算，`:GhosttyTheme!` 打印 palette |
 | `highlight_yank.lua` | 复制高亮 | 复制后短暂高亮 |
 | `json_to_yaml.lua` | JSON 转 YAML | `:ToYaml` 预览、`:ToYaml!` 写入同名 `.yaml`（后端复用 `~/.shell/tools/json2yaml.py`） |
 | `lastcursor.vim` | 光标记忆 | 重新打开文件时回到上次位置 |
@@ -249,6 +253,8 @@ export VIM_AI=deepseek
 6. **本地私有配置** → `local/<文件名>.lua` 或 `.vim`（不提交）
 7. **颜色/主题相关** → 配色方案在 `plugins.lua` 中声明，切换逻辑在 `plugin/colorswitch.lua`
 8. **配置风格**：保持原有风格——VimL 文件用 `vim` 后缀，Lua 文件用 `lua` 后缀；不要混用语言风格
+9. **新增自有基础模块** → `lua/my/<模块>.lua`（不要散落在 `plugin/` 里）。`setup/*` 模块被插件引用时，返回 `config`/`init`，以及 **`{ opts = ... }` 或直接返回 opts 表**（`safe.opts` 两种形态都吃；不要再被 `plugins.lua` 直接 `require`）
+10. **配置出问题时先跑** `:checkhealth my`，它会列出加载失败的模块（含完整堆栈）、凭证权限、缺失的工具链
 
 ---
 

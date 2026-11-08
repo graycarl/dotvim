@@ -1,5 +1,10 @@
 -- See: `:help lazy.nvim-🔌-plugin-spec` for more information
 -- Or: <https://lazy.folke.io/spec>
+--
+-- 配置模块统一走 `my.safe`：任何一个 setup/*.lua 报错都只丢它自己那个插件，
+-- 而不是让整个 lazy.setup 失败（那样所有插件都不加载）。
+local safe = require('my.safe')
+
 return {
   -- Itself
   {
@@ -38,14 +43,18 @@ return {
   {
     'lewis6991/gitsigns.nvim',
     version = '*',
-    opts = require('setup.gitsigns').opts
+    opts = function()
+      return safe.opts('setup.gitsigns')
+    end,
   },
 
   -- Fancier statusline
   {
     'nvim-lualine/lualine.nvim',
     version = '*',
-    opts = require('setup.lualine'),
+    opts = function()
+      return safe.opts('setup.lualine')
+    end,
   },
   -- Commenting ("gc"/"gcc") is provided by Neovim's built-in commenting
   -- (0.10+), so no plugin is needed.
@@ -60,7 +69,7 @@ return {
   {
     'nvim-tree/nvim-tree.lua',
     version = '*',
-    config = require('setup.nvim_tree').config
+    config = safe.run('setup.nvim_tree')
   },
   -- Load only when $NERD_FONT exists.
   {
@@ -80,7 +89,7 @@ return {
     dependencies = {
       {'nvim-lua/plenary.nvim'}
     },
-    config = require('setup.telescope').config,
+    config = safe.run('setup.telescope'),
   },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
@@ -127,7 +136,9 @@ return {
       { 'L3MON4D3/LuaSnip', version = '*' },
       'rafamadriz/friendly-snippets',
     },
-    opts = require('setup.blink'),
+    opts = function()
+      return safe.opts('setup.blink')
+    end,
   },
   {
     'github/copilot.vim',
@@ -135,7 +146,7 @@ return {
     cond = function()
       return vim.env.VIM_AI == "copilot"
     end,
-    init = require('setup.copilot').init,
+    init = safe.run('setup.copilot', 'init'),
   },
 
   -- Treesitter: community fork that provides :TSInstall (parser management)
@@ -150,14 +161,14 @@ return {
       { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'main' }
     },
     build = ':TSUpdate',
-    config = require('setup.treesitter').config,
+    config = safe.run('setup.treesitter'),
   },
 
   -- Use <C-\> to toggle terminal in floating window
   {
     'akinsho/toggleterm.nvim',
     version = '*',
-    config = require('setup.toggleterm').config,
+    config = safe.run('setup.toggleterm'),
   },
 
   -- Run tests with vim
@@ -190,6 +201,8 @@ return {
     cond = function()
       return vim.env.VIM_AI == "deepseek"
     end,
-    opts = require('setup.deepseek')
+    opts = function()
+      return safe.opts('setup.deepseek')
+    end,
   },
 }
