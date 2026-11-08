@@ -138,3 +138,6 @@ require('lint').linters_by_ft = {
   -- It depends on the project
   python = {'mypy', 'ruff', 'flake8'},
 }
+
+-- 导出给 `:checkhealth my` 遍历（不再维护第二份 LSP 名单）
+return { servers = servers }

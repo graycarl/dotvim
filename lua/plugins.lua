@@ -43,14 +43,18 @@ return {
   {
     'lewis6991/gitsigns.nvim',
     version = '*',
-    opts = safe.opts('setup.gitsigns')
+    opts = function()
+      return safe.opts('setup.gitsigns')
+    end,
   },
 
   -- Fancier statusline
   {
     'nvim-lualine/lualine.nvim',
     version = '*',
-    opts = safe.opts('setup.lualine'),
+    opts = function()
+      return safe.opts('setup.lualine')
+    end,
   },
   -- Commenting ("gc"/"gcc") is provided by Neovim's built-in commenting
   -- (0.10+), so no plugin is needed.
@@ -132,7 +136,9 @@ return {
       { 'L3MON4D3/LuaSnip', version = '*' },
       'rafamadriz/friendly-snippets',
     },
-    opts = safe.opts('setup.blink'),
+    opts = function()
+      return safe.opts('setup.blink')
+    end,
   },
   {
     'github/copilot.vim',
@@ -195,6 +201,8 @@ return {
     cond = function()
       return vim.env.VIM_AI == "deepseek"
     end,
-    opts = safe.opts('setup.deepseek')
+    opts = function()
+      return safe.opts('setup.deepseek')
+    end,
   },
 }
